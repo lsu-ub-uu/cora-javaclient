@@ -212,10 +212,11 @@ public class CoraClientTest {
 		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
 		assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
 		assertFalse(dataToJsonConverterFactory.includeActionLinks);
-		// String jsonReturnedFromConverter =
-		// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-		//
-		// assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update");
+		assertEquals(dataToJsonConverterFactory.methodCalled,
+				"createForClientDataElementIncludingActionLinks");
+
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update");
 
 	}
 
