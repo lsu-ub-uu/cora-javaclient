@@ -165,7 +165,18 @@ public class CoraClientImp implements CoraClient {
 
 	@Override
 	public String update(String recordType, String recordId, ClientDataGroup dataGroup) {
-		String json = convertDataGroupToJson(dataGroup);
+		String json = convertDataGroupToJsonWithoutLinks(dataGroup);
 		return update(recordType, recordId, json);
+	}
+
+	private String convertDataGroupToJsonWithoutLinks(ClientDataGroup dataGroup) {
+		DataToJsonConverter converter = createConverterWithoutLinks(dataGroup);
+		return converter.toJson();
+	}
+
+	private DataToJsonConverter createConverterWithoutLinks(ClientDataGroup dataGroup) {
+		JsonBuilderFactory factory = new OrgJsonBuilderFactoryAdapter();
+		return dataToJsonConverterFactory.createForClientDataElementIncludingActionLinks(factory,
+				dataGroup, false);
 	}
 }
