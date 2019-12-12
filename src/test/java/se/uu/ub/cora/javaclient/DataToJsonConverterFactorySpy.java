@@ -28,12 +28,27 @@ public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory
 	public JsonBuilderFactory factory;
 	public ClientDataElement clientDataElement;
 	public DataToJsonConverterSpy converterSpy;
+	public boolean includeActionLinks = true;
+	public String methodCalled = "";
 
 	@Override
 	public DataToJsonConverter createForClientDataElement(JsonBuilderFactory factory,
 			ClientDataElement clientDataElement) {
 		this.factory = factory;
 		this.clientDataElement = clientDataElement;
+		methodCalled = "createForClientDataElement";
+		converterSpy = new DataToJsonConverterSpy();
+		return converterSpy;
+	}
+
+	@Override
+	public DataToJsonConverter createForClientDataElementIncludingActionLinks(
+			JsonBuilderFactory factory, ClientDataElement clientDataElement,
+			boolean includeActionLinks) {
+		this.factory = factory;
+		this.clientDataElement = clientDataElement;
+		this.includeActionLinks = includeActionLinks;
+		methodCalled = "createForClientDataElementIncludingActionLinks";
 		converterSpy = new DataToJsonConverterSpy();
 		return converterSpy;
 	}

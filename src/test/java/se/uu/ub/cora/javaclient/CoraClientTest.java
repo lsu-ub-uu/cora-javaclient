@@ -19,6 +19,7 @@
 package se.uu.ub.cora.javaclient;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -210,8 +211,11 @@ public class CoraClientTest {
 
 		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
 		assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
-		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		assertFalse(dataToJsonConverterFactory.includeActionLinks);
+		assertEquals(dataToJsonConverterFactory.methodCalled,
+				"createForClientDataElementIncludingActionLinks");
 
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update");
 
 	}
