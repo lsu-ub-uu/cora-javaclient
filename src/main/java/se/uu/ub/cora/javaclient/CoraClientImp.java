@@ -24,7 +24,7 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
@@ -104,9 +104,9 @@ public class CoraClientImp implements CoraClient {
 	}
 
 	private ClientDataRecord convertToDataRecord(JsonObject readJsonObject) {
-		JsonToDataRecordConverter recordConverter = new JsonToDataRecordConverter(readJsonObject,
-				jsonToDataConverterFactory);
-		return recordConverter.toInstance();
+		JsonToDataRecordConverterImp recordConverter = JsonToDataRecordConverterImp
+				.usingConverterFactory(jsonToDataConverterFactory);
+		return recordConverter.toInstance(readJsonObject);
 	}
 
 	@Override
