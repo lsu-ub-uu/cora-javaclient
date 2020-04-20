@@ -19,7 +19,7 @@
 package se.uu.ub.cora.javaclient.cora;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.DataRecord;
 
 public interface CoraClient {
 	String create(String recordType, String json);
@@ -36,7 +36,7 @@ public interface CoraClient {
 
 	String readIncomingLinks(String recordType, String recordId);
 
-	ClientDataRecord readAsDataRecord(String recordType, String recordId);
+	DataRecord readAsDataRecord(String recordType, String recordId);
 
 	String update(String recordType, String recordId, ClientDataGroup dataGroup);
 

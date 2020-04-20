@@ -20,11 +20,11 @@
 package se.uu.ub.cora.javaclient;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
@@ -91,7 +91,7 @@ public class CoraClientImp implements CoraClient {
 	}
 
 	@Override
-	public ClientDataRecord readAsDataRecord(String recordType, String recordId) {
+	public DataRecord readAsDataRecord(String recordType, String recordId) {
 		String readJson = read(recordType, recordId);
 		JsonObject readJsonObject = createJsonObjectFromResponseText(readJson);
 		return convertToDataRecord(readJsonObject);
@@ -103,8 +103,8 @@ public class CoraClientImp implements CoraClient {
 		return (JsonObject) jsonValue;
 	}
 
-	private ClientDataRecord convertToDataRecord(JsonObject readJsonObject) {
-		JsonToDataRecordConverter recordConverter = new JsonToDataRecordConverter(readJsonObject,
+	private DataRecord convertToDataRecord(JsonObject readJsonObject) {
+		JsonToDataRecordConverterImp recordConverter = new JsonToDataRecordConverterImp(readJsonObject,
 				jsonToDataConverterFactory);
 		return recordConverter.toInstance();
 	}

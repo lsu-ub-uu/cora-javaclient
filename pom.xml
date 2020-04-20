@@ -28,7 +28,7 @@
 	<artifactId>javaclient</artifactId>
 	<packaging>jar</packaging>
 	<version>1.3-SNAPSHOT</version>
-	<name>Java client</name>
+<!-- 	<name>Java client</name> -->
 
 	<properties>
 		<httphandler.version>2.0.0</httphandler.version>

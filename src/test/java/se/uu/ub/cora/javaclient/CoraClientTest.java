@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
@@ -103,7 +103,7 @@ public class CoraClientTest {
 
 	@Test
 	public void testReadAsDataRecord() {
-		ClientDataRecord dataRecord = coraClient
+		DataRecord dataRecord = coraClient
 				.readAsDataRecord("someRecordTypeToBeReturnedAsDataGroup", "someRecordId");
 		assertNotNull(dataRecord);
 
