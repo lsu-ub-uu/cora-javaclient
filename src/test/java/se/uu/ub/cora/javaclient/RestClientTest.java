@@ -20,13 +20,21 @@
 package se.uu.ub.cora.javaclient;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpy;
+import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerInvalidSpy;
+import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpy;
+import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RestClientTest {
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
@@ -53,17 +61,26 @@ public class RestClientTest {
 
 	@Test
 	public void testReadRecordOk() {
-		String json = restClient.readRecordAsJson("someType", "someId");
-		assertEquals(json, "Everything ok");
+		RestResponse response = restClient.readRecordAsJson("someType", "someId");
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not read record of type: someType and id: someId from server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
-			+ "bad things happened")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	// + "Could not read record of type: someType and id: someId from server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
+	// + "bad things happened")
+	@Test
 	public void testReadRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		restClient.readRecordAsJson("someType", "someId");
+		RestResponse response = restClient.readRecordAsJson("someType", "someId");
+
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
 	@Test
@@ -78,17 +95,62 @@ public class RestClientTest {
 
 	@Test
 	public void testReadRecordListOk() {
-		String json = restClient.readRecordListAsJson("someType");
-		assertEquals(json, "Everything ok");
+		RestResponse response = restClient.readRecordListAsJson("someType");
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not read records of type: someType from server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType. Returned error was: "
-			+ "bad things happened")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	// + "Could not read records of type: someType from server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType. Returned error was: "
+	// + "bad things happened")
+	@Test
 	public void testReadRecordListNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		restClient.readRecordListAsJson("someType");
+		RestResponse response = restClient.readRecordListAsJson("someType");
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+	}
+
+	@Test
+	public void testReadRecordListWithFilterHttpHandlerSetupCorrectly()
+			throws UnsupportedEncodingException {
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+
+		restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
+		assertEquals(getRequestMethod(), "GET");
+
+		String encodedJson = URLEncoder.encode(filterAsJson, "UTF-8");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
+
+		assertEquals(getRequestProperty("authToken"), "someToken");
+		assertEquals(getNumberOfRequestProperties(), 1);
+	}
+
+	@Test
+	public void testReadRecordListWithFilterOk() throws UnsupportedEncodingException {
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		RestResponse response = restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+	}
+
+	@Test
+	public void testReadRecordListNotWithFilterOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		RestResponse response = restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
 	@Test
@@ -113,18 +175,41 @@ public class RestClientTest {
 	public void testCreateRecordOk() throws Exception {
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
-		String returnedJson = restClient.createRecordFromJson("someType", json);
-		assertEquals(returnedJson, "Everything ok");
+		ExtendedRestResponse response = restClient.createRecordFromJson("someType", json);
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not create record of type: someType from server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType. Returned error was: "
-			+ "bad things happened")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	// + "Could not create record of type: someType from server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType. Returned error was: "
+	// + "bad things happened")
+	@Test
 	public void testCreateRecordNotOk() throws Exception {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String json = "{\"name\":\"value\"}";
-		restClient.createRecordFromJson("someType", json);
+		ExtendedRestResponse response = restClient.createRecordFromJson("someType", json);
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+		assertEquals(response.createdId, "");
+	}
+
+	@Test
+	public void testCreateRecordOkWithCreatedId() {
+		httpHandlerFactorySpy.setResponseCode(201);
+		String json = "{\"name\":\"value\"}";
+		ExtendedRestResponse response = restClient.createRecordFromJson("someType", json);
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+		String returnedHeaderFromSpy = httpHandler.returnedHeaderField;
+		assertEquals(response.createdId,
+				returnedHeaderFromSpy.substring(returnedHeaderFromSpy.lastIndexOf('/') + 1));
 	}
 
 	@Test

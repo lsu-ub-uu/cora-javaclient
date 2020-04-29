@@ -18,13 +18,19 @@
  */
 package se.uu.ub.cora.javaclient;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public final class RestClientImp implements RestClient {
 	private static final String RETURNED_ERROR_WAS = ". Returned error was: ";
@@ -49,18 +55,27 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public String readRecordAsJson(String recordType, String recordId) {
+	public RestResponse readRecordAsJson(String recordType, String recordId) {
 		String url = baseUrl + recordType + "/" + recordId;
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
-		Status statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType == Response.Status.OK) {
-			return httpHandler.getResponseText();
-		}
-		throw new CoraClientException("Could not read record of type: " + recordType + " and id: "
-				+ recordId + FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS
-				+ httpHandler.getErrorText());
+		int responseCode = httpHandler.getResponseCode();
+		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		return new RestResponse(responseCode, responseText);
+		// throw new CoraClientException("Could not read record of type: " + recordType + " and id:
+		// "
+		// + recordId + FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS
+		// + httpHandler.getErrorText());
+	}
+
+	private boolean responseCodeIsOk(int responseCode) {
+		return responseCode == OK;
+	}
+
+	private boolean statusIsOk(Status statusType) {
+		return statusType == Response.Status.OK;
 	}
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
@@ -85,14 +100,35 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public String createRecordFromJson(String recordType, String json) {
+	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
 		String url = baseUrl + recordType;
 		HttpHandler httpHandler = setUpHttpHandlerForPost(json, url);
-		if (CREATED == httpHandler.getResponseCode()) {
-			return httpHandler.getResponseText();
-		}
-		throw new CoraClientException("Could not create record of type: " + recordType
-				+ FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS + httpHandler.getErrorText());
+		int responseCode = httpHandler.getResponseCode();
+
+		String responseText = responseCodeIsCreated(responseCode) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		RestResponse restResponse = new RestResponse(responseCode, responseText);
+
+		return responseCodeIsCreated(responseCode) ? createCreateResponse(httpHandler, restResponse)
+				: new ExtendedRestResponse(restResponse);
+
+		// throw new CoraClientException("Could not create record of type: " + recordType
+		// + FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS + httpHandler.getErrorText());
+	}
+
+	private boolean responseCodeIsCreated(int responseCode) {
+		return CREATED == responseCode;
+	}
+
+	private ExtendedRestResponse createCreateResponse(HttpHandler httpHandler,
+			RestResponse restResponse) {
+		String createdId = extractCreatedIdFromLocationHeader(
+				httpHandler.getHeaderField("Location"));
+		return new ExtendedRestResponse(restResponse, createdId);
+	}
+
+	private String extractCreatedIdFromLocationHeader(String locationHeader) {
+		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
 	}
 
 	private HttpHandler setUpHttpHandlerForPost(String json, String url) {
@@ -123,7 +159,7 @@ public final class RestClientImp implements RestClient {
 		httpHandler.setRequestMethod("DELETE");
 
 		Status statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType == Response.Status.OK) {
+		if (statusIsOk(statusType)) {
 			return httpHandler.getResponseText();
 		}
 		throw new CoraClientException("Could not delete record of type: " + recordType + " and id: "
@@ -132,18 +168,22 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public String readRecordListAsJson(String recordType) {
+	public RestResponse readRecordListAsJson(String recordType) {
 		String url = baseUrl + recordType;
+		return readRecordListUsingUrl(url);
+		// throw new CoraClientException("Could not read records of type: " + recordType
+		// + FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS + httpHandler.getErrorText());
+
+	}
+
+	private RestResponse readRecordListUsingUrl(String url) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
-		Status statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType == Response.Status.OK) {
-			return httpHandler.getResponseText();
-		}
-		throw new CoraClientException("Could not read records of type: " + recordType
-				+ FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS + httpHandler.getErrorText());
-
+		int responseCode = httpHandler.getResponseCode();
+		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		return new RestResponse(responseCode, responseText);
 	}
 
 	@Override
@@ -153,12 +193,20 @@ public final class RestClientImp implements RestClient {
 		httpHandler.setRequestMethod("GET");
 
 		Status statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType == Response.Status.OK) {
+		if (statusIsOk(statusType)) {
 			return httpHandler.getResponseText();
 		}
 		throw new CoraClientException("Could not read incoming links of type: " + recordType
 				+ FROM_SERVER_USING_URL + url + RETURNED_ERROR_WAS + httpHandler.getErrorText());
 
+	}
+
+	@Override
+	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
+			throws UnsupportedEncodingException {
+		String url = baseUrl + recordType + "?filter="
+				+ URLEncoder.encode(filter, StandardCharsets.UTF_8.name());
+		return readRecordListUsingUrl(url);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,23 +18,22 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
-import java.io.UnsupportedEncodingException;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
-public interface RestClient {
+import org.testng.annotations.Test;
 
-	RestResponse readRecordAsJson(String recordType, String recordId);
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-	ExtendedRestResponse createRecordFromJson(String recordType, String json);
+public class HttpResponseTest {
 
-	String updateRecordFromJson(String recordType, String recordId, String json);
+	@Test
+	public void testRestResponse() {
+		int statusCode = 200;
+		String responseText = "some response text";
+		RestResponse response = new RestResponse(statusCode, responseText);
+		assertEquals(response.statusCode, statusCode);
+		assertSame(response.responseText, responseText);
 
-	String deleteRecord(String recordType, String recordId);
-
-	RestResponse readRecordListAsJson(String recordType);
-
-	String readIncomingLinksAsJson(String recordType, String recordId);
-
-	RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
-			throws UnsupportedEncodingException;
-
+	}
 }

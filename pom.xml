@@ -32,7 +32,7 @@
 
 	<properties>
 		<httphandler.version>2.0.0</httphandler.version>
-		<cora-clientdata.version>3.0.0</cora-clientdata.version>
+		<cora-clientdata.version>3.4-SNAPSHOT</cora-clientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		

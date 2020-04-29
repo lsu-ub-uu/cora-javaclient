@@ -19,7 +19,9 @@
 package se.uu.ub.cora.javaclient.doubles;
 
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RestClientSpy implements RestClient {
 
@@ -31,7 +33,7 @@ public class RestClientSpy implements RestClient {
 	public String methodCalled;
 
 	@Override
-	public String readRecordAsJson(String recordType, String recordId) {
+	public RestResponse readRecordAsJson(String recordType, String recordId) {
 		if (THIS_RECORD_TYPE_TRIGGERS_AN_ERROR.equals(recordType)) {
 			throw new CoraClientException("Error from RestClientSpy");
 		}
@@ -39,20 +41,22 @@ public class RestClientSpy implements RestClient {
 		this.recordId = recordId;
 		methodCalled = "read";
 		if ("someRecordTypeToBeReturnedAsDataGroup".equals(recordType)) {
-			return "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"https://cora.test.alvin-portal.org/alvin/rest/record/metadataItemCollection/historicCountryCollection\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
+			String jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"https://cora.test.alvin-portal.org/alvin/rest/record/metadataItemCollection/historicCountryCollection\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
+			return new RestResponse(200, jsonToReturn);
 		}
-		return returnedAnswer + methodCalled;
+		return new RestResponse(200, returnedAnswer + methodCalled);
 	}
 
 	@Override
-	public String createRecordFromJson(String recordType, String json) {
+	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
 		if (THIS_RECORD_TYPE_TRIGGERS_AN_ERROR.equals(recordType)) {
 			throw new CoraClientException("Error from RestClientSpy");
 		}
 		this.recordType = recordType;
 		this.json = json;
 		methodCalled = "create";
-		return returnedAnswer + methodCalled;
+		RestResponse restResponse = new RestResponse(201, returnedAnswer + methodCalled);
+		return new ExtendedRestResponse(restResponse);
 	}
 
 	@Override
@@ -79,13 +83,13 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public String readRecordListAsJson(String recordType) {
+	public RestResponse readRecordListAsJson(String recordType) {
 		if (THIS_RECORD_TYPE_TRIGGERS_AN_ERROR.equals(recordType)) {
 			throw new CoraClientException("Error from RestClientSpy");
 		}
 		this.recordType = recordType;
 		methodCalled = "readList";
-		return returnedAnswer + methodCalled;
+		return new RestResponse(200, returnedAnswer + methodCalled);
 	}
 
 	@Override
@@ -97,6 +101,12 @@ public class RestClientSpy implements RestClient {
 		this.recordId = recordId;
 		methodCalled = "readincomingLinks";
 		return returnedAnswer + methodCalled;
+	}
+
+	@Override
+	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

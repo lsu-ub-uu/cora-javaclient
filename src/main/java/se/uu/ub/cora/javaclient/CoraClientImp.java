@@ -60,7 +60,7 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String create(String recordType, String json) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.createRecordFromJson(recordType, json);
+		return restClient.createRecordFromJson(recordType, json).responseText;
 	}
 
 	private RestClient setUpRestClientWithAuthToken() {
@@ -87,7 +87,7 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String read(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.readRecordAsJson(recordType, recordId);
+		return restClient.readRecordAsJson(recordType, recordId).responseText;
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class CoraClientImp implements CoraClient {
 	private ClientDataRecord convertToDataRecord(JsonObject readJsonObject) {
 		JsonToDataRecordConverterImp recordConverter = JsonToDataRecordConverterImp
 				.usingConverterFactory(jsonToDataConverterFactory);
-		return recordConverter.toInstance(readJsonObject);
+		return (ClientDataRecord) recordConverter.toInstance(readJsonObject);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String readList(String recordType) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.readRecordListAsJson(recordType);
+		return restClient.readRecordListAsJson(recordType).responseText;
 	}
 
 	@Override
