@@ -28,8 +28,11 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterIm
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.json.builder.JsonBuilderFactory;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
@@ -38,6 +41,13 @@ import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class CoraClientImp implements CoraClient {
+
+	private static final int OK = 200;
+	private static final int CREATED = 201;
+	private static final String FROM = " from ";
+	private static final String AND_ID = " and id: ";
+	private static final String RETURNED_ERROR_WAS = ". Returned error was: ";
+	private static final String SERVER_USING_URL = "server using base url: ";
 
 	private RestClientFactory restClientFactory;
 	private AppTokenClient appTokenClient;
@@ -60,12 +70,26 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String create(String recordType, String json) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.createRecordFromJson(recordType, json).responseText;
+		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
+		possiblyThrowErrorIfNotCreated(recordType, response);
+		return response.responseText;
 	}
 
 	private RestClient setUpRestClientWithAuthToken() {
 		String authToken = appTokenClient.getAuthToken();
 		return restClientFactory.factorUsingAuthToken(authToken);
+	}
+
+	private void possiblyThrowErrorIfNotCreated(String recordType, ExtendedRestResponse response) {
+		if (statusIsNotCreated(response.statusCode)) {
+			String url = restClientFactory.getBaseUrl();
+			throw new CoraClientException("Could not create record of type: " + recordType + " on "
+					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+		}
+	}
+
+	private boolean statusIsNotCreated(int statusCode) {
+		return statusCode != CREATED;
 	}
 
 	@Override
@@ -87,7 +111,15 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String read(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.readRecordAsJson(recordType, recordId).responseText;
+		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
+		possiblyThrowErrorForReadRecordTypeAndIdIfNotOk(response, recordType, recordId);
+		return response.responseText;
+	}
+
+	private void possiblyThrowErrorForReadRecordTypeAndIdIfNotOk(RestResponse response,
+			String recordType, String recordId) {
+		possiblyThrowErrorIfNotOk(response,
+				"Could not read record of type: " + recordType + AND_ID + recordId + FROM);
 	}
 
 	@Override
@@ -112,7 +144,27 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String update(String recordType, String recordId, String json) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.updateRecordFromJson(recordType, recordId, json);
+		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
+		possiblyThrowErrorForUpdateRecordTypeAndIdIfNotOk(response, recordType, recordId);
+		return response.responseText;
+	}
+
+	private void possiblyThrowErrorForUpdateRecordTypeAndIdIfNotOk(RestResponse response,
+			String recordType, String recordId) {
+		possiblyThrowErrorIfNotOk(response,
+				"Could not update record of type: " + recordType + AND_ID + recordId + " on ");
+	}
+
+	private void possiblyThrowErrorIfNotOk(RestResponse response, String messageStart) {
+		if (statusIsNotOk(response.statusCode)) {
+			String url = restClientFactory.getBaseUrl();
+			throw new CoraClientException(messageStart + SERVER_USING_URL + url + RETURNED_ERROR_WAS
+					+ response.responseText);
+		}
+	}
+
+	private boolean statusIsNotOk(int statusCode) {
+		return statusCode != OK;
 	}
 
 	@Override
@@ -135,19 +187,45 @@ public class CoraClientImp implements CoraClient {
 	@Override
 	public String delete(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.deleteRecord(recordType, recordId);
+		RestResponse response = restClient.deleteRecord(recordType, recordId);
+		possiblyThrowErrorForDeleteIfNotOk(response, recordType, recordId);
+		return response.responseText;
+	}
+
+	private void possiblyThrowErrorForDeleteIfNotOk(RestResponse response, String recordType,
+			String recordId) {
+		possiblyThrowErrorIfNotOk(response,
+				"Could not delete record of type: " + recordType + AND_ID + recordId + FROM);
 	}
 
 	@Override
 	public String readList(String recordType) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.readRecordListAsJson(recordType).responseText;
+		RestResponse response = restClient.readRecordListAsJson(recordType);
+		possiblyThrowErrorForReadList(recordType, response);
+		return response.responseText;
+	}
+
+	private void possiblyThrowErrorForReadList(String recordType, RestResponse response) {
+		if (statusIsNotOk(response.statusCode)) {
+			String url = restClientFactory.getBaseUrl();
+			throw new CoraClientException("Could not read records of type: " + recordType + FROM
+					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+		}
 	}
 
 	@Override
 	public String readIncomingLinks(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return restClient.readIncomingLinksAsJson(recordType, recordId);
+		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
+		possiblyThrowErrorForIncomingLinksIfNotOk(response, recordType, recordId);
+		return response.responseText;
+	}
+
+	private void possiblyThrowErrorForIncomingLinksIfNotOk(RestResponse response, String recordType,
+			String recordId) {
+		possiblyThrowErrorIfNotOk(response,
+				"Could not read incoming links of type: " + recordType + AND_ID + recordId + FROM);
 	}
 
 	public AppTokenClientFactory getAppTokenClientFactory() {

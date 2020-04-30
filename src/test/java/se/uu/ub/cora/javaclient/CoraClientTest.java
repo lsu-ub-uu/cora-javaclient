@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -91,12 +91,15 @@ public class CoraClientTest {
 		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(restClient.recordId, "someId");
-		assertEquals(readJson, restClient.returnedAnswer + restClient.methodCalled);
+		assertEquals(readJson, restClient.restResponse.responseText);
 		assertEquals(restClient.methodCalled, "read");
 
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not read record of type: thisRecordTypeTriggersAnError and id: someRecordId from server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy read")
 	public void testReadError() throws Exception {
 		coraClient.read(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someRecordId");
 	}
@@ -145,7 +148,10 @@ public class CoraClientTest {
 		assertEquals(restClient.methodCalled, "readList");
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not read records of type: thisRecordTypeTriggersAnError from server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy readList")
 	public void testReadListError() throws Exception {
 		coraClient.readList(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR);
 	}
@@ -169,7 +175,10 @@ public class CoraClientTest {
 		assertEquals(restClient.methodCalled, methodCalled);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not create record of type: thisRecordTypeTriggersAnError on server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy create")
 	public void testCreateError() throws Exception {
 		String json = "some fake json";
 		coraClient.create(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, json);
@@ -220,7 +229,11 @@ public class CoraClientTest {
 
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not update record of type: thisRecordTypeTriggersAnError and id: someId "
+			+ "on server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy update")
 	public void testUpdateError() throws Exception {
 		String json = "some fake json";
 		coraClient.update(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId", json);
@@ -238,7 +251,11 @@ public class CoraClientTest {
 		assertEquals(restClient.methodCalled, "delete");
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not delete record of type: thisRecordTypeTriggersAnError and id: someId "
+			+ "from server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy delete")
 	public void testDeleteError() throws Exception {
 		coraClient.delete(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
 	}
@@ -255,8 +272,12 @@ public class CoraClientTest {
 		assertEquals(restClient.methodCalled, "readincomingLinks");
 	}
 
-	@Test(expectedExceptions = CoraClientException.class)
-	public void testReadincomingLInksError() throws Exception {
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not read incoming links of type: thisRecordTypeTriggersAnError and id: someId "
+			+ "from server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy readincomingLinks")
+	public void testReadincomingLinksError() throws Exception {
 		coraClient.readIncomingLinks(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
 	}
 }

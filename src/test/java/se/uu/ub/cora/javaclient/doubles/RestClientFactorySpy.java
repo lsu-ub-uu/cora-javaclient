@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -39,6 +39,11 @@ public class RestClientFactorySpy implements RestClientFactory {
 		restClientSpy = new RestClientSpy();
 		factored.add(restClientSpy);
 		return restClientSpy;
+	}
+
+	@Override
+	public String getBaseUrl() {
+		return "http://localhost:8080/therest/rest/record/";
 	}
 
 }

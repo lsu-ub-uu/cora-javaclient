@@ -4,4 +4,6 @@ public interface RestClientFactory {
 
 	RestClient factorUsingAuthToken(String authToken);
 
+	String getBaseUrl();
+
 }

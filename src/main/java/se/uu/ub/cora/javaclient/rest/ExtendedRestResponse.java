@@ -19,7 +19,7 @@
 package se.uu.ub.cora.javaclient.rest;
 
 /**
- * ExtendedHttpResponse isused to store information from a HttpResponse.
+ * ExtendedHttpResponse is used to store information from a HttpResponse.
  */
 public class ExtendedRestResponse {
 
@@ -32,7 +32,6 @@ public class ExtendedRestResponse {
 	 * 
 	 * @param restResponse
 	 *            A {@link RestResponse} which contains the StatusType and the reseponse text
-	 * 
 	 * @param createdId,
 	 *            A string representing the id of a created record
 	 */

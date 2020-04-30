@@ -28,7 +28,6 @@ import java.net.URLEncoder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpy;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerInvalidSpy;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpy;
@@ -230,14 +229,31 @@ public class RestClientTest {
 		assertEquals(getOutputString(), "{\"name\":\"value\"}");
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not update record of type: someType with recordId: someId on server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
-			+ "bad things happened")
+	@Test
+	public void testUpdateRecordOk() {
+		String json = "{\"name\":\"value\"}";
+		RestResponse response = restClient.updateRecordFromJson("someType", "someId", json);
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+	}
+
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	// + "Could not update record of type: someType with recordId: someId on server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
+	// + "bad things happened")
+	@Test
 	public void testUpdateRecordNotOk() throws Exception {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String json = "{\"name\":\"value\"}";
-		restClient.updateRecordFromJson("someType", "someId", json);
+		RestResponse response = restClient.updateRecordFromJson("someType", "someId", json);
+
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
 	}
 
 	@Test
@@ -257,17 +273,25 @@ public class RestClientTest {
 	@Test
 	public void testDeleteRecordOk() throws Exception {
 		httpHandlerFactorySpy.setResponseCode(200);
-		String returnedJson = restClient.deleteRecord("someType", "someId");
-		assertEquals(returnedJson, "Everything ok");
+		RestResponse response = restClient.deleteRecord("someType", "someId");
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not delete record of type: someType and id: someId from server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
-			+ "bad things happened")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	// + "Could not delete record of type: someType and id: someId from server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType/someId. Returned error was: "
+	// + "bad things happened")
+	@Test
 	public void testDeleteRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		restClient.deleteRecord("someType", "someId");
+		RestResponse response = restClient.deleteRecord("someType", "someId");
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
 	@Test
@@ -282,17 +306,28 @@ public class RestClientTest {
 
 	@Test
 	public void testReadIncomingLinksOk() {
-		String json = restClient.readIncomingLinksAsJson("someType", "someId");
-		assertEquals(json, "Everything ok");
+		RestResponse response = restClient.readIncomingLinksAsJson("someType", "someId");
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, httpHandler.returnedResponseText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+		// String json = restClient.readIncomingLinksAsJson("someType", "someId");
+		// assertEquals(json, "Everything ok");
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = "Could not read "
-			+ "incoming links of type: someType from server using "
-			+ "url: http://localhost:8080/therest/rest/record/someType/someId/incomingLinks. "
-			+ "Returned error was: bad things happened")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp =
+	// "Could not read "
+	// + "incoming links of type: someType from server using "
+	// + "url: http://localhost:8080/therest/rest/record/someType/someId/incomingLinks. "
+	// + "Returned error was: bad things happened")
+	@Test
 	public void testReadIncomingLinksNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		restClient.readIncomingLinksAsJson("someType", "someId");
+		RestResponse response = restClient.readIncomingLinksAsJson("someType", "someId");
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
 
 	private String getOutputString() {

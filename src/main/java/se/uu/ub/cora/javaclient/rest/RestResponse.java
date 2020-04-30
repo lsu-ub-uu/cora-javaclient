@@ -18,11 +18,22 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
+/**
+ * RestResponse is used to store information from a HttpResponse.
+ */
 public class RestResponse {
 
 	public final int statusCode;
 	public final String responseText;
 
+	/**
+	 * Stores status code, response text, and created id.
+	 * 
+	 * @param statusCode
+	 *            An int representing the status code from the HttpResponse
+	 * @param responseText,
+	 *            A string representing the response text from the HttpResponse
+	 */
 	public RestResponse(int statusCode, String responseText) {
 		this.statusCode = statusCode;
 		this.responseText = responseText;
