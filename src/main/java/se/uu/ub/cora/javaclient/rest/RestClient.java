@@ -34,6 +34,18 @@ public interface RestClient {
 	 */
 	RestResponse readRecordAsJson(String recordType, String recordId);
 
+	/**
+	 * Created a record using recordType and a string to set as output in the httpRequest. The
+	 * result is returned as a responseText in the {@link ExtendedRestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be created
+	 * @param json,
+	 *            A String to create the record from
+	 * @return A {@link ExtendedRestResponse}, containing the response text, response code and
+	 *         created id
+	 * 
+	 */
 	ExtendedRestResponse createRecordFromJson(String recordType, String json);
 
 	/**
@@ -44,6 +56,8 @@ public interface RestClient {
 	 *            A String, the type of the record to updated
 	 * @param recordId,
 	 *            A String, the id of the record to be updated
+	 * @param json,
+	 *            A String to update the record from
 	 * @return A {@link RestResponse}, containing the response text and response code
 	 */
 	RestResponse updateRecordFromJson(String recordType, String recordId, String json);
