@@ -30,7 +30,7 @@ public interface RestClient {
 	 *            A String, the type of the record to read
 	 * @param recordId,
 	 *            A String, the id of the record to be read
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse readRecordAsJson(String recordType, String recordId);
 
@@ -42,9 +42,7 @@ public interface RestClient {
 	 *            A String, the type of the record to be created
 	 * @param json,
 	 *            A String to create the record from
-	 * @return A {@link ExtendedRestResponse}, containing the response text, response code and
-	 *         created id
-	 * 
+	 * @return A {@link ExtendedRestResponse}, containing the response
 	 */
 	ExtendedRestResponse createRecordFromJson(String recordType, String json);
 
@@ -58,7 +56,7 @@ public interface RestClient {
 	 *            A String, the id of the record to be updated
 	 * @param json,
 	 *            A String to update the record from
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse updateRecordFromJson(String recordType, String recordId, String json);
 
@@ -70,7 +68,7 @@ public interface RestClient {
 	 *            A String, the type of the record to delete
 	 * @param recordId,
 	 *            A String, the id of the record to be delete
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse deleteRecord(String recordType, String recordId);
 
@@ -80,7 +78,7 @@ public interface RestClient {
 	 * 
 	 * @param recordType,
 	 *            A String, the type of the records to be listed
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse readRecordListAsJson(String recordType);
 
@@ -92,7 +90,7 @@ public interface RestClient {
 	 *            A String, the type of the record to read the incoming links for
 	 * @param recordId,
 	 *            A String, the id of the record to read the incoming links for
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse readIncomingLinksAsJson(String recordType, String recordId);
 
@@ -104,7 +102,7 @@ public interface RestClient {
 	 *            A String, the type of the records to be listed
 	 * @param filter,
 	 *            A String, a json string to use as a filter to limit the result
-	 * @return A {@link RestResponse}, containing the response text and response code
+	 * @return A {@link RestResponse}, containing the response
 	 */
 	RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
 			throws UnsupportedEncodingException;

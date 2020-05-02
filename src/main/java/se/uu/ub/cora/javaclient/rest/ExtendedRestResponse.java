@@ -33,7 +33,7 @@ public class ExtendedRestResponse {
 	 * @param restResponse
 	 *            A {@link RestResponse} which contains the StatusType and the reseponse text
 	 * @param createdId,
-	 *            A string representing the id of a created record
+	 *            A string representing the id of the created record
 	 */
 	public ExtendedRestResponse(RestResponse restResponse, String createdId) {
 		statusCode = restResponse.statusCode;

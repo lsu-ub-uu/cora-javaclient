@@ -50,14 +50,19 @@ public final class RestClientImp implements RestClient {
 
 	@Override
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
-		String url = baseUrl + recordType + "/" + recordId;
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
+		HttpHandler httpHandler = createUpHttpHandlerForRead(recordType, recordId);
 
 		int responseCode = httpHandler.getResponseCode();
 		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
 		return new RestResponse(responseCode, responseText);
+	}
+
+	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
+		String url = baseUrl + recordType + "/" + recordId;
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+		return httpHandler;
 	}
 
 	private boolean responseCodeIsOk(int responseCode) {
@@ -87,8 +92,7 @@ public final class RestClientImp implements RestClient {
 
 	@Override
 	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
-		String url = baseUrl + recordType;
-		HttpHandler httpHandler = setUpHttpHandlerForPost(json, url);
+		HttpHandler httpHandler = createHttpHandlerForCreate(recordType, json);
 		int responseCode = httpHandler.getResponseCode();
 
 		String responseText = responseCodeIsCreated(responseCode) ? httpHandler.getResponseText()
@@ -97,6 +101,11 @@ public final class RestClientImp implements RestClient {
 
 		return responseCodeIsCreated(responseCode) ? createCreateResponse(httpHandler, restResponse)
 				: new ExtendedRestResponse(restResponse);
+	}
+
+	private HttpHandler createHttpHandlerForCreate(String recordType, String json) {
+		String url = baseUrl + recordType;
+		return setUpHttpHandlerForPost(json, url);
 	}
 
 	private boolean responseCodeIsCreated(int responseCode) {
@@ -125,8 +134,7 @@ public final class RestClientImp implements RestClient {
 
 	@Override
 	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
-		String url = baseUrl + recordType + "/" + recordId;
-		HttpHandler httpHandler = setUpHttpHandlerForPost(json, url);
+		HttpHandler httpHandler = createHttpHandlerForUpdate(recordType, recordId, json);
 
 		int responseCode = httpHandler.getResponseCode();
 		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
@@ -134,16 +142,27 @@ public final class RestClientImp implements RestClient {
 		return new RestResponse(responseCode, responseText);
 	}
 
+	private HttpHandler createHttpHandlerForUpdate(String recordType, String recordId,
+			String json) {
+		String url = baseUrl + recordType + "/" + recordId;
+		return setUpHttpHandlerForPost(json, url);
+	}
+
 	@Override
 	public RestResponse deleteRecord(String recordType, String recordId) {
-		String url = baseUrl + recordType + "/" + recordId;
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("DELETE");
+		HttpHandler httpHandler = createHttpHandlerForDelete(recordType, recordId);
 
 		int responseCode = httpHandler.getResponseCode();
 		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
 		return new RestResponse(responseCode, responseText);
+	}
+
+	private HttpHandler createHttpHandlerForDelete(String recordType, String recordId) {
+		String url = baseUrl + recordType + "/" + recordId;
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("DELETE");
+		return httpHandler;
 	}
 
 	@Override
@@ -165,15 +184,20 @@ public final class RestClientImp implements RestClient {
 
 	@Override
 	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
-		String url = baseUrl + recordType + "/" + recordId + "/incomingLinks";
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
+		HttpHandler httpHandler = createHttpHandlerForIncomingLinks(recordType, recordId);
 
 		int responseCode = httpHandler.getResponseCode();
 		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
 				: httpHandler.getErrorText();
 
 		return new RestResponse(responseCode, responseText);
+	}
+
+	private HttpHandler createHttpHandlerForIncomingLinks(String recordType, String recordId) {
+		String url = baseUrl + recordType + "/" + recordId + "/incomingLinks";
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+		return httpHandler;
 	}
 
 	@Override
