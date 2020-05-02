@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,18 +18,93 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
+import java.io.UnsupportedEncodingException;
+
 public interface RestClient {
 
-	String readRecordAsJson(String recordType, String recordId);
+	/**
+	 * Reads a record using recordType and recordId. The result is returned as a responseText in the
+	 * {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to read
+	 * @param recordId,
+	 *            A String, the id of the record to be read
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse readRecordAsJson(String recordType, String recordId);
 
-	String createRecordFromJson(String recordType, String json);
+	/**
+	 * Created a record using recordType and a string to set as output in the httpRequest. The
+	 * result is returned as a responseText in the {@link ExtendedRestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be created
+	 * @param json,
+	 *            A String to create the record from
+	 * @return A {@link ExtendedRestResponse}, containing the response
+	 */
+	ExtendedRestResponse createRecordFromJson(String recordType, String json);
 
-	String updateRecordFromJson(String recordType, String recordId, String json);
+	/**
+	 * Updates a record using recordType recordId, and a string to set as output in the httpRequest.
+	 * The result is returned as a responseText in the {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to updated
+	 * @param recordId,
+	 *            A String, the id of the record to be updated
+	 * @param json,
+	 *            A String to update the record from
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse updateRecordFromJson(String recordType, String recordId, String json);
 
-	String deleteRecord(String recordType, String recordId);
+	/**
+	 * Deletes a record using recordType and recordId. The result is returned as a responseText in
+	 * the {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to delete
+	 * @param recordId,
+	 *            A String, the id of the record to be delete
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse deleteRecord(String recordType, String recordId);
 
-	String readRecordListAsJson(String recordType);
+	/**
+	 * Read a list of records using recordType. The result is returned as a responseText in the
+	 * {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to be listed
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse readRecordListAsJson(String recordType);
 
-	String readIncomingLinksAsJson(String recordType, String recordId);
+	/**
+	 * Reads incoming links for a record using recordType and recordId. The result is returned as a
+	 * responseText in the {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to read the incoming links for
+	 * @param recordId,
+	 *            A String, the id of the record to read the incoming links for
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse readIncomingLinksAsJson(String recordType, String recordId);
+
+	/**
+	 * Read a list of records using recordType and a filter to filter the result. The result is
+	 * returned as a responseText in the {@link RestResponse}
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to be listed
+	 * @param filter,
+	 *            A String, a json string to use as a filter to limit the result
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
+			throws UnsupportedEncodingException;
 
 }

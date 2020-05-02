@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,28 +18,24 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
-import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.RestClientImp;
+/**
+ * RestResponse is used to store information from a HttpResponse.
+ */
+public class RestResponse {
 
-public class RestClientFactoryImp implements RestClientFactory {
+	public final int statusCode;
+	public final String responseText;
 
-	private String baseUrl;
-
-	public RestClientFactoryImp(String baseUrl) {
-		this.baseUrl = baseUrl;
+	/**
+	 * Stores status code, response text, and created id.
+	 * 
+	 * @param statusCode
+	 *            An int representing the status code from the HttpResponse
+	 * @param responseText,
+	 *            A string representing the response text from the HttpResponse
+	 */
+	public RestResponse(int statusCode, String responseText) {
+		this.statusCode = statusCode;
+		this.responseText = responseText;
 	}
-
-	@Override
-	public RestClient factorUsingAuthToken(String authToken) {
-		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndAuthToken(httpHandlerFactory,
-				baseUrl, authToken);
-	}
-
-	@Override
-	public String getBaseUrl() {
-		return baseUrl;
-	}
-
 }

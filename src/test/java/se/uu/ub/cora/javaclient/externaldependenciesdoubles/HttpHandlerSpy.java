@@ -34,6 +34,9 @@ public class HttpHandlerSpy implements HttpHandler {
 	public Map<String, String> requestProperties = new HashMap<>();
 	public InputStream stream;
 	public int responseCode = 200;
+	public String returnedResponseText;
+	public String returnedErrorText;
+	public String returnedHeaderField;
 
 	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
@@ -68,7 +71,8 @@ public class HttpHandlerSpy implements HttpHandler {
 		if (httpUrlConnection.getURL().toString().contains("metadataGroup/someMetadataGroupId")) {
 			return "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"presentation\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"recordLink\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/metadataRecordLink/linkedRecordPresentationPresentationLink\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
 		}
-		return "Everything ok";
+		returnedResponseText = "Everything ok";
+		return returnedResponseText;
 	}
 
 	@Override
@@ -89,8 +93,8 @@ public class HttpHandlerSpy implements HttpHandler {
 
 	@Override
 	public String getErrorText() {
-		// TODO Auto-generated method stub
-		return null;
+		returnedErrorText = "error from spy";
+		return returnedErrorText;
 	}
 
 	@Override
@@ -107,6 +111,7 @@ public class HttpHandlerSpy implements HttpHandler {
 			return "form-data; name=\"file\"; filename=\"adele.png\"\n";
 		}
 		if ("Location".equals(name)) {
+			returnedHeaderField = "http://epc.ub.uu.se/therest/rest/record/someRecordType/someRecordType:35824453170224822";
 			return "http://epc.ub.uu.se/therest/rest/record/someRecordType/someRecordType:35824453170224822";
 		}
 		return null;

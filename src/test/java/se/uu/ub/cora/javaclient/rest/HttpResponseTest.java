@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,28 +18,22 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
-import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.RestClientImp;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
-public class RestClientFactoryImp implements RestClientFactory {
+import org.testng.annotations.Test;
 
-	private String baseUrl;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-	public RestClientFactoryImp(String baseUrl) {
-		this.baseUrl = baseUrl;
+public class HttpResponseTest {
+
+	@Test
+	public void testRestResponse() {
+		int statusCode = 200;
+		String responseText = "some response text";
+		RestResponse response = new RestResponse(statusCode, responseText);
+		assertEquals(response.statusCode, statusCode);
+		assertSame(response.responseText, responseText);
+
 	}
-
-	@Override
-	public RestClient factorUsingAuthToken(String authToken) {
-		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndAuthToken(httpHandlerFactory,
-				baseUrl, authToken);
-	}
-
-	@Override
-	public String getBaseUrl() {
-		return baseUrl;
-	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019 Uppsala University Library
+ * Copyright 2018, 2019, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -20,24 +20,122 @@ package se.uu.ub.cora.javaclient.cora;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public interface CoraClient {
+
+	/**
+	 * Creates a record using recordType and a string to create from. The result is returned as a
+	 * String. A {@link CoraClientException} MUST be thrown if the record could not be created.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be created
+	 * @param json,
+	 *            A String, the data to crete the record from
+	 * @return A String containing the response text
+	 */
 	String create(String recordType, String json);
 
+	/**
+	 * Creates a record using recordType and a {@link ClientDataGroup} to create from. The result is
+	 * returned as a String. A {@link CoraClientException} MUST be thrown if the record could not be
+	 * created.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be created
+	 * @param dataGroup,
+	 *            A {@link ClientDataGroup}, the data to crete the record from
+	 * @return A String containing the response text
+	 */
 	String create(String recordType, ClientDataGroup dataGroup);
 
+	/**
+	 * Reads a record using recordType and recordId. The result is returned as a String. A
+	 * {@link CoraClientException} MUST be thrown if the record could not be read.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to read
+	 * @param recordId,
+	 *            A String, the id of the record to be read
+	 * @return A String containing the response text
+	 */
 	String read(String recordType, String recordId);
 
+	/**
+	 * Updates a record using recordType, recordId and a string to update from. The result is
+	 * returned as a String. A {@link CoraClientException} MUST be thrown if the record could not be
+	 * updated.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be updated
+	 * @param recordId,
+	 *            A String, the id of the record to be updated
+	 * @param json,
+	 *            A String, the data to update the record from
+	 * @return A String containing the response text
+	 */
 	String update(String recordType, String recordId, String json);
 
+	/**
+	 * Deletes a record using recordType and recordId. The result is returned as a String. A
+	 * {@link CoraClientException} MUST be thrown if the record could not be deleted.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to delete
+	 * @param recordId,
+	 *            A String, the id of the record to be deleted
+	 * @return A String containing the response text
+	 */
 	String delete(String recordType, String recordId);
 
+	/**
+	 * Reads records as a list using recordType. The result is returned as a String. A
+	 * {@link CoraClientException} MUST be thrown if records could not be listed.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to read as list
+	 * @return A String containing the response text
+	 */
 	String readList(String recordType);
 
+	/**
+	 * Reads incoming links for a record using recordType and recordId. The result is returned as a
+	 * String. A {@link CoraClientException} MUST be thrown if incoming links could not be read.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to read the incoming links for
+	 * @param recordId,
+	 *            A String, the id of the record to read the incoming links for
+	 * @return A {@link RestResponse}, containing the response text and response code
+	 */
 	String readIncomingLinks(String recordType, String recordId);
 
+	/**
+	 * Reads a record using recordType and recordId. The result is returned as a
+	 * {@link ClientDataRecord} A {@link CoraClientException} MUST be thrown if the record could not
+	 * be read.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to read
+	 * @param recordId,
+	 *            A String, the id of the record to be read
+	 * @return A {@link ClientDataRecord} created from the response text
+	 */
 	ClientDataRecord readAsDataRecord(String recordType, String recordId);
 
+	/**
+	 * Updates a record using recordType,recordId and a {@link ClientDataGroup} to update from. The
+	 * result is returned as a String. A {@link CoraClientException} MUST be thrown if the record
+	 * could not be updated.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to be updated
+	 * @param recordId,
+	 *            A String, the id of the record to be updated
+	 * @param json,
+	 *            A String, the data to update the record from
+	 * @return A {@link ClientDataGroup} created from the response text
+	 */
 	String update(String recordType, String recordId, ClientDataGroup dataGroup);
 
 }
