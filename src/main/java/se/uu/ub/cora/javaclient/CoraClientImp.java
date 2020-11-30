@@ -19,6 +19,10 @@
 
 package se.uu.ub.cora.javaclient;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
@@ -35,6 +39,7 @@ import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.json.builder.JsonBuilderFactory;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
+import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
 import se.uu.ub.cora.json.parser.JsonValue;
@@ -215,6 +220,36 @@ public class CoraClientImp implements CoraClient {
 	}
 
 	@Override
+	public List<ClientDataRecord> readListAsDataRecords(String recordType) {
+		String responseText = readList(recordType);
+		JsonArray data = extractDataFromResponse(responseText);
+
+		return convertRecords(data);
+	}
+
+	private JsonArray extractDataFromResponse(String responseText) {
+		JsonParser jsonParser = new OrgJsonParser();
+		JsonObject responseObject = (JsonObject) jsonParser.parseString(responseText);
+
+		JsonObject dataList = responseObject.getValueAsJsonObject("dataList");
+		return dataList.getValueAsJsonArray("data");
+	}
+
+	private List<ClientDataRecord> convertRecords(JsonArray data) {
+		List<ClientDataRecord> dataRecords = new ArrayList<>();
+		for (JsonValue jsonValue : data) {
+			convertAndAddRecord(dataRecords, jsonValue);
+		}
+		return dataRecords;
+	}
+
+	private void convertAndAddRecord(List<ClientDataRecord> dataRecords, JsonValue jsonValue) {
+		JsonObject readJsonObject = (JsonObject) jsonValue;
+		ClientDataRecord dataRecord = convertToDataRecord(readJsonObject);
+		dataRecords.add(dataRecord);
+	}
+
+	@Override
 	public String readIncomingLinks(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
@@ -226,6 +261,14 @@ public class CoraClientImp implements CoraClient {
 			String recordId) {
 		possiblyThrowErrorIfNotOk(response,
 				"Could not read incoming links of type: " + recordType + AND_ID + recordId + FROM);
+	}
+
+	@Override
+	public String indexData(ClientDataRecord clientDataRecord) {
+		ActionLink index = clientDataRecord.getActionLink("index");
+		ClientDataGroup bodyDataGroup = index.getBody();
+
+		return create("workOrder", bodyDataGroup);
 	}
 
 	public AppTokenClientFactory getAppTokenClientFactory() {

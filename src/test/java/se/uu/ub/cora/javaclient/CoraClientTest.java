@@ -24,9 +24,14 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.List;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.Action;
+import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
@@ -120,7 +125,7 @@ public class CoraClientTest {
 		assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
 
 		ClientDataGroup clientDataGroupInRecord = dataRecord.getClientDataGroup();
-		ClientDataGroup dataGroupReturnedFromConverter = jsonToDataConverterFactory.factoredConverter.dataGroup;
+		ClientDataGroup dataGroupReturnedFromConverter = jsonToDataConverterFactory.factoredConverter.returnedDataGroup;
 		assertSame(clientDataGroupInRecord, dataGroupReturnedFromConverter);
 
 	}
@@ -148,6 +153,24 @@ public class CoraClientTest {
 		assertEquals(restClient.methodCalled, "readList");
 	}
 
+	@Test
+	public void testReadListAsDataRecords() throws Exception {
+		List<ClientDataRecord> dataRecords = coraClient
+				.readListAsDataRecords("someRecordTypeToBeReturnedAsRecordDataInList");
+
+		RestClientSpy restClient = restClientFactory.factored.get(0);
+		assertEquals(restClientFactory.factored.size(), 1);
+		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
+		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsRecordDataInList");
+		assertEquals(restClient.methodCalled, "readList");
+
+		JsonToDataConverterSpy converter = jsonToDataConverterFactory.factoredConverters.get(0);
+		assertSame(dataRecords.get(0).getClientDataGroup(), converter.returnedDataGroup);
+		JsonToDataConverterSpy converter2 = jsonToDataConverterFactory.factoredConverters.get(1);
+		assertSame(dataRecords.get(1).getClientDataGroup(), converter2.returnedDataGroup);
+
+	}
+
 	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
 			+ "Could not read records of type: thisRecordTypeTriggersAnError from server using "
 			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
@@ -161,15 +184,15 @@ public class CoraClientTest {
 		String json = "some fake json";
 		String createdJson = coraClient.create("someType", json);
 
-		assertCorrectDataSentToRestClient(json, createdJson, "create");
+		assertCorrectDataSentToRestClient(json, createdJson, "create", "someType");
 	}
 
 	private void assertCorrectDataSentToRestClient(String jsonSentToRestClient,
-			String jsonReturnedFromCreate, String methodCalled) {
+			String jsonReturnedFromCreate, String methodCalled, String recordType) {
 		RestClientSpy restClient = restClientFactory.factored.get(0);
 		assertEquals(restClientFactory.factored.size(), 1);
 		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-		assertEquals(restClient.recordType, "someType");
+		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.json, jsonSentToRestClient);
 		assertEquals(jsonReturnedFromCreate, restClient.returnedAnswer + restClient.methodCalled);
 		assertEquals(restClient.methodCalled, methodCalled);
@@ -194,7 +217,8 @@ public class CoraClientTest {
 		assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 
-		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create");
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
+				"someType");
 
 	}
 
@@ -225,7 +249,8 @@ public class CoraClientTest {
 				"createForClientDataElementIncludingActionLinks");
 
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update");
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update",
+				"someType");
 
 	}
 
@@ -279,5 +304,46 @@ public class CoraClientTest {
 			+ "Answer from CoraRestClientSpy readincomingLinks")
 	public void testReadincomingLinksError() throws Exception {
 		coraClient.readIncomingLinks(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
+	}
+
+	@Test
+	public void testIndexDataRecord() throws Exception {
+
+		ClientDataRecord clientDataRecord = ClientDataRecord
+				.withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
+		ActionLink actionLink = createActionLinkIndex();
+		clientDataRecord.addActionLink("index", actionLink);
+
+		String createdJson = coraClient.indexData(clientDataRecord);
+
+		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
+		assertSame(dataToJsonConverterFactory.clientDataElement, actionLink.getBody());
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
+				"workOrder");
+
+	}
+
+	private ActionLink createActionLinkIndex() {
+		ClientDataGroup workOrder = createBodyForIndexLink();
+
+		ActionLink actionLink = ActionLink.withAction(Action.INDEX);
+		actionLink.setBody(workOrder);
+		actionLink.setRequestMethod("POST");
+		actionLink.setURL("http://localhost:8080/systemone/rest/record/workOrder/");
+		return actionLink;
+	}
+
+	private ClientDataGroup createBodyForIndexLink() {
+		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "someRecordType"));
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", "someRecordId"));
+		ClientDataGroup recordType = ClientDataGroup.withNameInData("recordType");
+		recordType.addChild(
+				ClientDataAtomic.withNameInDataAndValue("linkedRecordType", "recordType"));
+		recordType.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordId", "demo"));
+		workOrder.addChild(recordType);
+		return workOrder;
 	}
 }
