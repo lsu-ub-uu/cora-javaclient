@@ -80,6 +80,7 @@ public final class RestClientImp implements RestClient {
 		return httpHandlerFactory;
 	}
 
+	@Override
 	public String getBaseUrl() {
 		// needed for test
 		return baseUrl;

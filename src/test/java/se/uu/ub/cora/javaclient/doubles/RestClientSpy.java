@@ -130,4 +130,9 @@ public class RestClientSpy implements RestClient {
 		return restResponse;
 	}
 
+	@Override
+	public String getBaseUrl() {
+		return "http://localhost:8080/therest/rest/record/";
+	}
+
 }

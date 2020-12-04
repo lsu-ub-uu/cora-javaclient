@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -31,6 +31,7 @@ public class CoraClientDependencies {
 	public final JsonToDataConverterFactory jsonToDataConverterFactory;
 	public final String userId;
 	public final String appToken;
+	public final String authToken;
 
 	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
@@ -42,6 +43,21 @@ public class CoraClientDependencies {
 		this.jsonToDataConverterFactory = jsonToDataConverterFactory;
 		this.userId = userId;
 		this.appToken = appToken;
+		authToken = null;
+	}
+
+	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
+			RestClientFactory restClientFactory,
+			DataToJsonConverterFactory dataToJsonConverterFactory,
+			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken,
+			String authToken) {
+		this.appTokenClientFactory = appTokenClientFactory;
+		this.restClientFactory = restClientFactory;
+		this.dataToJsonConverterFactory = dataToJsonConverterFactory;
+		this.jsonToDataConverterFactory = jsonToDataConverterFactory;
+		this.userId = userId;
+		this.appToken = appToken;
+		this.authToken = authToken;
 	}
 
 }

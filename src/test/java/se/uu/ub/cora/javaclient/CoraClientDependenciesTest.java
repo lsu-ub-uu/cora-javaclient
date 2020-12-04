@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Uppsala University Library
+ * Copyright 2019, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -20,6 +20,7 @@ package se.uu.ub.cora.javaclient;
 
 import static org.testng.Assert.assertEquals;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
@@ -31,23 +32,49 @@ import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
 public class CoraClientDependenciesTest {
 
-	@Test
-	public void testDependencies() {
-		AppTokenClientFactory appTokenClientFactory = new AppTokenClientFactorySpy();
-		RestClientFactory restClientFactory = new RestClientFactorySpy();
-		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
-		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
+	private CoraClientDependencies dependencies;
+	private AppTokenClientFactory appTokenClientFactory;
+	private RestClientFactory restClientFactory;
+	private DataToJsonConverterFactory dataToJsonConverterFactory;
+	private JsonToDataConverterFactory jsonToDataConverterFactory;
+
+	@BeforeMethod
+	public void setUp() {
+		appTokenClientFactory = new AppTokenClientFactorySpy();
+		restClientFactory = new RestClientFactorySpy();
+		dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
+		jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
 		String userId = "someUserId";
 		String appToken = "someApptoken";
-		CoraClientDependencies dependencies = new CoraClientDependencies(appTokenClientFactory,
-				restClientFactory, dataToJsonConverterFactory, jsonToDataConverterFactory, userId,
-				appToken);
+		dependencies = new CoraClientDependencies(appTokenClientFactory, restClientFactory,
+				dataToJsonConverterFactory, jsonToDataConverterFactory, userId, appToken);
+
+	}
+
+	@Test
+	public void testDependencies() {
+		assertEquals(dependencies.appTokenClientFactory, appTokenClientFactory);
+		assertEquals(dependencies.restClientFactory, restClientFactory);
+		assertEquals(dependencies.dataToJsonConverterFactory, dataToJsonConverterFactory);
+		assertEquals(dependencies.jsonToDataConverterFactory, jsonToDataConverterFactory);
+		assertEquals(dependencies.userId, "someUserId");
+		assertEquals(dependencies.appToken, "someApptoken");
+	}
+
+	@Test
+	public void testDependenciesWithAuthToken() {
+		String authToken = "345345-345345-34565748";
+
+		dependencies = new CoraClientDependencies(appTokenClientFactory, restClientFactory,
+				dataToJsonConverterFactory, jsonToDataConverterFactory, "someUserId",
+				"someApptoken", "345345-345345-34565748");
 
 		assertEquals(dependencies.appTokenClientFactory, appTokenClientFactory);
 		assertEquals(dependencies.restClientFactory, restClientFactory);
 		assertEquals(dependencies.dataToJsonConverterFactory, dataToJsonConverterFactory);
 		assertEquals(dependencies.jsonToDataConverterFactory, jsonToDataConverterFactory);
-		assertEquals(dependencies.userId, userId);
-		assertEquals(dependencies.appToken, appToken);
+		assertEquals(dependencies.userId, "someUserId");
+		assertEquals(dependencies.appToken, "someApptoken");
+		assertEquals(dependencies.authToken, authToken);
 	}
 }
