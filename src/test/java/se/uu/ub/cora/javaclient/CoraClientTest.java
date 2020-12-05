@@ -346,4 +346,15 @@ public class CoraClientTest {
 		workOrder.addChild(recordType);
 		return workOrder;
 	}
+
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not read index data. No index link found in record.")
+	public void testIndexDataRecordWhenNoIndexLink() {
+
+		ClientDataRecord clientDataRecord = ClientDataRecord
+				.withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
+
+		coraClient.indexData(clientDataRecord);
+
+	}
 }
