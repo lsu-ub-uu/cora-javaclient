@@ -39,7 +39,7 @@ import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class RestClientCoraClient {
+public class RestClientCoraClientTest {
 	private RestClientCoraClient coraClient;
 	private RestClientSpy restClient;
 	private DataToJsonConverterFactorySpy dataToJsonConverterFactory;
