@@ -39,8 +39,8 @@ import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class CoraClientWithRestClientTest {
-	private CoraClientWithRestClient coraClient;
+public class RestClientCoraClient {
+	private RestClientCoraClient coraClient;
 	private RestClientSpy restClient;
 	private DataToJsonConverterFactorySpy dataToJsonConverterFactory;
 	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
@@ -50,7 +50,7 @@ public class CoraClientWithRestClientTest {
 		restClient = new RestClientSpy();
 		dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
 		jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
-		coraClient = new CoraClientWithRestClient(restClient, dataToJsonConverterFactory,
+		coraClient = new RestClientCoraClient(restClient, dataToJsonConverterFactory,
 				jsonToDataConverterFactory);
 	}
 

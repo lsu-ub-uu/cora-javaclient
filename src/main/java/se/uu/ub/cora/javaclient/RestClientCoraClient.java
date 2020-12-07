@@ -28,7 +28,7 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
-public class CoraClientWithRestClient extends CommonCoraClient implements CoraClient {
+public class RestClientCoraClient extends CommonCoraClient implements CoraClient {
 
 	static final String FROM = " from ";
 	static final String AND_ID = " and id: ";
@@ -37,7 +37,7 @@ public class CoraClientWithRestClient extends CommonCoraClient implements CoraCl
 
 	RestClient restClient;
 
-	public CoraClientWithRestClient(RestClient restClient,
+	public RestClientCoraClient(RestClient restClient,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory) {
 		this.restClient = restClient;

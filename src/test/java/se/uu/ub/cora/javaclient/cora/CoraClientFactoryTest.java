@@ -29,7 +29,7 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryI
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.javaclient.CoraClientImp;
-import se.uu.ub.cora.javaclient.CoraClientWithRestClient;
+import se.uu.ub.cora.javaclient.RestClientCoraClient;
 import se.uu.ub.cora.javaclient.RestClientImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
@@ -80,7 +80,7 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testCorrectFactoriesAreSentToCoraClientWhenUsingAuthToken() throws Exception {
-		CoraClientWithRestClient coraClient = (CoraClientWithRestClient) clientFactory
+		RestClientCoraClient coraClient = (RestClientCoraClient) clientFactory
 				.factorUsingAuthToken("someAuthTokenToken");
 
 		RestClientImp restClient = (RestClientImp) coraClient.getRestClient();
