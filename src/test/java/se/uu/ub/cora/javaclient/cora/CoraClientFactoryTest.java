@@ -29,11 +29,13 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryI
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.javaclient.CoraClientImp;
+import se.uu.ub.cora.javaclient.RestClientCoraClient;
+import se.uu.ub.cora.javaclient.RestClientImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public class CoraClientFactoryTest {
-	private CoraClientImp coraClient;
+	// private CoraClientImp coraClient;
 	private String appTokenVerifierUrl;
 	private String baseUrl;
 	private CoraClientFactoryImp clientFactory;
@@ -48,7 +50,8 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testCorrectFactoriesAreSentToCoraClient() throws Exception {
-		coraClient = (CoraClientImp) clientFactory.factor("someUserId", "someAppToken");
+		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
+				"someAppToken");
 
 		AppTokenClientFactoryImp appTokenClientFactory = (AppTokenClientFactoryImp) coraClient
 				.getAppTokenClientFactory();
@@ -69,9 +72,28 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testFactorParametersSentAlong() throws Exception {
-		coraClient = (CoraClientImp) clientFactory.factor("someUserId", "someAppToken");
+		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
+				"someAppToken");
 		assertEquals(coraClient.getUserId(), "someUserId");
 		assertEquals(coraClient.getAppToken(), "someAppToken");
+	}
+
+	@Test
+	public void testCorrectFactoriesAreSentToCoraClientWhenUsingAuthToken() throws Exception {
+		RestClientCoraClient coraClient = (RestClientCoraClient) clientFactory
+				.factorUsingAuthToken("someAuthTokenToken");
+
+		RestClientImp restClient = (RestClientImp) coraClient.getRestClient();
+		assertEquals(restClient.getBaseUrl(), baseUrl + "record/");
+		assertEquals(restClient.getAuthToken(), "someAuthTokenToken");
+
+		DataToJsonConverterFactory dataToJsonConverterFactory = coraClient
+				.getDataToJsonConverterFactory();
+		assertTrue(dataToJsonConverterFactory instanceof DataToJsonConverterFactoryImp);
+
+		JsonToDataConverterFactory jsonToDataConverterFactory = coraClient
+				.getJsonToDataConverterFactory();
+		assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
 	}
 
 	@Test

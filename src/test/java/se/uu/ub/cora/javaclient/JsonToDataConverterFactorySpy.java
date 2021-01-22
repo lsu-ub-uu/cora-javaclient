@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.javaclient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
@@ -28,12 +31,14 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 	public boolean createForJsonObjectWasCalled = false;
 	public JsonValue jsonValue;
 	public JsonToDataConverterSpy factoredConverter;
+	public List<JsonToDataConverterSpy> factoredConverters = new ArrayList<>();
 
 	@Override
 	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
 		createForJsonObjectWasCalled = true;
 		factoredConverter = new JsonToDataConverterSpy();
+		factoredConverters.add(factoredConverter);
 		return factoredConverter;
 	}
 

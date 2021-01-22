@@ -23,123 +23,85 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientImp extends CommonCoraClient implements CoraClient {
+public class RestClientCoraClient extends CommonCoraClient implements CoraClient {
 
-	private RestClientFactory restClientFactory;
-	private AppTokenClient appTokenClient;
-	private AppTokenClientFactory appTokenClientFactory;
-	private String userId;
-	private String appToken;
+	static final String FROM = " from ";
+	static final String AND_ID = " and id: ";
+	static final String RETURNED_ERROR_WAS = ". Returned error was: ";
+	static final String SERVER_USING_URL = "server using base url: ";
 
-	public CoraClientImp(CoraClientDependencies coraClientDependencies) {
-		this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
-		this.restClientFactory = coraClientDependencies.restClientFactory;
-		this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;
-		this.jsonToDataConverterFactory = coraClientDependencies.jsonToDataConverterFactory;
-		this.userId = coraClientDependencies.userId;
-		this.appToken = coraClientDependencies.appToken;
-		appTokenClient = appTokenClientFactory.factor(userId, appToken);
+	RestClient restClient;
+
+	public RestClientCoraClient(RestClient restClient,
+			DataToJsonConverterFactory dataToJsonConverterFactory,
+			JsonToDataConverterFactory jsonToDataConverterFactory) {
+		this.restClient = restClient;
+		this.dataToJsonConverterFactory = dataToJsonConverterFactory;
+		this.jsonToDataConverterFactory = jsonToDataConverterFactory;
 	}
 
 	@Override
 	public String create(String recordType, String json) {
-		return setUpRestClientAndCreateRecord(recordType, json);
-	}
-
-	private String setUpRestClientAndCreateRecord(String recordType, String json) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return create(restClient, recordType, json);
-	}
-
-	private RestClient setUpRestClientWithAuthToken() {
-		String authToken = appTokenClient.getAuthToken();
-		return restClientFactory.factorUsingAuthToken(authToken);
 	}
 
 	@Override
 	public String create(String recordType, ClientDataGroup dataGroup) {
-		String json = convertDataGroupToJson(dataGroup);
-		return setUpRestClientAndCreateRecord(recordType, json);
+		return create(restClient, recordType, dataGroup);
 	}
 
 	@Override
 	public String read(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return read(restClient, recordType, recordId);
 	}
 
 	@Override
 	public ClientDataRecord readAsDataRecord(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return readAsDataRecord(restClient, recordType, recordId);
 	}
 
 	@Override
 	public String update(String recordType, String recordId, String json) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return update(restClient, recordType, recordId, json);
 	}
 
 	@Override
 	public String update(String recordType, String recordId, ClientDataGroup dataGroup) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return update(restClient, recordType, recordId, dataGroup);
 	}
 
 	@Override
 	public String delete(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return deleteRecord(restClient, recordType, recordId);
 	}
 
 	@Override
 	public String readList(String recordType) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return readList(restClient, recordType);
 	}
 
 	@Override
 	public List<ClientDataRecord> readListAsDataRecords(String recordType) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return readListAsDataRecords(restClient, recordType);
 	}
 
 	@Override
 	public String readIncomingLinks(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return readIncomingLinks(restClient, recordType, recordId);
 	}
 
 	@Override
 	public String indexData(ClientDataRecord clientDataRecord) {
-		RestClient restClient = setUpRestClientWithAuthToken();
 		return indexData(restClient, clientDataRecord);
 	}
 
-	public AppTokenClientFactory getAppTokenClientFactory() {
-		// needed for test
-		return appTokenClientFactory;
-	}
-
-	public RestClientFactory getRestClientFactory() {
-		// needed for test
-		return restClientFactory;
-	}
-
-	public String getUserId() {
-		// needed for test
-		return userId;
-	}
-
-	public String getAppToken() {
-		// needed for test
-		return appToken;
+	public RestClient getRestClient() {
+		return restClient;
 	}
 
 }

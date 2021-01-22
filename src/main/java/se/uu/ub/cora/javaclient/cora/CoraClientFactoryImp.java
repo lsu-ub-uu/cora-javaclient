@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019 Uppsala University Library
+ * Copyright 2018, 2019, 2020 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -24,7 +24,9 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.javaclient.CoraClientDependencies;
 import se.uu.ub.cora.javaclient.CoraClientImp;
+import se.uu.ub.cora.javaclient.RestClientCoraClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
+import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public final class CoraClientFactoryImp implements CoraClientFactory {
@@ -65,6 +67,15 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 	public String getBaseUrl() {
 		// needed for test
 		return baseUrl;
+	}
+
+	@Override
+	public CoraClient factorUsingAuthToken(String authToken) {
+		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
+		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
+		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactoryImp();
+		return new RestClientCoraClient(restClient, dataToJsonConverterFactory,
+				jsonToDataConverterFactory);
 	}
 
 }

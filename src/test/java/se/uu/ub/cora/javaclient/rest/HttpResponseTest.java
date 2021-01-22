@@ -23,8 +23,6 @@ import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.javaclient.rest.RestResponse;
-
 public class HttpResponseTest {
 
 	@Test

@@ -24,12 +24,12 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
 
 public class JsonToDataConverterSpy implements JsonToDataConverter {
 
-	public ClientDataGroup dataGroup;
+	public ClientDataGroup returnedDataGroup;
 
 	@Override
 	public ClientDataElement toInstance() {
-		dataGroup = ClientDataGroup.withNameInData("someSpyNameInData");
-		return dataGroup;
+		returnedDataGroup = ClientDataGroup.withNameInData("someSpyNameInData");
+		return returnedDataGroup;
 	}
 
 }

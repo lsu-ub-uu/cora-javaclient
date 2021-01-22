@@ -107,4 +107,11 @@ public interface RestClient {
 	RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
 			throws UnsupportedEncodingException;
 
+	/**
+	 * Returns the base url that is expected to be set when the RestClient is instantiated
+	 * 
+	 * @return A String to use as base url
+	 */
+	String getBaseUrl();
+
 }

@@ -22,4 +22,6 @@ public interface CoraClientFactory {
 
 	CoraClient factor(String userId, String appToken);
 
+	CoraClient factorUsingAuthToken(String authToken);
+
 }

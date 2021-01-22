@@ -18,6 +18,8 @@
  */
 package se.uu.ub.cora.javaclient.cora;
 
+import java.util.List;
+
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
@@ -129,7 +131,7 @@ public interface CoraClient {
 	 * could not be updated.
 	 * 
 	 * @param recordType,
-	 *            A String, the type of the record to be updated
+	 *            A String, the type of the record to be up dated
 	 * @param recordId,
 	 *            A String, the id of the record to be updated
 	 * @param json,
@@ -137,5 +139,25 @@ public interface CoraClient {
 	 * @return A {@link ClientDataGroup} created from the response text
 	 */
 	String update(String recordType, String recordId, ClientDataGroup dataGroup);
+
+	/**
+	 * Reads records as a list using recordType. The result is returned as a List of
+	 * {@link ClientDataRecord}. A {@link CoraClientException} MUST be thrown if records could not
+	 * be listed.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to read as list
+	 * @return A List of {@link ClientDataRecord} containing the records of the requested recordType
+	 */
+	List<ClientDataRecord> readListAsDataRecords(String recordType);
+
+	/**
+	 * Indexes a {@link ClientDataRecord}, by sending an index order for the record.
+	 * 
+	 * @param {@link
+	 *            ClientDataRecord}, the record to index
+	 * 
+	 */
+	String indexData(ClientDataRecord clientDataRecord);
 
 }
