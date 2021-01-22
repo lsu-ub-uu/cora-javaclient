@@ -206,13 +206,13 @@ public class CommonCoraClient {
 	List<ClientDataRecord> convertRecords(JsonArray data) {
 		List<ClientDataRecord> dataRecords = new ArrayList<>();
 		for (JsonValue jsonValue : data) {
-			convertAndAddRecord(dataRecords, jsonValue);
+			convertAndAddRecord(dataRecords, (JsonObject) jsonValue);
 		}
 		return dataRecords;
 	}
 
-	private void convertAndAddRecord(List<ClientDataRecord> dataRecords, JsonValue jsonValue) {
-		JsonObject readJsonObject = (JsonObject) jsonValue;
+	private void convertAndAddRecord(List<ClientDataRecord> dataRecords, JsonObject jsonValue) {
+		JsonObject readJsonObject = jsonValue;
 		ClientDataRecord dataRecord = convertToDataRecord(readJsonObject);
 		dataRecords.add(dataRecord);
 	}
@@ -233,7 +233,7 @@ public class CommonCoraClient {
 		throwErrorIfNoIndexLink(clientDataRecord);
 		ActionLink index = clientDataRecord.getActionLink("index");
 		ClientDataGroup bodyDataGroup = index.getBody();
-	
+
 		return create(restClient, "workOrder", bodyDataGroup);
 	}
 
