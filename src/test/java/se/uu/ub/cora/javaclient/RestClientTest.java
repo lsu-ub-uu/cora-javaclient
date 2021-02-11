@@ -34,6 +34,7 @@ import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpy;
 import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
+import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class RestClientTest {
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;

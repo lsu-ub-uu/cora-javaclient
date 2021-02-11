@@ -16,12 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.apptoken.http;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.cora.http.AppTokenClientCredentials;
 
 public final class AppTokenClientImp implements AppTokenClient {
 

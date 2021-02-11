@@ -22,10 +22,10 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
-import se.uu.ub.cora.javaclient.ApptokenBasedClientDependencies;
-import se.uu.ub.cora.javaclient.ApptokenBasedClient;
-import se.uu.ub.cora.javaclient.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 

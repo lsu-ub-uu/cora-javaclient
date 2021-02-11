@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.RestClientImp;
+import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class RestClientFactoryTest {
 

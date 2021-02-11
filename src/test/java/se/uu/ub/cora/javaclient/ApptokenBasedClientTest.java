@@ -36,6 +36,8 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientSpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;

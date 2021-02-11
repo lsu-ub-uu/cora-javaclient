@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.AppTokenClientImp;
+import se.uu.ub.cora.javaclient.apptoken.http.AppTokenClientImp;
 
 public class AppTokenClientFactoryTest {
 

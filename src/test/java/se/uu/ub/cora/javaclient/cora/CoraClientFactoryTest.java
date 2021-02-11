@@ -28,11 +28,11 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
-import se.uu.ub.cora.javaclient.ApptokenBasedClient;
-import se.uu.ub.cora.javaclient.AuthtokenBasedClient;
-import se.uu.ub.cora.javaclient.RestClientImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
+import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class CoraClientFactoryTest {
 	// private CoraClientImp coraClient;

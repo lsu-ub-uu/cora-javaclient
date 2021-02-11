@@ -17,7 +17,7 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.cora.http;
 
 import java.util.List;
 

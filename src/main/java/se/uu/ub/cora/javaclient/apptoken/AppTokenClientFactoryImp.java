@@ -20,8 +20,8 @@ package se.uu.ub.cora.javaclient.apptoken;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.AppTokenClientCredentials;
-import se.uu.ub.cora.javaclient.AppTokenClientImp;
+import se.uu.ub.cora.javaclient.apptoken.http.AppTokenClientImp;
+import se.uu.ub.cora.javaclient.cora.http.AppTokenClientCredentials;
 
 public class AppTokenClientFactoryImp implements AppTokenClientFactory {
 
