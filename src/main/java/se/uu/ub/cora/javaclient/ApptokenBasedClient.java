@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019, 2020 Uppsala University Library
+ * Copyright 2018, 2019, 2020, 2021 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -29,7 +29,7 @@ import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientImp extends CommonCoraClient implements CoraClient {
+public class ApptokenBasedClient extends CommonCoraClient implements CoraClient {
 
 	private RestClientFactory restClientFactory;
 	private AppTokenClient appTokenClient;
@@ -37,7 +37,7 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 	private String userId;
 	private String appToken;
 
-	public CoraClientImp(CoraClientDependencies coraClientDependencies) {
+	public ApptokenBasedClient(ApptokenBasedClientDependencies coraClientDependencies) {
 		this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
 		this.restClientFactory = coraClientDependencies.restClientFactory;
 		this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;
@@ -140,6 +140,14 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 	public String getAppToken() {
 		// needed for test
 		return appToken;
+	}
+
+	@Override
+	public String indexData(String recordType, String recordId) {
+		RestClient restClient = setUpRestClientWithAuthToken();
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		// return indexData(restClient, clientDataRecord);
+		return null;
 	}
 
 }

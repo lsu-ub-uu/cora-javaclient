@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.javaclient.doubles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
@@ -33,6 +36,8 @@ public class RestClientSpy implements RestClient {
 	public RestResponse restResponse;
 	public ExtendedRestResponse extendedRestResponse;
 	private int statusCode = 200;
+	public List<String> recordTypes = new ArrayList<>();
+	public List<String> recordIds = new ArrayList<>();
 
 	@Override
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
@@ -42,6 +47,9 @@ public class RestClientSpy implements RestClient {
 		}
 		this.recordType = recordType;
 		this.recordId = recordId;
+		recordTypes.add(recordType);
+		recordIds.add(recordId);
+
 		methodCalled = "read";
 		if ("someRecordTypeToBeReturnedAsDataGroup".equals(recordType)) {
 			String jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"https://cora.test.alvin-portal.org/alvin/rest/record/metadataItemCollection/historicCountryCollection\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
@@ -60,6 +68,9 @@ public class RestClientSpy implements RestClient {
 		}
 		this.recordType = recordType;
 		this.json = json;
+		recordTypes.add(recordType);
+		recordIds.add(recordId);
+
 		methodCalled = "create";
 		RestResponse restResponse = new RestResponse(statusCode, returnedAnswer + methodCalled);
 		extendedRestResponse = new ExtendedRestResponse(restResponse);

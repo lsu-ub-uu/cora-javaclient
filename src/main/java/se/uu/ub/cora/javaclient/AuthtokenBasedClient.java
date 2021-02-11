@@ -28,7 +28,7 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
-public class RestClientCoraClient extends CommonCoraClient implements CoraClient {
+public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient {
 
 	static final String FROM = " from ";
 	static final String AND_ID = " and id: ";
@@ -37,7 +37,7 @@ public class RestClientCoraClient extends CommonCoraClient implements CoraClient
 
 	RestClient restClient;
 
-	public RestClientCoraClient(RestClient restClient,
+	public AuthtokenBasedClient(RestClient restClient,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory) {
 		this.restClient = restClient;
@@ -102,6 +102,12 @@ public class RestClientCoraClient extends CommonCoraClient implements CoraClient
 
 	public RestClient getRestClient() {
 		return restClient;
+	}
+
+	@Override
+	public String indexData(String recordType, String recordId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

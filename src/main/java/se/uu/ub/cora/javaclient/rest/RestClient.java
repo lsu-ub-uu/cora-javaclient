@@ -20,6 +20,10 @@ package se.uu.ub.cora.javaclient.rest;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * REstClient is a java client for handling records in a Cora based system, that has an exposed REST
+ * API.
+ */
 public interface RestClient {
 
 	/**

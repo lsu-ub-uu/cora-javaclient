@@ -23,7 +23,7 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientDependencies {
+public class ApptokenBasedClientDependencies {
 
 	public final AppTokenClientFactory appTokenClientFactory;
 	public final RestClientFactory restClientFactory;
@@ -33,7 +33,7 @@ public class CoraClientDependencies {
 	public final String appToken;
 	public final String authToken;
 
-	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
+	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken) {
@@ -46,7 +46,7 @@ public class CoraClientDependencies {
 		authToken = null;
 	}
 
-	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
+	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken,

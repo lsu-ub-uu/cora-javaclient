@@ -22,9 +22,9 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
-import se.uu.ub.cora.javaclient.CoraClientDependencies;
-import se.uu.ub.cora.javaclient.CoraClientImp;
-import se.uu.ub.cora.javaclient.RestClientCoraClient;
+import se.uu.ub.cora.javaclient.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.ApptokenBasedClient;
+import se.uu.ub.cora.javaclient.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
@@ -52,11 +52,11 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 	public CoraClient factor(String userId, String appToken) {
 		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
 		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactoryImp();
-		CoraClientDependencies coraClientDependencies = new CoraClientDependencies(
+		ApptokenBasedClientDependencies coraClientDependencies = new ApptokenBasedClientDependencies(
 				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
 				jsonToDataConverterFactory, userId, appToken);
 
-		return new CoraClientImp(coraClientDependencies);
+		return new ApptokenBasedClient(coraClientDependencies);
 	}
 
 	public String getAppTokenVerifierUrl() {
@@ -74,7 +74,7 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
 		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
 		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactoryImp();
-		return new RestClientCoraClient(restClient, dataToJsonConverterFactory,
+		return new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
 				jsonToDataConverterFactory);
 	}
 
