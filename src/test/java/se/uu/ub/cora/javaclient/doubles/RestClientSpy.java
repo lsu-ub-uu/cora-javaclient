@@ -55,6 +55,10 @@ public class RestClientSpy implements RestClient {
 			String jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"https://cora.test.alvin-portal.org/alvin/rest/record/metadataItemCollection/historicCountryCollection\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
 			restResponse = new RestResponse(200, jsonToReturn);
 			return restResponse;
+		} else if ("someRecordType".equals(recordType)) {
+			String jsonToReturn = "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"https://cora.test.alvin-portal.org/alvin/rest/record/metadataItemCollection/historicCountryCollection\",\"accept\":\"application/vnd.uub.record+json\"},\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"recordType\"},{\"name\":\"recordId\",\"value\":\"historicCountryCollection\"},{\"name\":\"type\",\"value\":\"index\"}],\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"https://cora.epc.ub.uu.se/diva/rest/record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
+			restResponse = new RestResponse(200, jsonToReturn);
+			return restResponse;
 		}
 		restResponse = new RestResponse(statusCode, returnedAnswer + methodCalled);
 		return restResponse;
@@ -69,7 +73,6 @@ public class RestClientSpy implements RestClient {
 		this.recordType = recordType;
 		this.json = json;
 		recordTypes.add(recordType);
-		recordIds.add(recordId);
 
 		methodCalled = "create";
 		RestResponse restResponse = new RestResponse(statusCode, returnedAnswer + methodCalled);

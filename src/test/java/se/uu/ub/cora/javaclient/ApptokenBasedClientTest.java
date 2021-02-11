@@ -363,16 +363,10 @@ public class ApptokenBasedClientTest {
 
 	@Test
 	public void testIndexDataRecordUsingRecordTypeAndRecordId() throws Exception {
-
-		// ClientDataRecord clientDataRecord = ClientDataRecord
-		// .withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
-		// ActionLink actionLink = createActionLinkIndex();
-		// clientDataRecord.addActionLink("index", actionLink);
-
-		String recordType = "someRecordTypeToBeReturnedAsDataGroup";
+		String recordType = "someRecordType";
 		String recordId = "someRecordId";
 
-		String createdJson = coraClient.indexData(recordType, recordId);
+		String responseText = coraClient.indexData(recordType, recordId);
 
 		AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
 		assertNotNull(appTokenClient.returnedAuthToken);
@@ -382,13 +376,10 @@ public class ApptokenBasedClientTest {
 		assertEquals(restClientSpy.recordTypes.get(0), recordType);
 		assertEquals(restClientSpy.recordIds.get(0), recordId);
 
-		// assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
-		// assertSame(dataToJsonConverterFactory.clientDataElement, actionLink.getBody());
-		//// String jsonReturnedFromConverter =
-		//// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-		//
-		// assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
-		// "workOrder");
+		assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
 
+		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
 	}
 }

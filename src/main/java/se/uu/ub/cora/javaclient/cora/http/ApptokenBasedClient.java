@@ -146,8 +146,7 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	public String indexData(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		// return indexData(restClient, clientDataRecord);
-		return null;
+		return indexData(restClient, clientDataRecord);
 	}
 
 }
