@@ -18,8 +18,15 @@
  */
 package se.uu.ub.cora.javaclient.apptoken;
 
+/**
+ * AppTokenClient is used to get an authToken for a given UserId and AppToken
+ */
 public interface AppTokenClient {
-
+	/**
+	 * getAuthToken logs on to the AppToken server and returns an AuthToken
+	 * 
+	 * @return A String with the newly fetched authToken
+	 */
 	String getAuthToken();
 
 }

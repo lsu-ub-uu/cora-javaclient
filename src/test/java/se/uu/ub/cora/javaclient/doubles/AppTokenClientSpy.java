@@ -22,9 +22,12 @@ import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 
 public class AppTokenClientSpy implements AppTokenClient {
 
+	public String returnedAuthToken;
+
 	@Override
 	public String getAuthToken() {
-		return "someAuthTokenFromSpy";
+		returnedAuthToken = "someAuthTokenFromSpy";
+		return returnedAuthToken;
 	}
 
 }

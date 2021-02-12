@@ -34,66 +34,36 @@ import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
-import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
-import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
+import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
 import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class CoraClientTest {
-	private CoraClient coraClient;
-	private RestClientFactorySpy restClientFactory;
-	private AppTokenClientFactorySpy appTokenClientFactory;
-	private String userId = "someUserId";
-	private String appToken = "someAppToken";
+public class AuthtokenBasedClientTest {
+	private AuthtokenBasedClient coraClient;
+	private RestClientSpy restClient;
 	private DataToJsonConverterFactorySpy dataToJsonConverterFactory;
 	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 
 	@BeforeMethod
 	public void BeforeMethod() {
-		restClientFactory = new RestClientFactorySpy();
-		appTokenClientFactory = new AppTokenClientFactorySpy();
+		restClient = new RestClientSpy();
 		dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
 		jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
-		CoraClientDependencies coraClientDependencies = new CoraClientDependencies(
-				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
-				jsonToDataConverterFactory, userId, appToken);
-		coraClient = new CoraClientImp(coraClientDependencies);
+		coraClient = new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
+				jsonToDataConverterFactory);
 	}
 
 	@Test
 	public void testInit() throws Exception {
-		assertEquals(appTokenClientFactory.factored.size(), 1);
-		String usedUserId = appTokenClientFactory.usedUserId.get(0);
-		assertEquals(usedUserId, userId);
-		String usedAppToken = appTokenClientFactory.usedAppToken.get(0);
-		assertEquals(usedAppToken, appToken);
-	}
-
-	@Test(expectedExceptions = CoraClientException.class)
-	public void testInitErrorWithAuthToken() throws Exception {
-		CoraClientDependencies coraClientDependencies = setUpDependenciesWithErrorInUserId();
-		CoraClientImp coraClient = new CoraClientImp(coraClientDependencies);
-		String json = "some fake json";
-		coraClient.create("someType", json);
-	}
-
-	private CoraClientDependencies setUpDependenciesWithErrorInUserId() {
-		CoraClientDependencies coraClientDependencies = new CoraClientDependencies(
-				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
-				jsonToDataConverterFactory, AppTokenClientFactorySpy.THIS_USER_ID_TRIGGERS_AN_ERROR,
-				appToken);
-		return coraClientDependencies;
+		assertSame(coraClient.getDataToJsonConverterFactory(), dataToJsonConverterFactory);
+		assertSame(coraClient.getJsonToDataConverterFactory(), jsonToDataConverterFactory);
 	}
 
 	@Test
 	public void testRead() throws Exception {
 		String readJson = coraClient.read("someType", "someId");
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(restClient.recordId, "someId");
 		assertEquals(readJson, restClient.restResponse.responseText);
@@ -115,7 +85,8 @@ public class CoraClientTest {
 				.readAsDataRecord("someRecordTypeToBeReturnedAsDataGroup", "someRecordId");
 		assertNotNull(dataRecord);
 
-		assertCorrectFactoredRestClient();
+		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsDataGroup");
+		assertEquals(restClient.recordId, "someRecordId");
 		assertTrue(jsonToDataConverterFactory.createForJsonObjectWasCalled);
 
 		JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
@@ -130,14 +101,6 @@ public class CoraClientTest {
 
 	}
 
-	private void assertCorrectFactoredRestClient() {
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsDataGroup");
-		assertEquals(restClient.recordId, "someRecordId");
-	}
-
 	private String getExpectedDataGroupJson() {
 		return "{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}}";
 	}
@@ -145,9 +108,6 @@ public class CoraClientTest {
 	@Test
 	public void testReadList() throws Exception {
 		String readListJson = coraClient.readList("someType");
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(readListJson, restClient.returnedAnswer + restClient.methodCalled);
 		assertEquals(restClient.methodCalled, "readList");
@@ -158,9 +118,6 @@ public class CoraClientTest {
 		List<ClientDataRecord> dataRecords = coraClient
 				.readListAsDataRecords("someRecordTypeToBeReturnedAsRecordDataInList");
 
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsRecordDataInList");
 		assertEquals(restClient.methodCalled, "readList");
 
@@ -189,9 +146,6 @@ public class CoraClientTest {
 
 	private void assertCorrectDataSentToRestClient(String jsonSentToRestClient,
 			String jsonReturnedFromCreate, String methodCalled, String recordType) {
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, recordType);
 		assertEquals(restClient.json, jsonSentToRestClient);
 		assertEquals(jsonReturnedFromCreate, restClient.returnedAnswer + restClient.methodCalled);
@@ -226,9 +180,6 @@ public class CoraClientTest {
 	public void testUpdate() throws Exception {
 		String json = "some fake json";
 		String updatedJson = coraClient.update("someType", "someId", json);
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(restClient.recordId, "someId");
 		assertEquals(restClient.json, json);
@@ -267,9 +218,6 @@ public class CoraClientTest {
 	@Test
 	public void testDelete() {
 		String createdJson = coraClient.delete("someType", "someId");
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(restClient.recordId, "someId");
 		assertEquals(createdJson, restClient.returnedAnswer + restClient.methodCalled);
@@ -288,9 +236,6 @@ public class CoraClientTest {
 	@Test
 	public void testReadIncomingLinks() throws Exception {
 		String readLinksJson = coraClient.readIncomingLinks("someType", "someId");
-		RestClientSpy restClient = restClientFactory.factored.get(0);
-		assertEquals(restClientFactory.factored.size(), 1);
-		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 		assertEquals(restClient.recordType, "someType");
 		assertEquals(restClient.recordId, "someId");
 		assertEquals(readLinksJson, restClient.returnedAnswer + restClient.methodCalled);
@@ -322,7 +267,6 @@ public class CoraClientTest {
 
 		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
 				"workOrder");
-
 	}
 
 	private ActionLink createActionLinkIndex() {
@@ -356,5 +300,27 @@ public class CoraClientTest {
 
 		coraClient.indexData(clientDataRecord);
 
+	}
+
+	@Test
+	public void testIndexWithRecordTypeAndRecordId() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String createdJson = coraClient.indexData(recordType, recordId);
+
+		JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
+		String dataGroupPartOfRecordJson = jsonSentToConverterFactory.toJsonFormattedString();
+
+		String dataGroupPartOfRecord = getExpectedDataGroupJson();
+		assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
+
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
+				"workOrder");
+
+		assertEquals(restClient.recordTypes.get(0), recordType);
+		assertEquals(restClient.recordIds.get(0), recordId);
 	}
 }

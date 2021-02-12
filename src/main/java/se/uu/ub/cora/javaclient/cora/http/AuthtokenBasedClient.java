@@ -17,7 +17,7 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.cora.http;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
-public class RestClientCoraClient extends CommonCoraClient implements CoraClient {
+public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient {
 
 	static final String FROM = " from ";
 	static final String AND_ID = " and id: ";
@@ -37,7 +37,7 @@ public class RestClientCoraClient extends CommonCoraClient implements CoraClient
 
 	RestClient restClient;
 
-	public RestClientCoraClient(RestClient restClient,
+	public AuthtokenBasedClient(RestClient restClient,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory) {
 		this.restClient = restClient;
@@ -98,6 +98,12 @@ public class RestClientCoraClient extends CommonCoraClient implements CoraClient
 	@Override
 	public String indexData(ClientDataRecord clientDataRecord) {
 		return indexData(restClient, clientDataRecord);
+	}
+
+	@Override
+	public String indexData(String recordType, String recordId) {
+		ClientDataRecord record = readAsDataRecord(recordType, recordId);
+		return indexData(record);
 	}
 
 	public RestClient getRestClient() {

@@ -27,7 +27,7 @@ public class RestResponse {
 	public final String responseText;
 
 	/**
-	 * Stores status code, response text, and created id.
+	 * Stores status code, response text.
 	 * 
 	 * @param statusCode
 	 *            An int representing the status code from the HttpResponse

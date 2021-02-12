@@ -26,13 +26,14 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientDependenciesTest {
+public class ApptokenBasedClientDependenciesTest {
 
-	private CoraClientDependencies dependencies;
+	private ApptokenBasedClientDependencies dependencies;
 	private AppTokenClientFactory appTokenClientFactory;
 	private RestClientFactory restClientFactory;
 	private DataToJsonConverterFactory dataToJsonConverterFactory;
@@ -46,7 +47,7 @@ public class CoraClientDependenciesTest {
 		jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
 		String userId = "someUserId";
 		String appToken = "someApptoken";
-		dependencies = new CoraClientDependencies(appTokenClientFactory, restClientFactory,
+		dependencies = new ApptokenBasedClientDependencies(appTokenClientFactory, restClientFactory,
 				dataToJsonConverterFactory, jsonToDataConverterFactory, userId, appToken);
 
 	}
@@ -65,7 +66,7 @@ public class CoraClientDependenciesTest {
 	public void testDependenciesWithAuthToken() {
 		String authToken = "345345-345345-34565748";
 
-		dependencies = new CoraClientDependencies(appTokenClientFactory, restClientFactory,
+		dependencies = new ApptokenBasedClientDependencies(appTokenClientFactory, restClientFactory,
 				dataToJsonConverterFactory, jsonToDataConverterFactory, "someUserId",
 				"someApptoken", "345345-345345-34565748");
 

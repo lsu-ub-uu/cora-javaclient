@@ -20,6 +20,13 @@ package se.uu.ub.cora.javaclient.rest;
 
 import java.io.UnsupportedEncodingException;
 
+import se.uu.ub.cora.javaclient.cora.CoraClient;
+
+/**
+ * RestClient is a java client for handling records in a Cora based system. Methods return a rather
+ * low level {@link RestResponse} exposing the return codes from the server, when called. In
+ * contrast to {@link CoraClient} which hides the communication details from the user of the class.
+ */
 public interface RestClient {
 
 	/**

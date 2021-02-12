@@ -28,11 +28,11 @@ import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
-import se.uu.ub.cora.javaclient.CoraClientImp;
-import se.uu.ub.cora.javaclient.RestClientCoraClient;
-import se.uu.ub.cora.javaclient.RestClientImp;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
+import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
+import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class CoraClientFactoryTest {
 	// private CoraClientImp coraClient;
@@ -50,7 +50,7 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testCorrectFactoriesAreSentToCoraClient() throws Exception {
-		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
+		ApptokenBasedClient coraClient = (ApptokenBasedClient) clientFactory.factor("someUserId",
 				"someAppToken");
 
 		AppTokenClientFactoryImp appTokenClientFactory = (AppTokenClientFactoryImp) coraClient
@@ -72,7 +72,7 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testFactorParametersSentAlong() throws Exception {
-		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
+		ApptokenBasedClient coraClient = (ApptokenBasedClient) clientFactory.factor("someUserId",
 				"someAppToken");
 		assertEquals(coraClient.getUserId(), "someUserId");
 		assertEquals(coraClient.getAppToken(), "someAppToken");
@@ -80,7 +80,7 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testCorrectFactoriesAreSentToCoraClientWhenUsingAuthToken() throws Exception {
-		RestClientCoraClient coraClient = (RestClientCoraClient) clientFactory
+		AuthtokenBasedClient coraClient = (AuthtokenBasedClient) clientFactory
 				.factorUsingAuthToken("someAuthTokenToken");
 
 		RestClientImp restClient = (RestClientImp) coraClient.getRestClient();

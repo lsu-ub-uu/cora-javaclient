@@ -24,7 +24,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
+import se.uu.ub.cora.javaclient.apptoken.http.AppTokenClientImp;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.cora.http.AppTokenClientCredentials;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpy;
 
 public class AppTokenClientTest {

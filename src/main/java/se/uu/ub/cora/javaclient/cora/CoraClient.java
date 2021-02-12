@@ -22,8 +22,14 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
+/**
+ * CoraClient is a java client for handling records in a Cora based system. Methods in this class
+ * hides the lower level communication details from the user, in contrast to {@link RestClient}
+ * which exposes the communication details to the user of the class.
+ */
 public interface CoraClient {
 
 	/**
@@ -159,5 +165,15 @@ public interface CoraClient {
 	 * 
 	 */
 	String indexData(ClientDataRecord clientDataRecord);
+
+	/**
+	 * Indexes a record, by sending an index order for a recordType and a recordId.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to index
+	 * @param recordId,
+	 *            A String, the id of the record to index
+	 */
+	String indexData(String recordType, String recordId);
 
 }

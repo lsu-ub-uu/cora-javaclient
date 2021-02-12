@@ -16,14 +16,14 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.cora.http;
 
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientDependencies {
+public class ApptokenBasedClientDependencies {
 
 	public final AppTokenClientFactory appTokenClientFactory;
 	public final RestClientFactory restClientFactory;
@@ -33,7 +33,7 @@ public class CoraClientDependencies {
 	public final String appToken;
 	public final String authToken;
 
-	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
+	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken) {
@@ -46,7 +46,7 @@ public class CoraClientDependencies {
 		authToken = null;
 	}
 
-	public CoraClientDependencies(AppTokenClientFactory appTokenClientFactory,
+	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
 			DataToJsonConverterFactory dataToJsonConverterFactory,
 			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken,
