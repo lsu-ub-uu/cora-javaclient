@@ -267,7 +267,6 @@ public class AuthtokenBasedClientTest {
 
 		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
 				"workOrder");
-
 	}
 
 	private ActionLink createActionLinkIndex() {
@@ -301,5 +300,27 @@ public class AuthtokenBasedClientTest {
 
 		coraClient.indexData(clientDataRecord);
 
+	}
+
+	@Test
+	public void testIndexWithRecordTypeAndRecordId() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String createdJson = coraClient.indexData(recordType, recordId);
+
+		JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
+		String dataGroupPartOfRecordJson = jsonSentToConverterFactory.toJsonFormattedString();
+
+		String dataGroupPartOfRecord = getExpectedDataGroupJson();
+		assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
+
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
+				"workOrder");
+
+		assertEquals(restClient.recordTypes.get(0), recordType);
+		assertEquals(restClient.recordIds.get(0), recordId);
 	}
 }
