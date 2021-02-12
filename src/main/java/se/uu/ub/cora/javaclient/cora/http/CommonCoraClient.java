@@ -24,6 +24,7 @@ import java.util.List;
 import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
@@ -237,7 +238,7 @@ public class CommonCoraClient {
 		return create(restClient, "workOrder", bodyDataGroup);
 	}
 
-	private void throwErrorIfNoIndexLink(ClientDataRecord clientDataRecord) {
+	private void throwErrorIfNoIndexLink(DataRecord clientDataRecord) {
 		if (!clientDataRecord.getActionLinks().containsKey("index")) {
 			throw new CoraClientException(
 					"Could not read index data. No index link found in record.");
