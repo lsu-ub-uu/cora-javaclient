@@ -149,4 +149,14 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 		return indexData(restClient, clientDataRecord);
 	}
 
+	@Override
+	public String removeFromIndex(String recordType, String recordId) {
+		RestClient restClient = setUpRestClientWithAuthToken();
+		// TODO:har bara type och id eftersom posten är borttagen
+		// kolla index-rättighet på recordType? Skapa upp workorder, kan inte
+		// hämta från posten
+		// return removeFromIndex();
+		return null;
+	}
+
 }

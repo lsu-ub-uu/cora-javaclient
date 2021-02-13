@@ -382,4 +382,26 @@ public class ApptokenBasedClientTest {
 
 		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
 	}
+
+	@Test
+	public void testRemoveFromIndex() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String responseText = coraClient.removeFromIndex(recordType, recordId);
+
+		AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
+		assertNotNull(appTokenClient.returnedAuthToken);
+		assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
+
+		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
+		assertEquals(restClientSpy.recordTypes.get(0), recordType);
+		assertEquals(restClientSpy.recordIds.get(0), recordId);
+
+		assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
+
+		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+	}
 }
