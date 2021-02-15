@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2018, 2020, 2021 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -322,5 +322,37 @@ public class AuthtokenBasedClientTest {
 
 		assertEquals(restClient.recordTypes.get(0), recordType);
 		assertEquals(restClient.recordIds.get(0), recordId);
+	}
+
+	@Test
+	public void testRemoveFromIndexUsingRecordTypeAndRecordId() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String responseText = coraClient.removeFromIndex(recordType, recordId);
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		ClientDataGroup dataGroupSentToConverter = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+
+		assertCorrectWorkOrderDataGroupSentToConverter(recordType, recordId,
+				dataGroupSentToConverter);
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, responseText, "create",
+				"workOrder");
+		assertEquals(responseText, restClient.extendedRestResponse.responseText);
+
+	}
+
+	private void assertCorrectWorkOrderDataGroupSentToConverter(String recordType, String recordId,
+			ClientDataGroup dataGroupSentToConverter) {
+		assertEquals(dataGroupSentToConverter.getNameInData(), "workOrder");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("type"),
+				"removeFromIndex");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("recordId"),
+				recordId);
+		ClientDataGroup recordTypeGroup = dataGroupSentToConverter
+				.getFirstGroupWithNameInData("recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordType"),
+				"recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId"),
+				recordType);
 	}
 }

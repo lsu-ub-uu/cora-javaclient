@@ -112,8 +112,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	@Override
 	public String removeFromIndex(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
+		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
+		return create("workOrder", workOrder);
 	}
 
 }

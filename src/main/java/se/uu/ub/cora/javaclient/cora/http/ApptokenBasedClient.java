@@ -21,7 +21,6 @@ package se.uu.ub.cora.javaclient.cora.http;
 
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
@@ -123,6 +122,19 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 		return indexData(restClient, clientDataRecord);
 	}
 
+	@Override
+	public String indexData(String recordType, String recordId) {
+		RestClient restClient = setUpRestClientWithAuthToken();
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		return indexData(restClient, clientDataRecord);
+	}
+
+	@Override
+	public String removeFromIndex(String recordType, String recordId) {
+		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
+		return create("workOrder", workOrder);
+	}
+
 	public AppTokenClientFactory getAppTokenClientFactory() {
 		// needed for test
 		return appTokenClientFactory;
@@ -141,40 +153,6 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	public String getAppToken() {
 		// needed for test
 		return appToken;
-	}
-
-	@Override
-	public String indexData(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		return indexData(restClient, clientDataRecord);
-	}
-
-	@Override
-	public String removeFromIndex(String recordType, String recordId) {
-		// create a ClientDataGroup
-		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
-
-		create("", workOrder);
-		// send to create
-
-		// RestClient restClient = setUpRestClientWithAuthToken();
-		// TODO:har bara type och id eftersom posten är borttagen
-		// kolla index-rättighet på recordType? Skapa upp workorder, kan inte
-		// hämta från posten
-		// return removeFromIndex();
-		return null;
-	}
-
-	private ClientDataGroup createWorkOrderForRemoveFromIndex(String recordType, String recordId) {
-		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
-		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "removeFromIndex"));
-		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", recordId));
-
-		ClientDataGroup recordTypeGroup = ClientDataGroup
-				.asLinkWithNameInDataAndTypeAndId("recordType", "recordType", recordType);
-		workOrder.addChild(recordTypeGroup);
-		return workOrder;
 	}
 
 }
