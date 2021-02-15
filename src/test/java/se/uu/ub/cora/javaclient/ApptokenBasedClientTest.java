@@ -395,13 +395,59 @@ public class ApptokenBasedClientTest {
 		assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
 
 		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
-		assertEquals(restClientSpy.recordTypes.get(0), recordType);
-		assertEquals(restClientSpy.recordIds.get(0), recordId);
+		// assertEquals(restClientSpy.recordTypes.get(0), recordType);
+		// assertEquals(restClientSpy.recordIds.get(0), recordId);
 
-		assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
+		// assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
+		ClientDataGroup dataGroupSentToConverter = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+		assertCorrectWorkOrderDataGroupSentToConverter(recordType, recordId,
+				dataGroupSentToConverter);
 
-		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+		// assertEquals(restClientSpy.json, jsonReturnedFromConverter);
+
+		// assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
 	}
+
+	private void assertCorrectWorkOrderDataGroupSentToConverter(String recordType, String recordId,
+			ClientDataGroup dataGroupSentToConverter) {
+		assertEquals(dataGroupSentToConverter.getNameInData(), "workOrder");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("type"),
+				"removeFromIndex");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("recordId"),
+				recordId);
+		ClientDataGroup recordTypeGroup = dataGroupSentToConverter
+				.getFirstGroupWithNameInData("recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordType"),
+				"recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId"),
+				recordType);
+	}
+
+	// {
+	// "children": [
+	// {
+	// "children": [
+	// {
+	// "name": "linkedRecordType",
+	// "value": "recordType"
+	// },
+	// {
+	// "name": "linkedRecordId",
+	// "value": "journal"
+	// }
+	// ],
+	// "name": "recordType"
+	// },
+	// {
+	// "name": "recordId",
+	// "value": "journal:19796284470527219"
+	// },
+	// {
+	// "name": "type",
+	// "value": "index"
+	// }
+	// ],
+	// "name": "workOrder"
+	// }
 }
