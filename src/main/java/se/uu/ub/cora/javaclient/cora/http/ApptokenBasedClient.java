@@ -122,6 +122,19 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 		return indexData(restClient, clientDataRecord);
 	}
 
+	@Override
+	public String indexData(String recordType, String recordId) {
+		RestClient restClient = setUpRestClientWithAuthToken();
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		return indexData(restClient, clientDataRecord);
+	}
+
+	@Override
+	public String removeFromIndex(String recordType, String recordId) {
+		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
+		return create("workOrder", workOrder);
+	}
+
 	public AppTokenClientFactory getAppTokenClientFactory() {
 		// needed for test
 		return appTokenClientFactory;
@@ -140,13 +153,6 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	public String getAppToken() {
 		// needed for test
 		return appToken;
-	}
-
-	@Override
-	public String indexData(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		return indexData(restClient, clientDataRecord);
 	}
 
 }

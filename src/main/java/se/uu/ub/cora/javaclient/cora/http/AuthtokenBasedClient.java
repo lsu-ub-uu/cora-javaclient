@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019, 2020 Uppsala University Library
+ * Copyright 2018, 2019, 2020, 2021 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -108,6 +108,12 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	public RestClient getRestClient() {
 		return restClient;
+	}
+
+	@Override
+	public String removeFromIndex(String recordType, String recordId) {
+		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
+		return create("workOrder", workOrder);
 	}
 
 }

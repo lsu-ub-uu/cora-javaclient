@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.DataRecord;
@@ -253,5 +254,20 @@ public class CommonCoraClient {
 	public JsonToDataConverterFactory getJsonToDataConverterFactory() {
 		// needed for test
 		return jsonToDataConverterFactory;
+	}
+
+	protected ClientDataGroup createWorkOrderForRemoveFromIndex(String recordType, String recordId) {
+		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "removeFromIndex"));
+		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", recordId));
+	
+		createAndAddRecordType(recordType, workOrder);
+		return workOrder;
+	}
+
+	void createAndAddRecordType(String recordType, ClientDataGroup workOrder) {
+		ClientDataGroup recordTypeGroup = ClientDataGroup
+				.asLinkWithNameInDataAndTypeAndId("recordType", "recordType", recordType);
+		workOrder.addChild(recordTypeGroup);
 	}
 }

@@ -176,4 +176,14 @@ public interface CoraClient {
 	 */
 	String indexData(String recordType, String recordId);
 
+	/**
+	 * Removes a record from index, by sending recordType and a recordId.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the record to remove from index
+	 * @param recordId,
+	 *            A String, the id of the record to remove from index
+	 */
+	String removeFromIndex(String recordType, String recordId);
+
 }

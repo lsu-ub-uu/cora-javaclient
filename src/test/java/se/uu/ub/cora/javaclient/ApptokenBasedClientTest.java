@@ -382,4 +382,42 @@ public class ApptokenBasedClientTest {
 
 		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
 	}
+
+	@Test
+	public void testRemoveFromIndex() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String responseText = coraClient.removeFromIndex(recordType, recordId);
+
+		AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
+		assertNotNull(appTokenClient.returnedAuthToken);
+		assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
+
+		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
+
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		ClientDataGroup dataGroupSentToConverter = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+		assertCorrectWorkOrderDataGroupSentToConverter(recordType, recordId,
+				dataGroupSentToConverter);
+
+		assertEquals(restClientSpy.recordTypes.get(0), "workOrder");
+		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
+		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+	}
+
+	private void assertCorrectWorkOrderDataGroupSentToConverter(String recordType, String recordId,
+			ClientDataGroup dataGroupSentToConverter) {
+		assertEquals(dataGroupSentToConverter.getNameInData(), "workOrder");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("type"),
+				"removeFromIndex");
+		assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("recordId"),
+				recordId);
+		ClientDataGroup recordTypeGroup = dataGroupSentToConverter
+				.getFirstGroupWithNameInData("recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordType"),
+				"recordType");
+		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId"),
+				recordType);
+	}
 }
