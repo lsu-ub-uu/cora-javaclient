@@ -71,6 +71,9 @@ public class HttpHandlerSpy implements HttpHandler {
 		if (httpUrlConnection.getURL().toString().contains("metadataGroup/someMetadataGroupId")) {
 			return "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"presentation\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"recordLink\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/metadataRecordLink/linkedRecordPresentationPresentationLink\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
 		}
+		if (httpUrlConnection.getURL().toString().contains("index/")) {
+			return "indexBatchJobAsJson";
+		}
 		returnedResponseText = "Everything ok";
 		return returnedResponseText;
 	}

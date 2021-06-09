@@ -209,4 +209,17 @@ public final class RestClientImp implements RestClient {
 		return readRecordListUsingUrl(url);
 	}
 
+	@Override
+	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
+			throws UnsupportedEncodingException {
+
+		String url = baseUrl + "index/" + recordType;
+		HttpHandler httpHandler = setUpHttpHandlerForPost(filterAsJson, url);
+
+		int responseCode = httpHandler.getResponseCode();
+		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+		return new RestResponse(responseCode, responseText);
+	}
+
 }

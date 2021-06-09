@@ -142,7 +142,7 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testReadRecordListNotWithFilterOk() throws UnsupportedEncodingException {
+	public void testReadRecordListWithFilterNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
 		RestResponse response = restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
@@ -330,6 +330,58 @@ public class RestClientTest {
 		assertEquals(response.responseText, httpHandler.returnedErrorText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
+
+	@Test
+	public void testBatchIndexWithFilterHttpHandlerSetupCorrectly()
+			throws UnsupportedEncodingException {
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		restClient.batchIndexWithFilterAsJson("recordTypeToIndex", filterAsJson);
+		assertEquals(getRequestMethod(), "POST");
+
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/index/recordTypeToIndex");
+
+		assertEquals(getRequestProperty("Accept"), "application/vnd.uub.record+json");
+		assertEquals(getRequestProperty("Content-Type"), "application/vnd.uub.record+json");
+
+		assertEquals(getRequestProperty("authToken"), "someToken");
+		assertEquals(getNumberOfRequestProperties(), 3);
+
+		assertEquals(getOutputString(), filterAsJson);
+
+	}
+
+	@Test
+	public void testBatchIndexWithFilterOk() throws UnsupportedEncodingException {
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		RestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
+				filterAsJson);
+
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		// TODO expect a proper JSON or is it OK like this because its fake anyway?
+		assertEquals(response.responseText, "indexBatchJobAsJson");
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+	}
+
+	@Test
+	public void testBatchIndexWithFilterNotOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		RestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
+				filterAsJson);
+
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+	}
+
+	// TODO: testBatchIndexWithFilterOkWithCreatedId ?
 
 	private String getOutputString() {
 		return httpHandlerFactorySpy.httpHandlerSpy.outputString;
