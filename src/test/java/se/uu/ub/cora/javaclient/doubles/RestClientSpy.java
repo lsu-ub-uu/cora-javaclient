@@ -150,7 +150,7 @@ public class RestClientSpy implements RestClient {
 	}
 
 	@Override
-	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
 		// TODO Auto-generated method stub
 		return null;
 	}

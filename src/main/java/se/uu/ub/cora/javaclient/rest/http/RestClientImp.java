@@ -94,13 +94,12 @@ public final class RestClientImp implements RestClient {
 	@Override
 	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
 		HttpHandler httpHandler = createHttpHandlerForCreate(recordType, json);
+
 		int responseCode = httpHandler.getResponseCode();
+		RestResponse restResponse = createRestResponse(httpHandler, responseCode);
 
-		String responseText = responseCodeIsCreated(responseCode) ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		RestResponse restResponse = new RestResponse(responseCode, responseText);
-
-		return responseCodeIsCreated(responseCode) ? createCreateResponse(httpHandler, restResponse)
+		return responseCodeIsCreated(responseCode)
+				? createResponseContainingCreatedId(httpHandler, restResponse)
 				: new ExtendedRestResponse(restResponse);
 	}
 
@@ -109,11 +108,21 @@ public final class RestClientImp implements RestClient {
 		return setUpHttpHandlerForPost(json, url);
 	}
 
+	private RestResponse createRestResponse(HttpHandler httpHandler, int responseCode) {
+		String responseText = getResponseOrErrorText(httpHandler, responseCode);
+		return new RestResponse(responseCode, responseText);
+	}
+
+	private String getResponseOrErrorText(HttpHandler httpHandler, int responseCode) {
+		return responseCodeIsCreated(responseCode) ? httpHandler.getResponseText()
+				: httpHandler.getErrorText();
+	}
+
 	private boolean responseCodeIsCreated(int responseCode) {
 		return CREATED == responseCode;
 	}
 
-	private ExtendedRestResponse createCreateResponse(HttpHandler httpHandler,
+	private ExtendedRestResponse createResponseContainingCreatedId(HttpHandler httpHandler,
 			RestResponse restResponse) {
 		String createdId = extractCreatedIdFromLocationHeader(
 				httpHandler.getHeaderField("Location"));
@@ -210,16 +219,22 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
 			throws UnsupportedEncodingException {
 
-		String url = baseUrl + "index/" + recordType;
-		HttpHandler httpHandler = setUpHttpHandlerForPost(filterAsJson, url);
+		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType, filterAsJson);
 
 		int responseCode = httpHandler.getResponseCode();
-		String responseText = responseCodeIsOk(responseCode) ? httpHandler.getResponseText()
-				: httpHandler.getErrorText();
-		return new RestResponse(responseCode, responseText);
+		RestResponse restResponse = createRestResponse(httpHandler, responseCode);
+
+		return responseCodeIsCreated(responseCode)
+				? createResponseContainingCreatedId(httpHandler, restResponse)
+				: new ExtendedRestResponse(restResponse);
+	}
+
+	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType, String filterAsJson) {
+		String url = baseUrl + "index/" + recordType;
+		return setUpHttpHandlerForPost(filterAsJson, url);
 	}
 
 }

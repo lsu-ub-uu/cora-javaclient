@@ -132,7 +132,7 @@ public interface RestClient {
 	 * @throws UnsupportedEncodingException
 	 * 
 	 */
-	RestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
+	ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
 			throws UnsupportedEncodingException;
 
 }
