@@ -219,8 +219,7 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson)
-			throws UnsupportedEncodingException {
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
 
 		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType, filterAsJson);
 
