@@ -121,4 +121,17 @@ public interface RestClient {
 	 */
 	String getBaseUrl();
 
+	/**
+	 * Creates an IndexBatchJob for the provided recordType.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to be indexed
+	 * 
+	 * @param filter
+	 *            A JSON-formatted String used to filter the result
+	 * @throws UnsupportedEncodingException
+	 * 
+	 */
+	ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson);
+
 }

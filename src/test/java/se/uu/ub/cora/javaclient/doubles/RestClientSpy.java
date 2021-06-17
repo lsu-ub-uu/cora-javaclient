@@ -149,4 +149,10 @@ public class RestClientSpy implements RestClient {
 		return "http://localhost:8080/therest/rest/record/";
 	}
 
+	@Override
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

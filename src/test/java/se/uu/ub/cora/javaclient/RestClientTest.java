@@ -142,7 +142,7 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testReadRecordListNotWithFilterOk() throws UnsupportedEncodingException {
+	public void testReadRecordListWithFilterNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
 		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
 		RestResponse response = restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
@@ -329,6 +329,77 @@ public class RestClientTest {
 		assertNotNull(response.responseText);
 		assertEquals(response.responseText, httpHandler.returnedErrorText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
+	}
+
+	@Test
+	public void testBatchIndexWithFilterHttpHandlerSetupCorrectly()
+			throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.setResponseCode(201);
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		restClient.batchIndexWithFilterAsJson("recordTypeToIndex", filterAsJson);
+		assertEquals(getRequestMethod(), "POST");
+
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/index/recordTypeToIndex");
+
+		assertEquals(getRequestProperty("Accept"), "application/vnd.uub.record+json");
+		assertEquals(getRequestProperty("Content-Type"), "application/vnd.uub.record+json");
+
+		assertEquals(getRequestProperty("authToken"), "someToken");
+		assertEquals(getNumberOfRequestProperties(), 3);
+
+		assertEquals(getOutputString(), filterAsJson);
+
+	}
+
+	@Test
+	public void testBatchIndexWithFilterOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.setResponseCode(201);
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
+				filterAsJson);
+
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, "indexBatchJobAsJson");
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+	}
+
+	@Test
+	public void testBatchIndexWithFilterNotOk() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
+				filterAsJson);
+
+		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
+				.get(0);
+
+		assertNotNull(response.responseText);
+		assertEquals(response.responseText, httpHandler.returnedErrorText);
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+	}
+
+	@Test
+	public void testBatchIndexWithFilterOkWithCreatedId() throws UnsupportedEncodingException {
+		httpHandlerFactorySpy.setResponseCode(201);
+
+		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
+		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
+				filterAsJson);
+
+		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		assertEquals(response.responseText, "indexBatchJobAsJson");
+		assertEquals(response.statusCode, httpHandler.responseCode);
+
+		String returnedHeaderFromSpy = httpHandler.returnedHeaderField;
+		assertEquals(response.createdId,
+				returnedHeaderFromSpy.substring(returnedHeaderFromSpy.lastIndexOf('/') + 1));
+
 	}
 
 	private String getOutputString() {
