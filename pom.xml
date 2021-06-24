@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>1.3.0</version>
+		<version>1.3.1</version>
 	</parent>
 
 	<artifactId>javaclient</artifactId>
@@ -32,7 +32,7 @@
 
 	<properties>
 		<httphandler.version>2.2.0</httphandler.version>
-		<cora-clientdata.version>3.7.0</cora-clientdata.version>
+		<cora-clientdata.version>3.9.0</cora-clientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		
