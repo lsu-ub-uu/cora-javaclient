@@ -102,8 +102,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	@Override
 	public String indexData(String recordType, String recordId) {
-		ClientDataRecord record = readAsDataRecord(recordType, recordId);
-		return indexData(record);
+		ClientDataRecord dataRecord = readAsDataRecord(recordType, recordId);
+		return indexData(dataRecord);
 	}
 
 	public RestClient getRestClient() {
