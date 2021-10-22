@@ -24,6 +24,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
@@ -31,6 +32,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.Action;
 import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
@@ -306,8 +308,51 @@ public class AuthtokenBasedClientTest {
 	public void testIndexWithRecordTypeAndRecordId() {
 		String recordType = "someRecordType";
 		String recordId = "someRecordId";
-
+		setUpActionLinksToReturn();
 		String createdJson = coraClient.indexData(recordType, recordId);
+		String explicitCommit = "true";
+
+		assertCorrectExecutionWhenIndexingData(recordType, recordId, createdJson, explicitCommit);
+	}
+
+	private void assertCorrectExecutionWhenIndexingData(String recordType, String recordId,
+			String createdJson, String explicitCommit) {
+		JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
+		String dataGroupPartOfRecordJson = jsonSentToConverterFactory.toJsonFormattedString();
+
+		String dataGroupPartOfRecord = getExpectedDataGroupJson();
+		assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
+
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+
+		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
+				"workOrder");
+
+		ClientDataGroup workOrderDataGroup = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+		assertEquals(workOrderDataGroup.getFirstAtomicValueWithNameInData("performCommit"),
+				explicitCommit);
+
+		assertEquals(restClient.recordTypes.get(0), recordType);
+		assertEquals(restClient.recordIds.get(0), recordId);
+	}
+
+	private void setUpActionLinksToReturn() {
+		List<ClientData> actionLinksToReturn = new ArrayList<>();
+		ActionLink actionLinkIndex = ActionLink.withAction(Action.INDEX);
+		actionLinkIndex.setBody(ClientDataGroup.withNameInData("index"));
+		actionLinksToReturn.add(actionLinkIndex);
+
+		ActionLink actionLink = ActionLink.withAction(Action.READ);
+		actionLinksToReturn.add(actionLink);
+		jsonToDataConverterFactory.actionLinksToReturn = actionLinksToReturn;
+	}
+
+	@Test
+	public void testIndexWithRecordTypeAndRecordIdWithoutExplicitCommit() {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+		setUpActionLinksToReturn();
+		String createdJson = coraClient.indexDataWithoutExplicitCommit(recordType, recordId);
 
 		JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
 		String dataGroupPartOfRecordJson = jsonSentToConverterFactory.toJsonFormattedString();
@@ -319,6 +364,10 @@ public class AuthtokenBasedClientTest {
 
 		assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
 				"workOrder");
+
+		ClientDataGroup workOrderDataGroup = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+		assertEquals(workOrderDataGroup.getFirstAtomicValueWithNameInData("performCommit"),
+				"false");
 
 		assertEquals(restClient.recordTypes.get(0), recordType);
 		assertEquals(restClient.recordIds.get(0), recordId);

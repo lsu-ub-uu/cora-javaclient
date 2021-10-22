@@ -19,8 +19,10 @@
 package se.uu.ub.cora.javaclient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
@@ -32,6 +34,8 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 	public JsonValue jsonValue;
 	public JsonToDataConverterSpy factoredConverter;
 	public List<JsonToDataConverterSpy> factoredConverters = new ArrayList<>();
+	public List<ClientData> actionLinksToReturn = Collections.emptyList();
+	private int numOfCallsTocreateJsonToDataActionLink = 0;
 
 	@Override
 	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
@@ -57,7 +61,13 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 	@Override
 	public JsonToDataActionLinkConverter createJsonToDataActionLinkConverterForJsonObject(
 			JsonValue jsonValue) {
-		return new JsonToDataActionLinkConverterSpy();
+		JsonToDataActionLinkConverterSpy jsonToDataActionLinkConverterSpy = new JsonToDataActionLinkConverterSpy();
+		if (!actionLinksToReturn.isEmpty()) {
+			jsonToDataActionLinkConverterSpy.actionLinkToReturn = actionLinksToReturn
+					.get(numOfCallsTocreateJsonToDataActionLink);
+		}
+		numOfCallsTocreateJsonToDataActionLink++;
+		return jsonToDataActionLinkConverterSpy;
 	}
 
 }

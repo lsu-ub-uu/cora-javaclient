@@ -97,7 +97,7 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	@Override
 	public String indexData(ClientDataRecord clientDataRecord) {
-		return indexData(restClient, clientDataRecord);
+		return indexData(restClient, clientDataRecord, true);
 	}
 
 	@Override
@@ -118,8 +118,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	@Override
 	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
-		// TODO Auto-generated method stub
-		return null;
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		return indexData(restClient, clientDataRecord, false);
 	}
 
 }

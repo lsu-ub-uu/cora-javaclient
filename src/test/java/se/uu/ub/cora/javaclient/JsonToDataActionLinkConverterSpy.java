@@ -7,9 +7,15 @@ import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConvert
 
 public class JsonToDataActionLinkConverterSpy implements JsonToDataActionLinkConverter {
 
+	public ClientData actionLinkToReturn = null;
+
 	@Override
 	public ClientData toInstance() {
-		return ActionLink.withAction(Action.READ);
+		if (actionLinkToReturn == null) {
+			return ActionLink.withAction(Action.READ);
+
+		}
+		return actionLinkToReturn;
 	}
 
 }

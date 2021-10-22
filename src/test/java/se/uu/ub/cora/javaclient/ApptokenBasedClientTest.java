@@ -24,6 +24,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
@@ -31,10 +32,10 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.Action;
 import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
@@ -46,7 +47,7 @@ import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class ApptokenBasedClientTest {
-	private CoraClient coraClient;
+	private ApptokenBasedClient coraClient;
 	private RestClientFactorySpy restClientFactory;
 	private AppTokenClientFactorySpy appTokenClientFactory;
 	private String userId = "someUserId";
@@ -365,15 +366,29 @@ public class ApptokenBasedClientTest {
 	public void testIndexDataRecordUsingRecordTypeAndRecordId() throws Exception {
 		String recordType = "someRecordType";
 		String recordId = "someRecordId";
-
+		setUpActionLinksToReturn();
 		String responseText = coraClient.indexData(recordType, recordId);
 
+		String performCommit = "true";
+		assertCorrectExecutionWhenIndexingData(recordType, recordId, responseText, performCommit);
+	}
+
+	private void assertCorrectExecutionWhenIndexingData(String recordType, String recordId,
+			String responseText, String performCommit) {
 		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
 		assertCorrectApptokenAndRestClientCallWhenIndexing(restClientSpy, recordType, recordId);
+
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
 
 		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+
+		ClientDataGroup workOrderDataGroup = (ClientDataGroup) dataToJsonConverterFactory.clientDataElement;
+		assertEquals(workOrderDataGroup.getFirstAtomicValueWithNameInData("performCommit"),
+				performCommit);
+
+		ActionLink actionLink = (ActionLink) jsonToDataConverterFactory.actionLinksToReturn.get(0);
+		assertSame(workOrderDataGroup, actionLink.getBody());
 	}
 
 	private void assertCorrectApptokenAndRestClientCallWhenIndexing(RestClientSpy restClientSpy,
@@ -394,15 +409,21 @@ public class ApptokenBasedClientTest {
 		String recordType = "someRecordType";
 		String recordId = "someRecordId";
 
+		setUpActionLinksToReturn();
+
 		String responseText = coraClient.indexDataWithoutExplicitCommit(recordType, recordId);
+		assertCorrectExecutionWhenIndexingData(recordType, recordId, responseText, "false");
+	}
 
-		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
-		assertCorrectApptokenAndRestClientCallWhenIndexing(restClientSpy, recordType, recordId);
+	private void setUpActionLinksToReturn() {
+		List<ClientData> actionLinksToReturn = new ArrayList<>();
+		ActionLink actionLinkIndex = ActionLink.withAction(Action.INDEX);
+		actionLinkIndex.setBody(ClientDataGroup.withNameInData("index"));
+		actionLinksToReturn.add(actionLinkIndex);
 
-		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
-
-		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+		ActionLink actionLink = ActionLink.withAction(Action.READ);
+		actionLinksToReturn.add(actionLink);
+		jsonToDataConverterFactory.actionLinksToReturn = actionLinksToReturn;
 	}
 
 	@Test
