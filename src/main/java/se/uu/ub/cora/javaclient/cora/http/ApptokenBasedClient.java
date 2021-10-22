@@ -155,4 +155,10 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 		return appToken;
 	}
 
+	@Override
+	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

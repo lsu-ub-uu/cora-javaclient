@@ -55,7 +55,7 @@ public class ApptokenBasedClientTest {
 	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 
 	@BeforeMethod
-	public void BeforeMethod() {
+	public void setUp() {
 		restClientFactory = new RestClientFactorySpy();
 		appTokenClientFactory = new AppTokenClientFactorySpy();
 		dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
@@ -368,15 +368,37 @@ public class ApptokenBasedClientTest {
 
 		String responseText = coraClient.indexData(recordType, recordId);
 
+		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
+		assertCorrectApptokenAndRestClientCallWhenIndexing(restClientSpy, recordType, recordId);
+		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
+		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
+
+		assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
+	}
+
+	private void assertCorrectApptokenAndRestClientCallWhenIndexing(RestClientSpy restClientSpy,
+			String recordType, String recordId) {
 		AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
 		assertNotNull(appTokenClient.returnedAuthToken);
 		assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
 
-		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
 		assertEquals(restClientSpy.recordTypes.get(0), recordType);
 		assertEquals(restClientSpy.recordIds.get(0), recordId);
 
 		assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
+	}
+
+	@Test
+	public void testIndexDataWithoutExplicitCommitRecordUsingRecordTypeAndRecordId()
+			throws Exception {
+		String recordType = "someRecordType";
+		String recordId = "someRecordId";
+
+		String responseText = coraClient.indexDataWithoutExplicitCommit(recordType, recordId);
+
+		RestClientSpy restClientSpy = restClientFactory.factored.get(0);
+		assertCorrectApptokenAndRestClientCallWhenIndexing(restClientSpy, recordType, recordId);
+
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 		assertEquals(restClientSpy.json, jsonReturnedFromConverter);
 

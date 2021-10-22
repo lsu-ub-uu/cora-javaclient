@@ -116,4 +116,10 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 		return create("workOrder", workOrder);
 	}
 
+	@Override
+	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
