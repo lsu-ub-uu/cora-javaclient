@@ -119,14 +119,14 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	@Override
 	public String indexData(ClientDataRecord clientDataRecord) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return indexData(restClient, clientDataRecord);
+		return indexData(restClient, clientDataRecord, true);
 	}
 
 	@Override
 	public String indexData(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		return indexData(restClient, clientDataRecord);
+		return indexData(restClient, clientDataRecord, true);
 	}
 
 	@Override
@@ -153,6 +153,13 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	public String getAppToken() {
 		// needed for test
 		return appToken;
+	}
+
+	@Override
+	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
+		RestClient restClient = setUpRestClientWithAuthToken();
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		return indexData(restClient, clientDataRecord, false);
 	}
 
 }

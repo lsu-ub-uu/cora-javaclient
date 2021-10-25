@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Uppsala University Library
+ * Copyright 2020, 2021 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -231,12 +231,20 @@ public class CommonCoraClient {
 				"Could not read incoming links of type: " + recordType + AND_ID + recordId + FROM);
 	}
 
-	protected String indexData(RestClient restClient, ClientDataRecord clientDataRecord) {
+	protected String indexData(RestClient restClient, ClientDataRecord clientDataRecord,
+			boolean explicitCommit) {
 		throwErrorIfNoIndexLink(clientDataRecord);
+		ClientDataGroup bodyDataGroup = getWorkOrderDataGroup(clientDataRecord, explicitCommit);
+		return create(restClient, "workOrder", bodyDataGroup);
+	}
+
+	private ClientDataGroup getWorkOrderDataGroup(ClientDataRecord clientDataRecord,
+			boolean explicitCommit) {
 		ActionLink index = clientDataRecord.getActionLink("index");
 		ClientDataGroup bodyDataGroup = index.getBody();
-
-		return create(restClient, "workOrder", bodyDataGroup);
+		bodyDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("performCommit",
+				String.valueOf(explicitCommit)));
+		return bodyDataGroup;
 	}
 
 	private void throwErrorIfNoIndexLink(DataRecord clientDataRecord) {
@@ -256,11 +264,12 @@ public class CommonCoraClient {
 		return jsonToDataConverterFactory;
 	}
 
-	protected ClientDataGroup createWorkOrderForRemoveFromIndex(String recordType, String recordId) {
+	protected ClientDataGroup createWorkOrderForRemoveFromIndex(String recordType,
+			String recordId) {
 		ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
 		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "removeFromIndex"));
 		workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", recordId));
-	
+
 		createAndAddRecordType(recordType, workOrder);
 		return workOrder;
 	}

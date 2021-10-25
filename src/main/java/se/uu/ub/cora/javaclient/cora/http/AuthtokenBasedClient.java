@@ -97,7 +97,7 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 
 	@Override
 	public String indexData(ClientDataRecord clientDataRecord) {
-		return indexData(restClient, clientDataRecord);
+		return indexData(restClient, clientDataRecord, true);
 	}
 
 	@Override
@@ -114,6 +114,12 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 	public String removeFromIndex(String recordType, String recordId) {
 		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
 		return create("workOrder", workOrder);
+	}
+
+	@Override
+	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
+		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
+		return indexData(restClient, clientDataRecord, false);
 	}
 
 }

@@ -177,6 +177,16 @@ public interface CoraClient {
 	String indexData(String recordType, String recordId);
 
 	/**
+	 * Indexes a record by sending an index order for a recordtype and a recordId. When using this
+	 * method, no explicit commit is made, which is useful when multiple calls are made within a
+	 * short period of time. * @param recordType, A String, the type of the record to index
+	 * 
+	 * @param recordId,
+	 *            A String, the id of the record to index
+	 */
+	String indexDataWithoutExplicitCommit(String recordType, String recordId);
+
+	/**
 	 * Removes a record from index, by sending recordType and a recordId.
 	 * 
 	 * @param recordType,
