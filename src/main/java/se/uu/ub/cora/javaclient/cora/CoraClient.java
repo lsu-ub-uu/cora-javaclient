@@ -205,6 +205,6 @@ public interface CoraClient {
 	 * @param filterAsJson,
 	 *            A String, specifying a filter that is applied to the list before indexing
 	 */
-	String indexRecordList(String recordType, String filterAsJson);
+	String indexRecordsOfType(String recordType, String filterAsJson);
 
 }

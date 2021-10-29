@@ -123,7 +123,7 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 	}
 
 	@Override
-	public String indexRecordList(String recordType, String jsonFilter) {
+	public String indexRecordsOfType(String recordType, String jsonFilter) {
 		return indexRecordList(restClient, recordType, jsonFilter);
 	}
 

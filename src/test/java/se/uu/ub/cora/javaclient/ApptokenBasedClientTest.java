@@ -467,7 +467,7 @@ public class ApptokenBasedClientTest {
 	@Test
 	public void testIndexRecordList() {
 		String jsonFilter = "some fake filter json";
-		String response = coraClient.indexRecordList("someType", jsonFilter);
+		String response = coraClient.indexRecordsOfType("someType", jsonFilter);
 
 		assertEquals(restClientFactory.factored.size(), 1);
 		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
@@ -485,7 +485,7 @@ public class ApptokenBasedClientTest {
 			+ "Answer from CoraRestClientSpy batchIndexWithFilterAsJson")
 	public void testIndexRecordListError() throws Exception {
 		String jsonFilter = "some fake filter json";
-		coraClient.indexRecordList(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, jsonFilter);
+		coraClient.indexRecordsOfType(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, jsonFilter);
 	}
 
 }
