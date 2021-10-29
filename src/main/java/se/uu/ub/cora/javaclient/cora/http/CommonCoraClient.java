@@ -279,4 +279,20 @@ public class CommonCoraClient {
 				.asLinkWithNameInDataAndTypeAndId("recordType", "recordType", recordType);
 		workOrder.addChild(recordTypeGroup);
 	}
+
+	void possiblyThrowErrorIfNotPossibleToBatchIndex(RestClient restClient, String recordType,
+			ExtendedRestResponse response) {
+		if (statusIsNotCreated(response.statusCode)) {
+			String url = restClient.getBaseUrl();
+			throw new CoraClientException("Could not index record list of type: " + recordType
+					+ " on " + SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+		}
+	}
+
+	protected String indexRecordList(RestClient restClient, String recordType, String filterAsJson) {
+		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
+				filterAsJson);
+		possiblyThrowErrorIfNotPossibleToBatchIndex(restClient, recordType, response);
+		return response.responseText;
+	}
 }

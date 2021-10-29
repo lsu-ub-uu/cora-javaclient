@@ -196,4 +196,15 @@ public interface CoraClient {
 	 */
 	String removeFromIndex(String recordType, String recordId);
 
+	/**
+	 * Indexes a list of record, by sending an batch index order for a recordType. The list of
+	 * records to be indexed may be limited by a filter.
+	 * 
+	 * @param recordType,
+	 *            A String, the type of the records to index
+	 * @param filterAsJson,
+	 *            A String, specifying a filter that is applied to the list before indexing
+	 */
+	String indexRecordList(String recordType, String filterAsJson);
+
 }

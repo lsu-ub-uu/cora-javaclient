@@ -38,6 +38,7 @@ public class RestClientSpy implements RestClient {
 	private int statusCode = 200;
 	public List<String> recordTypes = new ArrayList<>();
 	public List<String> recordIds = new ArrayList<>();
+	public String filterAsJson;
 
 	@Override
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
@@ -151,8 +152,16 @@ public class RestClientSpy implements RestClient {
 
 	@Override
 	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
-		// TODO Auto-generated method stub
-		return null;
+		statusCode = 201;
+		if (THIS_RECORD_TYPE_TRIGGERS_AN_ERROR.equals(recordType)) {
+			statusCode = 500;
+		}
+		methodCalled = "batchIndexWithFilterAsJson";
+		this.recordType = recordType;
+		this.filterAsJson = filterAsJson;
+		RestResponse restResponse = new RestResponse(statusCode, returnedAnswer + methodCalled);
+		extendedRestResponse = new ExtendedRestResponse(restResponse);
+		return extendedRestResponse;
 	}
 
 }

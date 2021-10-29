@@ -75,22 +75,6 @@ public final class RestClientImp implements RestClient {
 		return httpHandler;
 	}
 
-	public HttpHandlerFactory getHttpHandlerFactory() {
-		// needed for test
-		return httpHandlerFactory;
-	}
-
-	@Override
-	public String getBaseUrl() {
-		// needed for test
-		return baseUrl;
-	}
-
-	public String getAuthToken() {
-		// needed for test
-		return authToken;
-	}
-
 	@Override
 	public ExtendedRestResponse createRecordFromJson(String recordType, String json) {
 		HttpHandler httpHandler = createHttpHandlerForCreate(recordType, json);
@@ -234,6 +218,22 @@ public final class RestClientImp implements RestClient {
 	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType, String filterAsJson) {
 		String url = baseUrl + "index/" + recordType;
 		return setUpHttpHandlerForPost(filterAsJson, url);
+	}
+
+	public HttpHandlerFactory getHttpHandlerFactory() {
+		// needed for test
+		return httpHandlerFactory;
+	}
+
+	@Override
+	public String getBaseUrl() {
+		// needed for test
+		return baseUrl;
+	}
+
+	public String getAuthToken() {
+		// needed for test
+		return authToken;
 	}
 
 }

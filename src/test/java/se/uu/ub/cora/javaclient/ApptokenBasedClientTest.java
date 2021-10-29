@@ -463,4 +463,29 @@ public class ApptokenBasedClientTest {
 		assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId"),
 				recordType);
 	}
+
+	@Test
+	public void testIndexRecordList() {
+		String jsonFilter = "some fake filter json";
+		String response = coraClient.indexRecordList("someType", jsonFilter);
+
+		assertEquals(restClientFactory.factored.size(), 1);
+		assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
+
+		RestClientSpy restClient = restClientFactory.factored.get(0);
+		assertEquals(restClient.methodCalled, "batchIndexWithFilterAsJson");
+		assertEquals(restClient.recordType, "someType");
+		assertEquals(restClient.filterAsJson, jsonFilter);
+		assertEquals(response, restClient.returnedAnswer + restClient.methodCalled);
+	}
+
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not index record list of type: thisRecordTypeTriggersAnError on server using "
+			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+			+ "Answer from CoraRestClientSpy batchIndexWithFilterAsJson")
+	public void testIndexRecordListError() throws Exception {
+		String jsonFilter = "some fake filter json";
+		coraClient.indexRecordList(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, jsonFilter);
+	}
+
 }
