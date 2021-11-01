@@ -36,9 +36,9 @@ public interface CoraClient {
 	 * Creates a record using recordType and a string to create from. The result is returned as a
 	 * String. A {@link CoraClientException} MUST be thrown if the record could not be created.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to be created
-	 * @param json,
+	 * @param json
 	 *            A String, the data to crete the record from
 	 * @return A String containing the response text
 	 */
@@ -49,9 +49,9 @@ public interface CoraClient {
 	 * returned as a String. A {@link CoraClientException} MUST be thrown if the record could not be
 	 * created.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to be created
-	 * @param dataGroup,
+	 * @param dataGroup
 	 *            A {@link ClientDataGroup}, the data to crete the record from
 	 * @return A String containing the response text
 	 */
@@ -61,9 +61,9 @@ public interface CoraClient {
 	 * Reads a record using recordType and recordId. The result is returned as a String. A
 	 * {@link CoraClientException} MUST be thrown if the record could not be read.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to read
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to be read
 	 * @return A String containing the response text
 	 */
@@ -74,11 +74,11 @@ public interface CoraClient {
 	 * returned as a String. A {@link CoraClientException} MUST be thrown if the record could not be
 	 * updated.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to be updated
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to be updated
-	 * @param json,
+	 * @param json
 	 *            A String, the data to update the record from
 	 * @return A String containing the response text
 	 */
@@ -88,9 +88,9 @@ public interface CoraClient {
 	 * Deletes a record using recordType and recordId. The result is returned as a String. A
 	 * {@link CoraClientException} MUST be thrown if the record could not be deleted.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to delete
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to be deleted
 	 * @return A String containing the response text
 	 */
@@ -110,9 +110,9 @@ public interface CoraClient {
 	 * Reads incoming links for a record using recordType and recordId. The result is returned as a
 	 * String. A {@link CoraClientException} MUST be thrown if incoming links could not be read.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to read the incoming links for
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to read the incoming links for
 	 * @return A {@link RestResponse}, containing the response text and response code
 	 */
@@ -123,9 +123,9 @@ public interface CoraClient {
 	 * {@link ClientDataRecord} A {@link CoraClientException} MUST be thrown if the record could not
 	 * be read.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to read
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to be read
 	 * @return A {@link ClientDataRecord} created from the response text
 	 */
@@ -136,11 +136,11 @@ public interface CoraClient {
 	 * result is returned as a String. A {@link CoraClientException} MUST be thrown if the record
 	 * could not be updated.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to be up dated
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to be updated
-	 * @param json,
+	 * @param json
 	 *            A String, the data to update the record from
 	 * @return A {@link ClientDataGroup} created from the response text
 	 */
@@ -151,7 +151,7 @@ public interface CoraClient {
 	 * {@link ClientDataRecord}. A {@link CoraClientException} MUST be thrown if records could not
 	 * be listed.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the records to read as list
 	 * @return A List of {@link ClientDataRecord} containing the records of the requested recordType
 	 */
@@ -169,7 +169,7 @@ public interface CoraClient {
 	/**
 	 * Indexes a record, by sending an index order for a recordType and a recordId.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to index
 	 * @param recordId,
 	 *            A String, the id of the record to index
@@ -181,7 +181,7 @@ public interface CoraClient {
 	 * method, no explicit commit is made, which is useful when multiple calls are made within a
 	 * short period of time. * @param recordType, A String, the type of the record to index
 	 * 
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to index
 	 */
 	String indexDataWithoutExplicitCommit(String recordType, String recordId);
@@ -189,21 +189,23 @@ public interface CoraClient {
 	/**
 	 * Removes a record from index, by sending recordType and a recordId.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the record to remove from index
-	 * @param recordId,
+	 * @param recordId
 	 *            A String, the id of the record to remove from index
 	 */
 	String removeFromIndex(String recordType, String recordId);
 
 	/**
-	 * Indexes a list of record, by sending an batch index order for a recordType. The list of
-	 * records to be indexed may be limited by a filter.
+	 * Indexes, by sending an batch index order for a recordType. The list of records to be indexed
+	 * may be limited by a filter.
 	 * 
-	 * @param recordType,
+	 * @param recordType
 	 *            A String, the type of the records to index
-	 * @param filterAsJson,
-	 *            A String, specifying a filter that is applied to the list before indexing
+	 * @param filterAsJson
+	 *            A String, with Json specifying a filter that is applied to the list before
+	 *            indexing
+	 * @return A String with the json representation of the newly created indexbatchjob
 	 */
 	String indexRecordsOfType(String recordType, String filterAsJson);
 
