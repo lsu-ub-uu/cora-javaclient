@@ -163,9 +163,9 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	}
 
 	@Override
-	public String indexRecordsOfType(String recordType, String filterAsJson) {
+	public String indexRecordsOfType(String recordType, String indexSettings) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return indexRecordList(restClient, recordType, filterAsJson);
+		return indexRecordList(restClient, recordType, indexSettings);
 	}
 
 }

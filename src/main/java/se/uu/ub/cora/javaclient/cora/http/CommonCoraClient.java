@@ -289,9 +289,10 @@ public class CommonCoraClient {
 		}
 	}
 
-	protected String indexRecordList(RestClient restClient, String recordType, String filterAsJson) {
+	protected String indexRecordList(RestClient restClient, String recordType,
+			String indexSettingsAsJson) {
 		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
-				filterAsJson);
+				indexSettingsAsJson);
 		possiblyThrowErrorIfNotPossibleToBatchIndex(restClient, recordType, response);
 		return response.responseText;
 	}

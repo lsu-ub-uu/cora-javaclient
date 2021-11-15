@@ -202,11 +202,11 @@ public interface CoraClient {
 	 * 
 	 * @param recordType
 	 *            A String, the type of the records to index
-	 * @param filterAsJson
-	 *            A String, with Json specifying a filter that is applied to the list before
-	 *            indexing
+	 * @param settingsAsJson
+	 *            A String, with Json specifying a index settings, including a filter that is
+	 *            applied to the list before indexing
 	 * @return A String with the json representation of the newly created indexbatchjob
 	 */
-	String indexRecordsOfType(String recordType, String filterAsJson);
+	String indexRecordsOfType(String recordType, String settingsAsJson);
 
 }

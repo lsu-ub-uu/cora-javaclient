@@ -127,11 +127,12 @@ public interface RestClient {
 	 * @param recordType,
 	 *            A String, the type of the records to be indexed
 	 * 
-	 * @param filter
-	 *            A JSON-formatted String used to filter the result
+	 * @param indexSettingsAsJson
+	 *            A JSON-formatted String with settings for index including a filter used to filter
+	 *            the result
 	 * @throws UnsupportedEncodingException
 	 * 
 	 */
-	ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson);
+	ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson);
 
 }
