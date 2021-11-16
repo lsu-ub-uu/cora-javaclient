@@ -203,9 +203,11 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String filterAsJson) {
+	public ExtendedRestResponse batchIndexWithFilterAsJson(String recordType,
+			String indexSettingsAsJson) {
 
-		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType, filterAsJson);
+		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType,
+				indexSettingsAsJson);
 
 		int responseCode = httpHandler.getResponseCode();
 		RestResponse restResponse = createRestResponse(httpHandler, responseCode);
@@ -215,9 +217,10 @@ public final class RestClientImp implements RestClient {
 				: new ExtendedRestResponse(restResponse);
 	}
 
-	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType, String filterAsJson) {
+	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType,
+			String indexSettingsAsJson) {
 		String url = baseUrl + "index/" + recordType;
-		return setUpHttpHandlerForPost(filterAsJson, url);
+		return setUpHttpHandlerForPost(indexSettingsAsJson, url);
 	}
 
 	public HttpHandlerFactory getHttpHandlerFactory() {
