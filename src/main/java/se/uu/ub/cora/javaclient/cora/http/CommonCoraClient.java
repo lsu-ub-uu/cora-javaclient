@@ -34,8 +34,6 @@ import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
-import se.uu.ub.cora.json.builder.JsonBuilderFactory;
-import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonParser;
@@ -83,8 +81,7 @@ public class CommonCoraClient {
 	}
 
 	protected DataToJsonConverter createConverter(ClientDataGroup dataGroup) {
-		JsonBuilderFactory factory = new OrgJsonBuilderFactoryAdapter();
-		return dataToJsonConverterFactory.createForClientDataElement(factory, dataGroup);
+		return dataToJsonConverterFactory.createForClientDataElement(dataGroup);
 	}
 
 	protected String read(RestClient restClient, String recordType, String recordId) {
@@ -169,9 +166,8 @@ public class CommonCoraClient {
 	}
 
 	private DataToJsonConverter createConverterWithoutLinks(ClientDataGroup dataGroup) {
-		JsonBuilderFactory factory = new OrgJsonBuilderFactoryAdapter();
-		return dataToJsonConverterFactory.createForClientDataElementIncludingActionLinks(factory,
-				dataGroup, false);
+		return dataToJsonConverterFactory.createForClientDataElementIncludingActionLinks(dataGroup,
+				false);
 	}
 
 	protected String readList(RestClient restClient, String recordType) {
