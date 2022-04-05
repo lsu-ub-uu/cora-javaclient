@@ -43,7 +43,6 @@ import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientSpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
-import se.uu.ub.cora.json.builder.org.OrgJsonBuilderFactoryAdapter;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class ApptokenBasedClientTest {
@@ -217,7 +216,6 @@ public class ApptokenBasedClientTest {
 
 		String createdJson = coraClient.create("someType", dataGroup);
 
-		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
 		assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 
@@ -246,7 +244,6 @@ public class ApptokenBasedClientTest {
 
 		String updatedJson = coraClient.update("someType", "someId", dataGroup);
 
-		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
 		assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
 		assertFalse(dataToJsonConverterFactory.includeActionLinks);
 		assertEquals(dataToJsonConverterFactory.methodCalled,
@@ -320,7 +317,6 @@ public class ApptokenBasedClientTest {
 
 		String createdJson = coraClient.indexData(clientDataRecord);
 
-		assertTrue(dataToJsonConverterFactory.factory instanceof OrgJsonBuilderFactoryAdapter);
 		assertSame(dataToJsonConverterFactory.clientDataElement, actionLink.getBody());
 		String jsonReturnedFromConverter = dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
 
