@@ -23,8 +23,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
@@ -36,8 +36,8 @@ public class ApptokenBasedClientDependenciesTest {
 	private ApptokenBasedClientDependencies dependencies;
 	private AppTokenClientFactory appTokenClientFactory;
 	private RestClientFactory restClientFactory;
-	private DataToJsonConverterFactory dataToJsonConverterFactory;
-	private JsonToDataConverterFactory jsonToDataConverterFactory;
+	private ClientDataToJsonConverterFactory dataToJsonConverterFactory;
+	private JsonToClientDataConverterFactory jsonToDataConverterFactory;
 
 	@BeforeMethod
 	public void setUp() {

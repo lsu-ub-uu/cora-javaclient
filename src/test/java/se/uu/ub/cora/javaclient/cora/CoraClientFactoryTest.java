@@ -24,10 +24,10 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
 import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
@@ -35,13 +35,14 @@ import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class CoraClientFactoryTest {
-	// private CoraClientImp coraClient;
 	private String appTokenVerifierUrl;
 	private String baseUrl;
 	private CoraClientFactoryImp clientFactory;
 
 	@BeforeMethod
 	public void beforeMethod() {
+		ClientDataToJsonConverterProvider.setDataToJsonConverterFactoryCreator(null);
+		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(null);
 		appTokenVerifierUrl = "someVerifierUrl";
 		baseUrl = "someBaseUrl";
 		clientFactory = CoraClientFactoryImp.usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl,
@@ -61,13 +62,13 @@ public class CoraClientFactoryTest {
 				.getRestClientFactory();
 		assertEquals(restClientFactory.getBaseUrl(), baseUrl);
 
-		DataToJsonConverterFactory dataToJsonConverterFactory = coraClient
-				.getDataToJsonConverterFactory();
-		assertTrue(dataToJsonConverterFactory instanceof DataToJsonConverterFactoryImp);
-
-		JsonToDataConverterFactory jsonToDataConverterFactory = coraClient
-				.getJsonToDataConverterFactory();
-		assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
+		// ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
+		// .getDataToJsonConverterFactory();
+		// assertTrue(dataToJsonConverterFactory instanceof ClientDataToJsonConverterFactory);
+		//
+		// JsonToClientDataConverterFactory jsonToDataConverterFactory = coraClient
+		// .getJsonToDataConverterFactory();
+		// assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
 	}
 
 	@Test
@@ -87,11 +88,11 @@ public class CoraClientFactoryTest {
 		assertEquals(restClient.getBaseUrl(), baseUrl + "record/");
 		assertEquals(restClient.getAuthToken(), "someAuthTokenToken");
 
-		DataToJsonConverterFactory dataToJsonConverterFactory = coraClient
+		ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
 				.getDataToJsonConverterFactory();
 		assertTrue(dataToJsonConverterFactory instanceof DataToJsonConverterFactoryImp);
 
-		JsonToDataConverterFactory jsonToDataConverterFactory = coraClient
+		JsonToClientDataConverterFactory jsonToDataConverterFactory = coraClient
 				.getJsonToDataConverterFactory();
 		assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
 	}

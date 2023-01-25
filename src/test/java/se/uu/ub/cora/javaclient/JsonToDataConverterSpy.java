@@ -19,10 +19,10 @@
 package se.uu.ub.cora.javaclient;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
 
-public class JsonToDataConverterSpy implements JsonToDataConverter {
+public class JsonToDataConverterSpy implements JsonToClientDataConverter {
 
 	public ClientDataGroup returnedDataGroup;
 

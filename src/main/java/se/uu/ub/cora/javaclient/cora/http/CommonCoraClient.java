@@ -26,9 +26,9 @@ import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.DataRecord;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
@@ -48,8 +48,8 @@ public class CommonCoraClient {
 	private static final String SERVER_USING_URL = "server using base url: ";
 	static final String FROM = " from ";
 	static final String AND_ID = " and id: ";
-	protected DataToJsonConverterFactory dataToJsonConverterFactory;
-	protected JsonToDataConverterFactory jsonToDataConverterFactory;
+	protected ClientDataToJsonConverterFactory dataToJsonConverterFactory;
+	protected JsonToClientDataConverterFactory jsonToDataConverterFactory;
 
 	protected String create(RestClient restClient, String recordType, String json) {
 		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
@@ -76,11 +76,11 @@ public class CommonCoraClient {
 	}
 
 	protected String convertDataGroupToJson(ClientDataGroup dataGroup) {
-		DataToJsonConverter converter = createConverter(dataGroup);
+		ClientDataToJsonConverter converter = createConverter(dataGroup);
 		return converter.toJson();
 	}
 
-	protected DataToJsonConverter createConverter(ClientDataGroup dataGroup) {
+	protected ClientDataToJsonConverter createConverter(ClientDataGroup dataGroup) {
 		return dataToJsonConverterFactory.createForClientDataElement(dataGroup);
 	}
 
@@ -161,11 +161,11 @@ public class CommonCoraClient {
 	}
 
 	String convertDataGroupToJsonWithoutLinks(ClientDataGroup dataGroup) {
-		DataToJsonConverter converter = createConverterWithoutLinks(dataGroup);
+		ClientDataToJsonConverter converter = createConverterWithoutLinks(dataGroup);
 		return converter.toJson();
 	}
 
-	private DataToJsonConverter createConverterWithoutLinks(ClientDataGroup dataGroup) {
+	private ClientDataToJsonConverter createConverterWithoutLinks(ClientDataGroup dataGroup) {
 		return dataToJsonConverterFactory.createForClientDataElementIncludingActionLinks(dataGroup,
 				false);
 	}
@@ -250,12 +250,12 @@ public class CommonCoraClient {
 		}
 	}
 
-	public DataToJsonConverterFactory getDataToJsonConverterFactory() {
+	public ClientDataToJsonConverterFactory getDataToJsonConverterFactory() {
 		// needed for test
 		return dataToJsonConverterFactory;
 	}
 
-	public JsonToDataConverterFactory getJsonToDataConverterFactory() {
+	public JsonToClientDataConverterFactory getJsonToDataConverterFactory() {
 		// needed for test
 		return jsonToDataConverterFactory;
 	}

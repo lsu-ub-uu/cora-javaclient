@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientData;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory {
+public class JsonToDataConverterFactorySpy implements JsonToClientDataConverterFactory {
 
 	public boolean createForJsonObjectWasCalled = false;
 	public JsonValue jsonValue;
@@ -38,7 +38,7 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 	private int numOfCallsTocreateJsonToDataActionLink = 0;
 
 	@Override
-	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
+	public JsonToClientDataConverter createForJsonObject(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
 		createForJsonObjectWasCalled = true;
 		factoredConverter = new JsonToDataConverterSpy();
@@ -47,7 +47,7 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 	}
 
 	@Override
-	public JsonToDataConverter createForJsonString(String json) {
+	public JsonToClientDataConverter createForJsonString(String json) {
 		// TODO Auto-generated method stub
 		return null;
 	}

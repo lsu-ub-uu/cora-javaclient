@@ -3,7 +3,7 @@ package se.uu.ub.cora.javaclient;
 import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
 import se.uu.ub.cora.json.builder.JsonObjectBuilder;
 
-public class DataToJsonConverterSpy extends DataToJsonConverter {
+public class DataToJsonConverterSpy extends ClientDataToJsonConverter {
 
 	public String jsonToReturnFromSpy;
 

@@ -30,7 +30,6 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.Action;
 import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
@@ -127,7 +126,7 @@ public class ApptokenBasedClientTest {
 		String dataGroupPartOfRecord = getExpectedDataGroupJson();
 		assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
 
-		ClientDataGroup clientDataGroupInRecord = dataRecord.getClientDataGroup();
+		ClientDataGroup clientDataGroupInRecord = dataRecord.getDataGroup();
 		ClientDataGroup dataGroupReturnedFromConverter = jsonToDataConverterFactory.factoredConverter.returnedDataGroup;
 		assertSame(clientDataGroupInRecord, dataGroupReturnedFromConverter);
 
@@ -168,9 +167,9 @@ public class ApptokenBasedClientTest {
 		assertEquals(restClient.methodCalled, "readList");
 
 		JsonToDataConverterSpy converter = jsonToDataConverterFactory.factoredConverters.get(0);
-		assertSame(dataRecords.get(0).getClientDataGroup(), converter.returnedDataGroup);
+		assertSame(dataRecords.get(0).getDataGroup(), converter.returnedDataGroup);
 		JsonToDataConverterSpy converter2 = jsonToDataConverterFactory.factoredConverters.get(1);
-		assertSame(dataRecords.get(1).getClientDataGroup(), converter2.returnedDataGroup);
+		assertSame(dataRecords.get(1).getDataGroup(), converter2.returnedDataGroup);
 
 	}
 

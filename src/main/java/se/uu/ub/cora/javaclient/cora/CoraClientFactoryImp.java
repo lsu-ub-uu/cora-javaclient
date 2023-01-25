@@ -18,10 +18,10 @@
  */
 package se.uu.ub.cora.javaclient.cora;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
+import se.uu.ub.cora.clientbasicdata.converter.datatojson.BasicClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientbasicdata.converter.jsontodata.JsonToBasicClientDataConverterFactoryImp;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
 import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
@@ -50,8 +50,12 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 
 	@Override
 	public CoraClient factor(String userId, String appToken) {
-		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
-		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactoryImp();
+		// ClientDataToJsonConverterFactory dataToJsonConverterFactory =
+		// BasicClientDataToJsonConverterFactory
+		// .usingBuilderFactory(jsonBuilderFactory);
+		ClientDataToJsonConverterFactory dataToJsonConverterFactory = BasicClientDataToJsonConverterFactory
+				.usingBuilderFactory(null);
+		JsonToClientDataConverterFactory jsonToDataConverterFactory = new JsonToBasicClientDataConverterFactoryImp();
 		ApptokenBasedClientDependencies coraClientDependencies = new ApptokenBasedClientDependencies(
 				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
 				jsonToDataConverterFactory, userId, appToken);
@@ -72,10 +76,14 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 	@Override
 	public CoraClient factorUsingAuthToken(String authToken) {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
-		DataToJsonConverterFactory dataToJsonConverterFactory = new DataToJsonConverterFactoryImp();
-		JsonToDataConverterFactory jsonToDataConverterFactory = new JsonToDataConverterFactoryImp();
-		return new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
-				jsonToDataConverterFactory);
+		// ClientDataToJsonConverterFactory dataToJsonConverterFactory = new
+		// BasicClientDataToJsonConverterFactory.usingBuilderFactory(
+		// null);
+		// JsonToClientDataConverterFactory jsonToDataConverterFactory = new
+		// JsonToClientDataConverterFactoryImp();
+		// return new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
+		// jsonToDataConverterFactory);
+		return new AuthtokenBasedClient(restClient, null, null);
 	}
 
 }

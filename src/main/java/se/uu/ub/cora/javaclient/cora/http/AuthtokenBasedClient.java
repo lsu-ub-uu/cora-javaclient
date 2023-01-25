@@ -23,8 +23,8 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
@@ -38,8 +38,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient
 	RestClient restClient;
 
 	public AuthtokenBasedClient(RestClient restClient,
-			DataToJsonConverterFactory dataToJsonConverterFactory,
-			JsonToDataConverterFactory jsonToDataConverterFactory) {
+			ClientDataToJsonConverterFactory dataToJsonConverterFactory,
+			JsonToClientDataConverterFactory jsonToDataConverterFactory) {
 		this.restClient = restClient;
 		this.dataToJsonConverterFactory = dataToJsonConverterFactory;
 		this.jsonToDataConverterFactory = jsonToDataConverterFactory;

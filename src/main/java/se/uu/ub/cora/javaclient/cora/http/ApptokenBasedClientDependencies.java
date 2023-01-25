@@ -18,8 +18,8 @@
  */
 package se.uu.ub.cora.javaclient.cora.http;
 
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
@@ -27,16 +27,16 @@ public class ApptokenBasedClientDependencies {
 
 	public final AppTokenClientFactory appTokenClientFactory;
 	public final RestClientFactory restClientFactory;
-	public final DataToJsonConverterFactory dataToJsonConverterFactory;
-	public final JsonToDataConverterFactory jsonToDataConverterFactory;
+	public final ClientDataToJsonConverterFactory dataToJsonConverterFactory;
+	public final JsonToClientDataConverterFactory jsonToDataConverterFactory;
 	public final String userId;
 	public final String appToken;
 	public final String authToken;
 
 	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
-			DataToJsonConverterFactory dataToJsonConverterFactory,
-			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken) {
+			ClientDataToJsonConverterFactory dataToJsonConverterFactory,
+			JsonToClientDataConverterFactory jsonToDataConverterFactory, String userId, String appToken) {
 		this.appTokenClientFactory = appTokenClientFactory;
 		this.restClientFactory = restClientFactory;
 		this.dataToJsonConverterFactory = dataToJsonConverterFactory;
@@ -48,8 +48,8 @@ public class ApptokenBasedClientDependencies {
 
 	public ApptokenBasedClientDependencies(AppTokenClientFactory appTokenClientFactory,
 			RestClientFactory restClientFactory,
-			DataToJsonConverterFactory dataToJsonConverterFactory,
-			JsonToDataConverterFactory jsonToDataConverterFactory, String userId, String appToken,
+			ClientDataToJsonConverterFactory dataToJsonConverterFactory,
+			JsonToClientDataConverterFactory jsonToDataConverterFactory, String userId, String appToken,
 			String authToken) {
 		this.appTokenClientFactory = appTokenClientFactory;
 		this.restClientFactory = restClientFactory;

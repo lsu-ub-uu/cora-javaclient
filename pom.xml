@@ -32,7 +32,8 @@
 
 	<properties>
 		<httphandler.version>2.9.0</httphandler.version>
-		<cora-clientdata.version>5.6.0</cora-clientdata.version>
+		<clientdata.version>6.0-SNAPSHOT</clientdata.version>
+		<basicclientdata.version>1.0-SNAPSHOT</basicclientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		
@@ -60,8 +61,14 @@
 		</dependency>
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>
-			<artifactId>cora-clientdata</artifactId>
-			<version>${cora-clientdata.version}</version>
+			<artifactId>clientdata</artifactId>
+			<version>${clientdata.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>basicclientdata</artifactId>
+			<version>${basicclientdata.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

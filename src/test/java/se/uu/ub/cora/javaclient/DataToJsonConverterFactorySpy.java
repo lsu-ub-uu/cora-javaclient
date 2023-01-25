@@ -18,11 +18,11 @@
  */
 package se.uu.ub.cora.javaclient;
 
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.javatojson.Convertible;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
-import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
 
-public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory {
+public class DataToJsonConverterFactorySpy implements ClientDataToJsonConverterFactory {
 
 	public Convertible clientDataElement;
 	public DataToJsonConverterSpy converterSpy;
@@ -30,7 +30,7 @@ public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory
 	public String methodCalled = "";
 
 	@Override
-	public DataToJsonConverter createForClientDataElement(Convertible clientDataElement) {
+	public ClientDataToJsonConverter createForClientDataElement(Convertible clientDataElement) {
 		this.clientDataElement = clientDataElement;
 		methodCalled = "createForClientDataElement";
 		converterSpy = new DataToJsonConverterSpy();
@@ -38,7 +38,7 @@ public class DataToJsonConverterFactorySpy implements DataToJsonConverterFactory
 	}
 
 	@Override
-	public DataToJsonConverter createForClientDataElementIncludingActionLinks(
+	public ClientDataToJsonConverter createForClientDataElementIncludingActionLinks(
 			Convertible clientDataElement, boolean includeActionLinks) {
 		this.clientDataElement = clientDataElement;
 		this.includeActionLinks = includeActionLinks;

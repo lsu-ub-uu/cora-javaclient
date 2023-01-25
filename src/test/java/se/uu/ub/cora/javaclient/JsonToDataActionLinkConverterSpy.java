@@ -1,6 +1,5 @@
 package se.uu.ub.cora.javaclient;
 
-import se.uu.ub.cora.clientdata.Action;
 import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
