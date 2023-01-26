@@ -28,21 +28,21 @@ import java.net.URLEncoder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpy;
+import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpyOld;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerInvalidSpy;
-import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpy;
+import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpyOLD;
 import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
 public class RestClientTest {
-	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private HttpHandlerFactorySpyOld httpHandlerFactorySpy;
 	private RestClient restClient;
 
 	@BeforeMethod
 	public void setUp() {
-		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
+		httpHandlerFactorySpy = new HttpHandlerFactorySpyOld();
 		String baseUrl = "http://localhost:8080/therest/rest/";
 		String authToken = "someToken";
 		restClient = RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndAuthToken(
@@ -62,7 +62,7 @@ public class RestClientTest {
 	@Test
 	public void testReadRecordOk() {
 		RestResponse response = restClient.readRecordAsJson("someType", "someId");
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -96,7 +96,7 @@ public class RestClientTest {
 	@Test
 	public void testReadRecordListOk() {
 		RestResponse response = restClient.readRecordListAsJson("someType");
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -136,7 +136,7 @@ public class RestClientTest {
 	public void testReadRecordListWithFilterOk() throws UnsupportedEncodingException {
 		String filterAsJson = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":[{\"name\":\"key\",\"value\":\"idFromLogin\"},{\"name\":\"value\",\"value\":\"someId\"}],\"repeatId\":\"0\"}]}";
 		RestResponse response = restClient.readRecordListWithFilterAsJson("someType", filterAsJson);
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -176,7 +176,7 @@ public class RestClientTest {
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
 		ExtendedRestResponse response = restClient.createRecordFromJson("someType", json);
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -203,7 +203,7 @@ public class RestClientTest {
 		httpHandlerFactorySpy.setResponseCode(201);
 		String json = "{\"name\":\"value\"}";
 		ExtendedRestResponse response = restClient.createRecordFromJson("someType", json);
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 
@@ -234,7 +234,7 @@ public class RestClientTest {
 	public void testUpdateRecordOk() {
 		String json = "{\"name\":\"value\"}";
 		RestResponse response = restClient.updateRecordFromJson("someType", "someId", json);
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -275,7 +275,7 @@ public class RestClientTest {
 	public void testDeleteRecordOk() throws Exception {
 		httpHandlerFactorySpy.setResponseCode(200);
 		RestResponse response = restClient.deleteRecord("someType", "someId");
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 	}
@@ -308,7 +308,7 @@ public class RestClientTest {
 	@Test
 	public void testReadIncomingLinksOk() {
 		RestResponse response = restClient.readIncomingLinksAsJson("someType", "someId");
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, httpHandler.returnedResponseText);
 		assertEquals(response.statusCode, httpHandler.responseCode);
 		// String json = restClient.readIncomingLinksAsJson("someType", "someId");
@@ -361,7 +361,7 @@ public class RestClientTest {
 		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
 				filterAsJson);
 
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, "indexBatchJobAsJson");
 		assertEquals(response.statusCode, httpHandler.responseCode);
 
@@ -392,7 +392,7 @@ public class RestClientTest {
 		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex",
 				filterAsJson);
 
-		HttpHandlerSpy httpHandler = (HttpHandlerSpy) httpHandlerFactorySpy.factored.get(0);
+		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
 		assertEquals(response.responseText, "indexBatchJobAsJson");
 		assertEquals(response.statusCode, httpHandler.responseCode);
 

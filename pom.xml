@@ -32,6 +32,7 @@
 
 	<properties>
 		<httphandler.version>2.9.0</httphandler.version>
+		<httphandler-spies.version>1.4-SNAPSHOT</httphandler-spies.version>
 		<clientdata.version>6.0-SNAPSHOT</clientdata.version>
 		<basicclientdata.version>1.0-SNAPSHOT</basicclientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
@@ -58,6 +59,12 @@
 			<artifactId>httphandler</artifactId>
 			<version>${httphandler.version}</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>httphandler-spies</artifactId>
+			<version>${httphandler-spies.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>se.uu.ub.cora</groupId>

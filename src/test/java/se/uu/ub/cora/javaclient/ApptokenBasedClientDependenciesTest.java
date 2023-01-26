@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.cora.internal.ApptokenBasedClientDependencies;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;

@@ -17,7 +17,7 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.uu.ub.cora.javaclient.cora.http;
+package se.uu.ub.cora.javaclient.cora.internal;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import se.uu.ub.cora.javaclient.cora.CoraClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class ApptokenBasedClient extends CommonCoraClient implements CoraClient {
+public class CoraClientImp extends CommonCoraClient implements CoraClient {
 
 	private RestClientFactory restClientFactory;
 	private AppTokenClient appTokenClient;
@@ -37,7 +37,7 @@ public class ApptokenBasedClient extends CommonCoraClient implements CoraClient 
 	private String userId;
 	private String appToken;
 
-	public ApptokenBasedClient(ApptokenBasedClientDependencies coraClientDependencies) {
+	public CoraClientImp(ApptokenBasedClientDependencies coraClientDependencies) {
 		this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
 		this.restClientFactory = coraClientDependencies.restClientFactory;
 		this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;

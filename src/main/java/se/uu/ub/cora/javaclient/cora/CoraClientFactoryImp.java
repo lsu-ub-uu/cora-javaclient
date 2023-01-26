@@ -23,9 +23,9 @@ import se.uu.ub.cora.clientbasicdata.converter.jsontodata.JsonToBasicClientDataC
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
-import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.internal.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.internal.CoraClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
@@ -60,7 +60,7 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
 				jsonToDataConverterFactory, userId, appToken);
 
-		return new ApptokenBasedClient(coraClientDependencies);
+		return new CoraClientImp(coraClientDependencies);
 	}
 
 	public String getAppTokenVerifierUrl() {

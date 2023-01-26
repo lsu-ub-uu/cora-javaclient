@@ -5,7 +5,7 @@ module se.uu.ub.cora.javaclient {
 	requires java.ws.rs;
 	requires se.uu.ub.cora.clientbasicdata;
 
-	exports se.uu.ub.cora.javaclient.apptoken;
+	exports se.uu.ub.cora.javaclient.token;
 	exports se.uu.ub.cora.javaclient.cora;
 	exports se.uu.ub.cora.javaclient.rest;
 }

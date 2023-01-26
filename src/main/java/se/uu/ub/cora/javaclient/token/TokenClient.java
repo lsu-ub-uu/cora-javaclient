@@ -16,17 +16,17 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.apptoken;
+package se.uu.ub.cora.javaclient.token;
 
 /**
- * AppTokenClient is used to get an authToken for a given UserId and AppToken
+ * TokenClient is responsible for always beeing able to return a valid authToken. TokenClients
+ * SHOULD be created using {@link TokenClientFactory}.
  */
-public interface AppTokenClient {
+public interface TokenClient {
 	/**
-	 * getAuthToken logs on to the AppToken server and returns an AuthToken
+	 * getAuthToken returns a valid authToken.
 	 * 
-	 * @return A String with the newly fetched authToken
+	 * @return A String with a valid authToken
 	 */
 	String getAuthToken();
-
 }

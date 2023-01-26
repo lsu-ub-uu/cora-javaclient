@@ -16,15 +16,14 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.apptoken.http;
+package se.uu.ub.cora.javaclient.token.internal;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
-import se.uu.ub.cora.javaclient.cora.http.AppTokenClientCredentials;
+import se.uu.ub.cora.javaclient.token.TokenClient;
 
-public final class AppTokenClientImp implements AppTokenClient {
+public final class TokenClientImp implements TokenClient {
 
 	private static final String CORA_REST_APPTOKEN_ENDPOINT = "rest/apptoken/";
 	private static final int CREATED = 201;
@@ -34,28 +33,49 @@ public final class AppTokenClientImp implements AppTokenClient {
 	private String userId;
 	private String appToken;
 	private String authToken;
+	private AppTokenCredentials appTokenCredentials;
+	private AuthTokenCredentials authTokenCredentials;
 
-	public static AppTokenClientImp usingHttpHandlerFactoryAndCredentials(
-			HttpHandlerFactory httpHandlerFactory, AppTokenClientCredentials credentials) {
-		return new AppTokenClientImp(httpHandlerFactory, credentials);
+	public static TokenClientImp usingHttpHandlerFactoryAndAppToken(
+			HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
+		return new TokenClientImp(httpHandlerFactory, credentials);
 	}
 
-	public AppTokenClientImp(HttpHandlerFactory httpHandlerFactory,
-			AppTokenClientCredentials credentials) {
+	public static TokenClient usingHttpHandlerFactoryAndAuthToken(
+			HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
+		return new TokenClientImp(httpHandlerFactory, credentials);
+	}
+
+	public TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
-		this.appTokenVerifierUrl = credentials.appTokenVerifierUrl + CORA_REST_APPTOKEN_ENDPOINT;
-		this.userId = credentials.userId;
-		this.appToken = credentials.appToken;
+		this.appTokenCredentials = credentials;
+		this.appTokenVerifierUrl = credentials.appTokenVerifierUrl() + CORA_REST_APPTOKEN_ENDPOINT;
+		this.userId = credentials.userId();
+		this.appToken = credentials.appToken();
+	}
+
+	public TokenClientImp(HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
+		this.httpHandlerFactory = httpHandlerFactory;
+		this.authTokenCredentials = credentials;
+		this.authToken = credentials.authToken();
 	}
 
 	@Override
 	public String getAuthToken() {
-		if (null == authToken) {
-			HttpHandler httpHandler = createHttpHandler(userId);
-			createAuthTokenUsingHttpHandler(appToken, httpHandler);
-			authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
+		if (authTokenNeedsToBeFetched()) {
+			fetchAuthTokenFromServer();
 		}
 		return authToken;
+	}
+
+	private boolean authTokenNeedsToBeFetched() {
+		return null == authToken;
+	}
+
+	private void fetchAuthTokenFromServer() {
+		HttpHandler httpHandler = createHttpHandler(userId);
+		createAuthTokenUsingHttpHandler(appToken, httpHandler);
+		authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
 	}
 
 	private HttpHandler createHttpHandler(String userId) {
@@ -84,24 +104,15 @@ public final class AppTokenClientImp implements AppTokenClient {
 		return responseText.substring(idIndex, responseText.indexOf('"', idIndex));
 	}
 
-	public HttpHandlerFactory getHttpHandlerFactory() {
-		// needed for test
+	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
 		return httpHandlerFactory;
 	}
 
-	public String getAppTokenVerifierUrl() {
-		// needed for test
-		return appTokenVerifierUrl;
+	public AppTokenCredentials onlyForTestGetAppTokenCredentials() {
+		return appTokenCredentials;
 	}
 
-	public String getUserId() {
-		// needed for test
-		return userId;
+	public AuthTokenCredentials onlyForTestGetAuthTokenCredentials() {
+		return authTokenCredentials;
 	}
-
-	public String getAppToken() {
-		// needed for test
-		return appToken;
-	}
-
 }

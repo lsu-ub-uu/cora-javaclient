@@ -26,7 +26,7 @@ import java.util.Map;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 
-public class HttpHandlerSpy implements HttpHandler {
+public class HttpHandlerSpyOLD implements HttpHandler {
 
 	public HttpURLConnection httpUrlConnection;
 	public String requestMetod;
@@ -38,12 +38,12 @@ public class HttpHandlerSpy implements HttpHandler {
 	public String returnedErrorText;
 	public String returnedHeaderField;
 
-	private HttpHandlerSpy(HttpURLConnection httpUrlConnection) {
+	private HttpHandlerSpyOLD(HttpURLConnection httpUrlConnection) {
 		this.httpUrlConnection = httpUrlConnection;
 	}
 
-	public static HttpHandlerSpy usingURLConnection(HttpURLConnection httpUrlConnection) {
-		return new HttpHandlerSpy(httpUrlConnection);
+	public static HttpHandlerSpyOLD usingURLConnection(HttpURLConnection httpUrlConnection) {
+		return new HttpHandlerSpyOLD(httpUrlConnection);
 	}
 
 	@Override

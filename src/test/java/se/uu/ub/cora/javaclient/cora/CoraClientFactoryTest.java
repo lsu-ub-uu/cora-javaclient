@@ -29,8 +29,8 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
-import se.uu.ub.cora.javaclient.cora.http.AuthtokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
+import se.uu.ub.cora.javaclient.cora.internal.CoraClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
 
@@ -51,12 +51,12 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testCorrectFactoriesAreSentToCoraClient() throws Exception {
-		ApptokenBasedClient coraClient = (ApptokenBasedClient) clientFactory.factor("someUserId",
+		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
 				"someAppToken");
 
 		AppTokenClientFactoryImp appTokenClientFactory = (AppTokenClientFactoryImp) coraClient
 				.getAppTokenClientFactory();
-		assertEquals(appTokenClientFactory.getAppTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(appTokenClientFactory.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
 
 		RestClientFactoryImp restClientFactory = (RestClientFactoryImp) coraClient
 				.getRestClientFactory();
@@ -73,7 +73,7 @@ public class CoraClientFactoryTest {
 
 	@Test
 	public void testFactorParametersSentAlong() throws Exception {
-		ApptokenBasedClient coraClient = (ApptokenBasedClient) clientFactory.factor("someUserId",
+		CoraClientImp coraClient = (CoraClientImp) clientFactory.factor("someUserId",
 				"someAppToken");
 		assertEquals(coraClient.getUserId(), "someUserId");
 		assertEquals(coraClient.getAppToken(), "someAppToken");

@@ -36,16 +36,16 @@ import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClient;
-import se.uu.ub.cora.javaclient.cora.http.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.cora.internal.ApptokenBasedClientDependencies;
+import se.uu.ub.cora.javaclient.cora.internal.CoraClientImp;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.AppTokenClientSpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
 import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
 import se.uu.ub.cora.json.parser.JsonObject;
 
-public class ApptokenBasedClientTest {
-	private ApptokenBasedClient coraClient;
+public class CoraClientTest {
+	private CoraClientImp coraClient;
 	private RestClientFactorySpy restClientFactory;
 	private AppTokenClientFactorySpy appTokenClientFactory;
 	private String userId = "someUserId";
@@ -62,7 +62,7 @@ public class ApptokenBasedClientTest {
 		ApptokenBasedClientDependencies coraClientDependencies = new ApptokenBasedClientDependencies(
 				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
 				jsonToDataConverterFactory, userId, appToken);
-		coraClient = new ApptokenBasedClient(coraClientDependencies);
+		coraClient = new CoraClientImp(coraClientDependencies);
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class ApptokenBasedClientTest {
 	@Test(expectedExceptions = CoraClientException.class)
 	public void testInitErrorWithAuthToken() throws Exception {
 		ApptokenBasedClientDependencies coraClientDependencies = setUpDependenciesWithErrorInUserId();
-		ApptokenBasedClient coraClient = new ApptokenBasedClient(coraClientDependencies);
+		CoraClientImp coraClient = new CoraClientImp(coraClientDependencies);
 		String json = "some fake json";
 		coraClient.create("someType", json);
 	}

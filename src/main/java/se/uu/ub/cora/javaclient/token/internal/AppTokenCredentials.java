@@ -16,16 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora.http;
+package se.uu.ub.cora.javaclient.token.internal;
 
-public class AppTokenClientCredentials {
-	public final String appTokenVerifierUrl;
-	public final String userId;
-	public final String appToken;
-
-	public AppTokenClientCredentials(String appTokenVerifierUrl, String userId, String appToken) {
-		this.appTokenVerifierUrl = appTokenVerifierUrl;
-		this.userId = userId;
-		this.appToken = appToken;
-	}
+public record AppTokenCredentials(String appTokenVerifierUrl, String userId, String appToken) {
 }
