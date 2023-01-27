@@ -37,18 +37,18 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
-import se.uu.ub.cora.javaclient.doubles.RestClientSpy;
+import se.uu.ub.cora.javaclient.doubles.RestClientSpyOld;
 import se.uu.ub.cora.json.parser.JsonObject;
 
 public class AuthtokenBasedClientTest {
 	private AuthtokenBasedClient coraClient;
-	private RestClientSpy restClient;
+	private RestClientSpyOld restClient;
 	private DataToJsonConverterFactorySpy dataToJsonConverterFactory;
 	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 
 	@BeforeMethod
 	public void BeforeMethod() {
-		restClient = new RestClientSpy();
+		restClient = new RestClientSpyOld();
 		dataToJsonConverterFactory = new DataToJsonConverterFactorySpy();
 		jsonToDataConverterFactory = new JsonToDataConverterFactorySpy();
 		coraClient = new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
@@ -76,7 +76,7 @@ public class AuthtokenBasedClientTest {
 			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
 			+ "Answer from CoraRestClientSpy read")
 	public void testReadError() throws Exception {
-		coraClient.read(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someRecordId");
+		coraClient.read(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someRecordId");
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class AuthtokenBasedClientTest {
 			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
 			+ "Answer from CoraRestClientSpy readList")
 	public void testReadListError() throws Exception {
-		coraClient.readList(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR);
+		coraClient.readList(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR);
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class AuthtokenBasedClientTest {
 			+ "Answer from CoraRestClientSpy create")
 	public void testCreateError() throws Exception {
 		String json = "some fake json";
-		coraClient.create(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, json);
+		coraClient.create(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, json);
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class AuthtokenBasedClientTest {
 			+ "Answer from CoraRestClientSpy update")
 	public void testUpdateError() throws Exception {
 		String json = "some fake json";
-		coraClient.update(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId", json);
+		coraClient.update(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId", json);
 	}
 
 	@Test
@@ -228,7 +228,7 @@ public class AuthtokenBasedClientTest {
 			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
 			+ "Answer from CoraRestClientSpy delete")
 	public void testDeleteError() throws Exception {
-		coraClient.delete(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
+		coraClient.delete(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class AuthtokenBasedClientTest {
 			+ "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
 			+ "Answer from CoraRestClientSpy readincomingLinks")
 	public void testReadincomingLinksError() throws Exception {
-		coraClient.readIncomingLinks(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
+		coraClient.readIncomingLinks(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
 	}
 
 	@Test
@@ -417,6 +417,6 @@ public class AuthtokenBasedClientTest {
 			+ "Answer from CoraRestClientSpy batchIndexWithFilterAsJson")
 	public void testIndexRecordListError() throws Exception {
 		String jsonFilter = "some fake filter json";
-		coraClient.indexRecordsOfType(RestClientSpy.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, jsonFilter);
+		coraClient.indexRecordsOfType(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, jsonFilter);
 	}
 }

@@ -16,35 +16,37 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.javaclient.cora.internal;
 
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClient;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactory;
-import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 
-public class CoraClientImp extends CommonCoraClient implements CoraClient {
+public class DataClientImp extends CommonCoraClient implements DataClient {
 
 	private RestClientFactory restClientFactory;
-	private AppTokenClient appTokenClient;
-	private AppTokenClientFactory appTokenClientFactory;
+	// private AppTokenClient appTokenClient;
+	// private AppTokenClientFactory appTokenClientFactory;
 	private String userId;
 	private String appToken;
+	private RestClient restClient;
 
-	public CoraClientImp(ApptokenBasedClientDependencies coraClientDependencies) {
-		this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
-		this.restClientFactory = coraClientDependencies.restClientFactory;
-		this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;
-		this.jsonToDataConverterFactory = coraClientDependencies.jsonToDataConverterFactory;
-		this.userId = coraClientDependencies.userId;
-		this.appToken = coraClientDependencies.appToken;
-		appTokenClient = appTokenClientFactory.factor(userId, appToken);
+	// public CoraClientImp(ApptokenBasedClientDependencies coraClientDependencies) {
+	// this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
+	// this.restClientFactory = coraClientDependencies.restClientFactory;
+	// this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;
+	// this.jsonToDataConverterFactory = coraClientDependencies.jsonToDataConverterFactory;
+	// this.userId = coraClientDependencies.userId;
+	// this.appToken = coraClientDependencies.appToken;
+	// appTokenClient = appTokenClientFactory.factor(userId, appToken);
+	// }
+
+	public DataClientImp(RestClient restClient) {
+		this.restClient = restClient;
 	}
 
 	@Override
@@ -53,13 +55,14 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 	}
 
 	private String setUpRestClientAndCreateRecord(String recordType, String json) {
-		RestClient restClient = setUpRestClientWithAuthToken();
+		// RestClient restClient = setUpRestClientWithAuthToken();
 		return create(restClient, recordType, json);
 	}
 
 	private RestClient setUpRestClientWithAuthToken() {
-		String authToken = appTokenClient.getAuthToken();
-		return restClientFactory.factorUsingAuthToken(authToken);
+		// // String authToken = appTokenClient.getAuthToken();
+		// // return restClientFactory.factorUsingAuthToken(authToken);
+		return null;
 	}
 
 	@Override
@@ -70,7 +73,7 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 
 	@Override
 	public String read(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
+		// RestClient restClient = setUpRestClientWithAuthToken();
 		return read(restClient, recordType, recordId);
 	}
 
@@ -135,10 +138,10 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 		return create("workOrder", workOrder);
 	}
 
-	public AppTokenClientFactory getAppTokenClientFactory() {
-		// needed for test
-		return appTokenClientFactory;
-	}
+	// public AppTokenClientFactory getAppTokenClientFactory() {
+	// // needed for test
+	// return appTokenClientFactory;
+	// }
 
 	public RestClientFactory getRestClientFactory() {
 		// needed for test
@@ -166,6 +169,10 @@ public class CoraClientImp extends CommonCoraClient implements CoraClient {
 	public String indexRecordsOfType(String recordType, String indexSettings) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		return indexRecordList(restClient, recordType, indexSettings);
+	}
+
+	public RestClient onlyForTestGetRestClient() {
+		return restClient;
 	}
 
 }

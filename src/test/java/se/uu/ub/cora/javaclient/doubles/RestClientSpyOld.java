@@ -25,7 +25,7 @@ import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-public class RestClientSpy implements RestClient {
+public class RestClientSpyOld implements RestClient {
 
 	public String returnedAnswer = "Answer from CoraRestClientSpy ";
 	public static final String THIS_RECORD_TYPE_TRIGGERS_AN_ERROR = "thisRecordTypeTriggersAnError";

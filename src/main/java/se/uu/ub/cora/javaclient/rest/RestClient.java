@@ -20,12 +20,13 @@ package se.uu.ub.cora.javaclient.rest;
 
 import java.io.UnsupportedEncodingException;
 
-import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.javaclient.cora.DataClient;
 
 /**
- * RestClient is a java client for handling records in a Cora based system. Methods return a rather
- * low level {@link RestResponse} exposing the return codes from the server, when called. In
- * contrast to {@link CoraClient} which hides the communication details from the user of the class.
+ * RestClient is a java client for handling records in a Cora based system. Methods in this class
+ * works with Strings and return a rather low level {@link RestResponse} exposing the return codes
+ * from the server, when called. In contrast to {@link DataClient} which works with ClientData
+ * objects and hides the communication details from the user of the class.
  */
 public interface RestClient {
 
@@ -51,7 +52,7 @@ public interface RestClient {
 	 *            A String to create the record from
 	 * @return A {@link ExtendedRestResponse}, containing the response
 	 */
-	ExtendedRestResponse createRecordFromJson(String recordType, String json);
+	RestResponse createRecordFromJson(String recordType, String json);
 
 	/**
 	 * Updates a record using recordType recordId, and a string to set as output in the httpRequest.
@@ -115,13 +116,6 @@ public interface RestClient {
 			throws UnsupportedEncodingException;
 
 	/**
-	 * Returns the base url that is expected to be set when the RestClient is instantiated
-	 * 
-	 * @return A String to use as base url
-	 */
-	String getBaseUrl();
-
-	/**
 	 * Creates an IndexBatchJob for the provided recordType.
 	 * 
 	 * @param recordType,
@@ -133,6 +127,12 @@ public interface RestClient {
 	 * @throws UnsupportedEncodingException
 	 * 
 	 */
-	ExtendedRestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson);
+	RestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson);
 
+	/**
+	 * Returns the base url that this RestClient uses
+	 * 
+	 * @return A String with the base url used by this RestClient
+	 */
+	String getBaseUrl();
 }

@@ -20,7 +20,7 @@ package se.uu.ub.cora.javaclient.rest;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
+import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
 public class RestClientFactoryImp implements RestClientFactory {
 

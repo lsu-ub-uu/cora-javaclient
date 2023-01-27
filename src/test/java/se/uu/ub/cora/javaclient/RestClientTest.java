@@ -21,6 +21,8 @@ package se.uu.ub.cora.javaclient;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -28,43 +30,61 @@ import java.net.URLEncoder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerFactorySpyOld;
+import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
+import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerInvalidSpy;
 import se.uu.ub.cora.javaclient.externaldependenciesdoubles.HttpHandlerSpyOLD;
-import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
-import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
+import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
 public class RestClientTest {
-	private HttpHandlerFactorySpyOld httpHandlerFactorySpy;
+	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private String baseUrl;
+	private TokenClientSpy tokenClient;
 	private RestClient restClient;
+	private HttpHandlerSpy httpHandlerSpy;
 
 	@BeforeMethod
 	public void setUp() {
-		httpHandlerFactorySpy = new HttpHandlerFactorySpyOld();
-		String baseUrl = "http://localhost:8080/therest/rest/";
-		String authToken = "someToken";
+		httpHandlerSpy = new HttpHandlerSpy();
+		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
+		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandlerSpy);
+		baseUrl = "http://localhost:8080/therest/rest/";
+		tokenClient = new TokenClientSpy();
+		tokenClient.MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someToken");
 		restClient = RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndAuthToken(
-				httpHandlerFactorySpy, baseUrl, authToken);
+				httpHandlerFactorySpy, baseUrl, tokenClient);
+	}
+
+	@Test
+	public void testInit() throws Exception {
+		RestClientImp restClientImp = (RestClientImp) restClient;
+
+		assertSame(restClientImp.onlyForTestGetHttpHandlerFactory(), httpHandlerFactorySpy);
+		assertSame(restClientImp.getBaseUrl(), baseUrl);
+		assertSame(restClientImp.onlyForTestGetAuthToken(), tokenClient);
 	}
 
 	@Test
 	public void testReadRecordHttpHandlerSetupCorrectly() {
 		restClient.readRecordAsJson("someType", "someId");
-		assertEquals(getRequestMethod(), "GET");
-		assertEquals(httpHandlerFactorySpy.urlString,
+
+		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/someId");
-		assertEquals(getRequestProperty("authToken"), "someToken");
-		assertEquals(getNumberOfRequestProperties(), 1);
+		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+				tokenClient.getAuthToken());
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
 	public void testReadRecordOk() {
 		RestResponse response = restClient.readRecordAsJson("someType", "someId");
 		HttpHandlerSpyOLD httpHandler = (HttpHandlerSpyOLD) httpHandlerFactorySpy.factored.get(0);
-		assertEquals(response.responseText, httpHandler.returnedResponseText);
-		assertEquals(response.statusCode, httpHandler.responseCode);
+		assertEquals(response.responseText(), httpHandler.returnedResponseText);
+		assertEquals(response.statusCode(), httpHandler.responseCode);
+		assertTrue(response.createdId().isEmpty());
 	}
 
 	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
@@ -78,9 +98,9 @@ public class RestClientTest {
 
 		HttpHandlerInvalidSpy httpHandler = (HttpHandlerInvalidSpy) httpHandlerFactorySpy.factored
 				.get(0);
-		assertNotNull(response.responseText);
-		assertEquals(response.responseText, httpHandler.returnedErrorText);
-		assertEquals(response.statusCode, httpHandler.responseCode);
+		assertEquals(response.responseText(), httpHandler.returnedErrorText);
+		assertEquals(response.statusCode(), httpHandler.responseCode);
+		assertTrue(response.createdId().isEmpty());
 	}
 
 	@Test

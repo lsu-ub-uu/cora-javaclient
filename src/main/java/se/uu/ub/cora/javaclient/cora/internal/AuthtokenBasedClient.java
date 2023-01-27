@@ -25,10 +25,10 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
-import se.uu.ub.cora.javaclient.cora.CoraClient;
+import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
-public class AuthtokenBasedClient extends CommonCoraClient implements CoraClient {
+public class AuthtokenBasedClient extends CommonCoraClient implements DataClient {
 
 	static final String FROM = " from ";
 	static final String AND_ID = " and id: ";

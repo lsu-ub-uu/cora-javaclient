@@ -25,7 +25,7 @@ import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
 import se.uu.ub.cora.javaclient.cora.internal.ApptokenBasedClientDependencies;
 import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
-import se.uu.ub.cora.javaclient.cora.internal.CoraClientImp;
+import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
@@ -49,7 +49,7 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 	}
 
 	@Override
-	public CoraClient factor(String userId, String appToken) {
+	public DataClient factor(String userId, String appToken) {
 		// ClientDataToJsonConverterFactory dataToJsonConverterFactory =
 		// BasicClientDataToJsonConverterFactory
 		// .usingBuilderFactory(jsonBuilderFactory);
@@ -60,7 +60,7 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
 				jsonToDataConverterFactory, userId, appToken);
 
-		return new CoraClientImp(coraClientDependencies);
+		return new DataClientImp(coraClientDependencies);
 	}
 
 	public String getAppTokenVerifierUrl() {
@@ -74,7 +74,7 @@ public final class CoraClientFactoryImp implements CoraClientFactory {
 	}
 
 	@Override
-	public CoraClient factorUsingAuthToken(String authToken) {
+	public DataClient factorUsingAuthToken(String authToken) {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
 		// ClientDataToJsonConverterFactory dataToJsonConverterFactory = new
 		// BasicClientDataToJsonConverterFactory.usingBuilderFactory(

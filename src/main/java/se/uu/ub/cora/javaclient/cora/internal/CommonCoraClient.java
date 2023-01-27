@@ -21,17 +21,13 @@ package se.uu.ub.cora.javaclient.cora.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ActionLink;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.DataRecord;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverterImp;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
-import se.uu.ub.cora.javaclient.rest.ExtendedRestResponse;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.json.parser.JsonArray;

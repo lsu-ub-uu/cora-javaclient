@@ -28,15 +28,15 @@ public class RestClientFactorySpy implements RestClientFactory {
 
 	public String baseUrl;
 	public String authToken;
-	public RestClientSpy restClientSpy;
-	public List<RestClientSpy> factored = new ArrayList<>();
+	public RestClientSpyOld restClientSpy;
+	public List<RestClientSpyOld> factored = new ArrayList<>();
 	public String usedAuthToken;
 
 	@Override
 	public RestClient factorUsingAuthToken(String authToken) {
 		this.authToken = authToken;
 		this.usedAuthToken = authToken;
-		restClientSpy = new RestClientSpy();
+		restClientSpy = new RestClientSpyOld();
 		factored.add(restClientSpy);
 		return restClientSpy;
 	}

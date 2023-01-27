@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.rest.http.RestClientImp;
+import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
 public class RestClientFactoryTest {
 
@@ -48,7 +48,7 @@ public class RestClientFactoryTest {
 	@Test
 	public void testFactorAddedDependenciesIsOk() throws Exception {
 		RestClientImp coraRestClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
-		HttpHandlerFactory handlerFactory = coraRestClient.getHttpHandlerFactory();
+		HttpHandlerFactory handlerFactory = coraRestClient.onlyForTestGetHttpHandlerFactory();
 		assertTrue(handlerFactory instanceof HttpHandlerFactoryImp);
 	}
 
@@ -57,7 +57,7 @@ public class RestClientFactoryTest {
 		RestClientImp coraRestClient = (RestClientImp) factory
 				.factorUsingAuthToken("someAuthToken");
 		assertEquals(coraRestClient.getBaseUrl(), "someBaseUrlrecord/");
-		assertEquals(coraRestClient.getAuthToken(), "someAuthToken");
+		assertEquals(coraRestClient.onlyForTestGetAuthToken(), "someAuthToken");
 	}
 
 	@Test
@@ -66,6 +66,6 @@ public class RestClientFactoryTest {
 		RestClientImp coraRestClient = (RestClientImp) factory
 				.factorUsingAuthToken("someAuthToken2");
 		assertEquals(coraRestClient.getBaseUrl(), "someBaseUrl2record/");
-		assertEquals(coraRestClient.getAuthToken(), "someAuthToken2");
+		assertEquals(coraRestClient.onlyForTestGetAuthToken(), "someAuthToken2");
 	}
 }
