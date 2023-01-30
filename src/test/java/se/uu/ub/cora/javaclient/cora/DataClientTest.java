@@ -16,31 +16,44 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.cora;
 
 import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
 import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestClientSpy;
 
 public class DataClientTest {
 	private DataClientImp coraClient;
 	private RestClientSpy restClient;
+	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 
 	@BeforeMethod
 	public void setUp() {
 		restClient = new RestClientSpy();
 		coraClient = new DataClientImp(restClient);
+
+		dataToJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
+		ClientDataToJsonConverterProvider
+				.setDataToJsonConverterFactoryCreator(dataToJsonFactoryCreator);
 	}
 
 	@Test
 	public void testInit() throws Exception {
 		RestClient restClient2 = coraClient.onlyForTestGetRestClient();
 		assertSame(restClient2, restClient);
+
+		ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
+				.onlyForTestGetDataToJsonConverterFactory();
+
 	}
 
 	@Test

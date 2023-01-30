@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -24,48 +24,57 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
+import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
+import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class RestClientFactoryTest {
 
 	private RestClientFactory factory;
 	private String baseUrl = "someBaseUrl";
-	private String authToken = "";
+	private String authToken = "someAuthToken";
+	private String appTokenVerifierUrl = "someAptokenUrl";
 
 	@BeforeMethod
 	public void beforeMethod() {
-		factory = new RestClientFactoryImp(baseUrl);
+		factory = RestClientFactoryImp.usingBaseUrlAndAppTokenVerifierUrl(baseUrl,
+				appTokenVerifierUrl);
 	}
 
 	@Test
-	public void testFactor() throws Exception {
-		RestClient coraRestClient = factory.factorUsingAuthToken(authToken);
-		assertTrue(coraRestClient instanceof RestClientImp);
+	public void testInit() throws Exception {
+		assertEquals(factory.getBaseUrl(), baseUrl);
 	}
 
 	@Test
-	public void testFactorAddedDependenciesIsOk() throws Exception {
-		RestClientImp coraRestClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
-		HttpHandlerFactory handlerFactory = coraRestClient.onlyForTestGetHttpHandlerFactory();
-		assertTrue(handlerFactory instanceof HttpHandlerFactoryImp);
+	public void testFactorBaseUrlAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
+
+		assertTrue(restClient instanceof RestClientImp);
+		assertEquals(restClient.getBaseUrl(), baseUrl);
 	}
 
 	@Test
-	public void testInputsSentOnToClient() throws Exception {
-		RestClientImp coraRestClient = (RestClientImp) factory
-				.factorUsingAuthToken("someAuthToken");
-		assertEquals(coraRestClient.getBaseUrl(), "someBaseUrlrecord/");
-		assertEquals(coraRestClient.onlyForTestGetAuthToken(), "someAuthToken");
+	public void testFactorHttpHandlerFactoryCreatedAndAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
+
+		assertTrue(restClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
 	}
 
 	@Test
-	public void testInputsSentOnToClientForSure() throws Exception {
-		factory = new RestClientFactoryImp("someBaseUrl2");
-		RestClientImp coraRestClient = (RestClientImp) factory
-				.factorUsingAuthToken("someAuthToken2");
-		assertEquals(coraRestClient.getBaseUrl(), "someBaseUrl2record/");
-		assertEquals(coraRestClient.onlyForTestGetAuthToken(), "someAuthToken2");
+	public void testFactorTokenClientCreatedCorrectlyAndAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
+
+		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
+
+		AuthTokenCredentials authTokenCredentials = tokenClient
+				.onlyForTestGetAuthTokenCredentials();
+
+		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(authTokenCredentials.authToken(), authToken);
+
 	}
+
 }

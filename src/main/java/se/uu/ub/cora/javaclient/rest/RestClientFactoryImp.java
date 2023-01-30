@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2018, 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -21,20 +21,40 @@ package se.uu.ub.cora.javaclient.rest;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
+import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
+import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class RestClientFactoryImp implements RestClientFactory {
 
 	private String baseUrl;
+	private String appTokenVerifierUrl;
 
-	public RestClientFactoryImp(String baseUrl) {
+	private RestClientFactoryImp(String baseUrl, String appTokenVerifierUrl) {
 		this.baseUrl = baseUrl;
+		this.appTokenVerifierUrl = appTokenVerifierUrl;
+	}
+
+	public static RestClientFactoryImp usingBaseUrlAndAppTokenVerifierUrl(String baseUrl,
+			String appTokenVerifierUrl) {
+		return new RestClientFactoryImp(baseUrl, appTokenVerifierUrl);
 	}
 
 	@Override
 	public RestClient factorUsingAuthToken(String authToken) {
+		TokenClient tokenClient = createTokenClientForAuthToken(authToken);
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndAuthToken(httpHandlerFactory,
-				baseUrl, authToken);
+
+		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
+				baseUrl, tokenClient);
+	}
+
+	private TokenClient createTokenClientForAuthToken(String authToken) {
+		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(appTokenVerifierUrl,
+				authToken);
+		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(httpHandlerFactory,
+				authTokenCredentials);
 	}
 
 	@Override

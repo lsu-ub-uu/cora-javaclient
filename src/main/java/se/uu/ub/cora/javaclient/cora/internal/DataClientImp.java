@@ -22,6 +22,7 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
@@ -49,10 +50,10 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 		this.restClient = restClient;
 	}
 
-	@Override
-	public String create(String recordType, String json) {
-		return setUpRestClientAndCreateRecord(recordType, json);
-	}
+	// @Override
+	// public String create(String recordType, String json) {
+	// return setUpRestClientAndCreateRecord(recordType, json);
+	// }
 
 	private String setUpRestClientAndCreateRecord(String recordType, String json) {
 		// RestClient restClient = setUpRestClientWithAuthToken();
@@ -66,9 +67,10 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 	}
 
 	@Override
-	public String create(String recordType, ClientDataGroup dataGroup) {
+	public ClientDataRecord create(String recordType, ClientDataGroup dataGroup) {
 		String json = convertDataGroupToJson(dataGroup);
-		return setUpRestClientAndCreateRecord(recordType, json);
+		// return setUpRestClientAndCreateRecord(recordType, json);
+		return null;
 	}
 
 	@Override
@@ -173,6 +175,10 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 
 	public RestClient onlyForTestGetRestClient() {
 		return restClient;
+	}
+
+	public ClientDataToJsonConverterFactory onlyForTestGetDataToJsonConverterFactory() {
+		return dataToJsonConverterFactory;
 	}
 
 }

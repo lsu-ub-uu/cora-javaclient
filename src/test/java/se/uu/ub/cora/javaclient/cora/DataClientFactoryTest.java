@@ -34,10 +34,10 @@ import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
-public class CoraClientFactoryTest {
+public class DataClientFactoryTest {
 	private String appTokenVerifierUrl;
 	private String baseUrl;
-	private CoraClientFactoryImp clientFactory;
+	private DataClientFactoryImp clientFactory;
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -45,7 +45,7 @@ public class CoraClientFactoryTest {
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(null);
 		appTokenVerifierUrl = "someVerifierUrl";
 		baseUrl = "someBaseUrl";
-		clientFactory = CoraClientFactoryImp.usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl,
+		clientFactory = DataClientFactoryImp.usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl,
 				baseUrl);
 	}
 
@@ -86,7 +86,7 @@ public class CoraClientFactoryTest {
 
 		RestClientImp restClient = (RestClientImp) coraClient.getRestClient();
 		assertEquals(restClient.getBaseUrl(), baseUrl + "record/");
-		assertEquals(restClient.onlyForTestGetAuthToken(), "someAuthTokenToken");
+		assertEquals(restClient.onlyForTestGetTokenClient(), "someAuthTokenToken");
 
 		ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
 				.getDataToJsonConverterFactory();

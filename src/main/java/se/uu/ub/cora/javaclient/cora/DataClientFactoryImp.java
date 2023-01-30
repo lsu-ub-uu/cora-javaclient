@@ -29,19 +29,19 @@ import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
-public final class CoraClientFactoryImp implements CoraClientFactory {
+public final class DataClientFactoryImp implements CoraClientFactory {
 
 	private AppTokenClientFactoryImp appTokenClientFactory;
 	private RestClientFactoryImp restClientFactory;
 	private String appTokenVerifierUrl;
 	private String baseUrl;
 
-	public static CoraClientFactoryImp usingAppTokenVerifierUrlAndBaseUrl(
+	public static DataClientFactoryImp usingAppTokenVerifierUrlAndBaseUrl(
 			String appTokenVerifierUrl, String baseUrl) {
-		return new CoraClientFactoryImp(appTokenVerifierUrl, baseUrl);
+		return new DataClientFactoryImp(appTokenVerifierUrl, baseUrl);
 	}
 
-	private CoraClientFactoryImp(String appTokenVerifierUrl, String baseUrl) {
+	private DataClientFactoryImp(String appTokenVerifierUrl, String baseUrl) {
 		this.appTokenVerifierUrl = appTokenVerifierUrl;
 		this.baseUrl = baseUrl;
 		appTokenClientFactory = new AppTokenClientFactoryImp(appTokenVerifierUrl);
