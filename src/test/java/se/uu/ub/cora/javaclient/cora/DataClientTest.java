@@ -34,6 +34,7 @@ import se.uu.ub.cora.javaclient.rest.RestClientSpy;
 public class DataClientTest {
 	private DataClientImp coraClient;
 	private RestClientSpy restClient;
+	// private JsonToClientDataConverterFactory jsonToDataFactory
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 
 	@BeforeMethod

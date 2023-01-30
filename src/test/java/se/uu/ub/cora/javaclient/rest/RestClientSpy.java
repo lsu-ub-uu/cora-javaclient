@@ -21,8 +21,6 @@ package se.uu.ub.cora.javaclient.rest;
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
-import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 

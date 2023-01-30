@@ -22,6 +22,7 @@ import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
@@ -62,4 +63,19 @@ public class RestClientFactoryImp implements RestClientFactory {
 		return baseUrl;
 	}
 
+	@Override
+	public RestClient factorUsingUserIdAndAppToken(String userId, String appToken) {
+		TokenClient tokenClient = createTokenClientForUserIdAndAppToken(userId, appToken);
+		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
+				baseUrl, tokenClient);
+	}
+
+	private TokenClient createTokenClientForUserIdAndAppToken(String userId, String appToken) {
+		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenVerifierUrl,
+				userId, appToken);
+		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
+				appTokenCredentials);
+	}
 }

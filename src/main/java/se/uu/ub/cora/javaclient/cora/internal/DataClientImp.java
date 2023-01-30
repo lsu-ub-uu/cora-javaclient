@@ -73,11 +73,11 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 		return null;
 	}
 
-	@Override
-	public String read(String recordType, String recordId) {
-		// RestClient restClient = setUpRestClientWithAuthToken();
-		return read(restClient, recordType, recordId);
-	}
+	// @Override
+	// public String read(String recordType, String recordId) {
+	// // RestClient restClient = setUpRestClientWithAuthToken();
+	// return read(restClient, recordType, recordId);
+	// }
 
 	@Override
 	public ClientDataRecord readAsDataRecord(String recordType, String recordId) {
@@ -85,29 +85,29 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 		return readAsDataRecord(restClient, recordType, recordId);
 	}
 
-	@Override
-	public String update(String recordType, String recordId, String json) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return update(restClient, recordType, recordId, json);
-	}
+	// @Override
+	// public String update(String recordType, String recordId, String json) {
+	// RestClient restClient = setUpRestClientWithAuthToken();
+	// return update(restClient, recordType, recordId, json);
+	// }
 
 	@Override
-	public String update(String recordType, String recordId, ClientDataGroup dataGroup) {
+	public ClientDataRecord update(String recordType, String recordId, ClientDataGroup dataGroup) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		return update(restClient, recordType, recordId, dataGroup);
 	}
 
 	@Override
-	public String delete(String recordType, String recordId) {
+	public void delete(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		return deleteRecord(restClient, recordType, recordId);
 	}
 
-	@Override
-	public String readList(String recordType) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return readList(restClient, recordType);
-	}
+	// @Override
+	// public String readList(String recordType) {
+	// RestClient restClient = setUpRestClientWithAuthToken();
+	// return readList(restClient, recordType);
+	// }
 
 	@Override
 	public List<ClientDataRecord> readListAsDataRecords(String recordType) {

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
+import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
@@ -35,6 +36,8 @@ public class RestClientFactoryTest {
 	private String baseUrl = "someBaseUrl";
 	private String authToken = "someAuthToken";
 	private String appTokenVerifierUrl = "someAptokenUrl";
+	private String userId = "someUserId";
+	private String appToken = "someAppToken";
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -74,6 +77,39 @@ public class RestClientFactoryTest {
 
 		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
+
+	}
+
+	@Test
+	public void testFactorAppBaseUrlAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingUserIdAndAppToken(userId,
+				appToken);
+
+		assertTrue(restClient instanceof RestClientImp);
+		assertEquals(restClient.getBaseUrl(), baseUrl);
+	}
+
+	@Test
+	public void testFactorAppHttpHandlerFactoryCreatedAndAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingUserIdAndAppToken(userId,
+				appToken);
+
+		assertTrue(restClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
+	}
+
+	@Test
+	public void testFactorAppTokenClientCreatedCorrectlyAndAddedToRestClient() throws Exception {
+		RestClientImp restClient = (RestClientImp) factory.factorUsingUserIdAndAppToken(userId,
+				appToken);
+
+		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
+
+		AppTokenCredentials appTokenCredentials = tokenClient.onlyForTestGetAppTokenCredentials();
+
+		assertEquals(appTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(appTokenCredentials.userId(), userId);
+		assertEquals(appTokenCredentials.appToken(), appToken);
 
 	}
 
