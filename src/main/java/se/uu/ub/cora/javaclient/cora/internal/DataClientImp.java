@@ -22,13 +22,19 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
-public class DataClientImp extends CommonCoraClient implements DataClient {
+public class DataClientImp implements DataClient {
 
+	protected ClientDataToJsonConverterFactory dataToJsonConverterFactory;
 	private RestClientFactory restClientFactory;
 	// private AppTokenClient appTokenClient;
 	// private AppTokenClientFactory appTokenClientFactory;
@@ -48,28 +54,37 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 
 	public DataClientImp(RestClient restClient) {
 		this.restClient = restClient;
+		dataToJsonConverterFactory = ClientDataToJsonConverterProvider.createImplementingFactory();
 	}
 
+	@Override
+	public ClientDataRecord create(String recordType, ClientDataGroup dataGroup) {
+		ClientDataToJsonConverter converterToJson = createConverter(dataGroup);
+		String json = converterToJson.toJson();
+		RestResponse createRecordFromJson = restClient.createRecordFromJson(recordType, json);
+		JsonToClientDataConverter converterToData = JsonToClientDataConverterProvider
+				.getConverterUsingJsonObject(createRecordFromJson.responseText());
+		return (ClientDataRecord) converterToData.toInstance();
+	}
+
+	protected ClientDataToJsonConverter createConverter(ClientDataGroup dataGroup) {
+		return dataToJsonConverterFactory.factorUsingConvertible(dataGroup);
+	}
 	// @Override
 	// public String create(String recordType, String json) {
 	// return setUpRestClientAndCreateRecord(recordType, json);
 	// }
 
-	private String setUpRestClientAndCreateRecord(String recordType, String json) {
-		// RestClient restClient = setUpRestClientWithAuthToken();
-		return create(restClient, recordType, json);
-	}
+	// private String setUpRestClientAndCreateRecord(String recordType, String json) {
+	// // RestClient restClient = setUpRestClientWithAuthToken();
+	// RestResponse response = restClient.createRecordFromJson(recordType, json);
+	// possiblyThrowErrorIfNotCreated(restClient, recordType, response);
+	// return response.responseText();
+	// }
 
 	private RestClient setUpRestClientWithAuthToken() {
 		// // String authToken = appTokenClient.getAuthToken();
 		// // return restClientFactory.factorUsingAuthToken(authToken);
-		return null;
-	}
-
-	@Override
-	public ClientDataRecord create(String recordType, ClientDataGroup dataGroup) {
-		String json = convertDataGroupToJson(dataGroup);
-		// return setUpRestClientAndCreateRecord(recordType, json);
 		return null;
 	}
 
@@ -177,8 +192,8 @@ public class DataClientImp extends CommonCoraClient implements DataClient {
 		return restClient;
 	}
 
-	public ClientDataToJsonConverterFactory onlyForTestGetDataToJsonConverterFactory() {
-		return dataToJsonConverterFactory;
-	}
+	// public ClientDataToJsonConverterFactory onlyForTestGetDataToJsonConverterFactory() {
+	// return dataToJsonConverterFactory;
+	// }
 
 }
