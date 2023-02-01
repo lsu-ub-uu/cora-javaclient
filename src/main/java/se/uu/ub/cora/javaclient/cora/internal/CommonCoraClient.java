@@ -47,18 +47,12 @@ public class CommonCoraClient {
 	protected ClientDataToJsonConverterFactory dataToJsonConverterFactory;
 	protected JsonToClientDataConverterFactory jsonToDataConverterFactory;
 
-	protected String create(RestClient restClient, String recordType, String json) {
-		ExtendedRestResponse response = restClient.createRecordFromJson(recordType, json);
-		possiblyThrowErrorIfNotCreated(restClient, recordType, response);
-		return response.responseText;
-	}
-
 	void possiblyThrowErrorIfNotCreated(RestClient restClient, String recordType,
-			ExtendedRestResponse response) {
-		if (statusIsNotCreated(response.statusCode)) {
+			RestResponse response) {
+		if (statusIsNotCreated(response.responseCode())) {
 			String url = restClient.getBaseUrl();
 			throw new CoraClientException("Could not create record of type: " + recordType + " on "
-					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText());
 		}
 	}
 
@@ -68,7 +62,9 @@ public class CommonCoraClient {
 
 	protected String create(RestClient restClient, String recordType, ClientDataGroup dataGroup) {
 		String json = convertDataGroupToJson(dataGroup);
-		return create(restClient, recordType, json);
+		RestResponse response = restClient.createRecordFromJson(recordType, json);
+		possiblyThrowErrorIfNotCreated(restClient, recordType, response);
+		return response.responseText();
 	}
 
 	protected String convertDataGroupToJson(ClientDataGroup dataGroup) {
@@ -76,14 +72,14 @@ public class CommonCoraClient {
 		return converter.toJson();
 	}
 
-	protected ClientDataToJsonConverter createConverter(ClientDataGroup dataGroup) {
-		return dataToJsonConverterFactory.createForClientDataElement(dataGroup);
-	}
+	// protected ClientDataToJsonConverter createConverter(ClientDataGroup dataGroup) {
+	// return dataToJsonConverterFactory.createForClientDataElement(dataGroup);
+	// }
 
 	protected String read(RestClient restClient, String recordType, String recordId) {
 		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
 		possiblyThrowErrorForReadRecordTypeAndIdIfNotOk(restClient, response, recordType, recordId);
-		return response.responseText;
+		return response.responseText();
 	}
 
 	private void possiblyThrowErrorForReadRecordTypeAndIdIfNotOk(RestClient restClient,
@@ -94,10 +90,10 @@ public class CommonCoraClient {
 
 	void possiblyThrowErrorIfNotOk(RestClient restClient, RestResponse response,
 			String messageStart) {
-		if (statusIsNotOk(response.statusCode)) {
+		if (statusIsNotOk(response.responseCode())) {
 			String url = restClient.getBaseUrl();
 			throw new CoraClientException(messageStart + SERVER_USING_URL + url + RETURNED_ERROR_WAS
-					+ response.responseText);
+					+ response.responseText());
 		}
 	}
 
@@ -110,7 +106,7 @@ public class CommonCoraClient {
 		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
 		possiblyThrowErrorForUpdateRecordTypeAndIdIfNotOk(restClient, response, recordType,
 				recordId);
-		return response.responseText;
+		return response.responseText();
 	}
 
 	private void possiblyThrowErrorForUpdateRecordTypeAndIdIfNotOk(RestClient restClient,
@@ -122,7 +118,7 @@ public class CommonCoraClient {
 	protected String deleteRecord(RestClient restClient, String recordType, String recordId) {
 		RestResponse response = restClient.deleteRecord(recordType, recordId);
 		possiblyThrowErrorForDeleteIfNotOk(restClient, response, recordType, recordId);
-		return response.responseText;
+		return response.responseText();
 	}
 
 	private void possiblyThrowErrorForDeleteIfNotOk(RestClient restClient, RestResponse response,
@@ -169,15 +165,15 @@ public class CommonCoraClient {
 	protected String readList(RestClient restClient, String recordType) {
 		RestResponse response = restClient.readRecordListAsJson(recordType);
 		possiblyThrowErrorForReadList(restClient, recordType, response);
-		return response.responseText;
+		return response.responseText();
 	}
 
 	private void possiblyThrowErrorForReadList(RestClient restClient, String recordType,
 			RestResponse response) {
-		if (statusIsNotOk(response.statusCode)) {
+		if (statusIsNotOk(response.responseCode())) {
 			String url = restClient.getBaseUrl();
 			throw new CoraClientException("Could not read records of type: " + recordType + FROM
-					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+					+ SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText());
 		}
 	}
 
@@ -214,7 +210,7 @@ public class CommonCoraClient {
 	protected String readIncomingLinks(RestClient restClient, String recordType, String recordId) {
 		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
 		possiblyThrowErrorForIncomingLinksIfNotOk(restClient, response, recordType, recordId);
-		return response.responseText;
+		return response.responseText();
 	}
 
 	private void possiblyThrowErrorForIncomingLinksIfNotOk(RestClient restClient,
@@ -273,19 +269,20 @@ public class CommonCoraClient {
 	}
 
 	void possiblyThrowErrorIfNotPossibleToBatchIndex(RestClient restClient, String recordType,
-			ExtendedRestResponse response) {
-		if (statusIsNotCreated(response.statusCode)) {
+			RestResponse response) {
+		if (statusIsNotCreated(response.responseCode())) {
 			String url = restClient.getBaseUrl();
-			throw new CoraClientException("Could not index record list of type: " + recordType
-					+ " on " + SERVER_USING_URL + url + RETURNED_ERROR_WAS + response.responseText);
+			throw new CoraClientException(
+					"Could not index record list of type: " + recordType + " on " + SERVER_USING_URL
+							+ url + RETURNED_ERROR_WAS + response.responseText());
 		}
 	}
 
 	protected String indexRecordList(RestClient restClient, String recordType,
 			String indexSettingsAsJson) {
-		ExtendedRestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
+		RestResponse response = restClient.batchIndexWithFilterAsJson(recordType,
 				indexSettingsAsJson);
 		possiblyThrowErrorIfNotPossibleToBatchIndex(restClient, recordType, response);
-		return response.responseText;
+		return response.responseText();
 	}
 }

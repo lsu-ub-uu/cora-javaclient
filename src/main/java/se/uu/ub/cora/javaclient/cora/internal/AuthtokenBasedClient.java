@@ -27,6 +27,7 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class AuthtokenBasedClient extends CommonCoraClient implements DataClient {
 
@@ -47,7 +48,9 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 
 	@Override
 	public String create(String recordType, String json) {
-		return create(restClient, recordType, json);
+		RestResponse response = restClient.createRecordFromJson(recordType, json);
+		possiblyThrowErrorIfNotCreated(restClient, recordType, response);
+		return response.responseText();
 	}
 
 	@Override

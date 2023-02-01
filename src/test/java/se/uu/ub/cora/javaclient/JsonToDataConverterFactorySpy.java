@@ -38,8 +38,8 @@ public class JsonToDataConverterFactorySpy implements JsonToClientDataConverterF
 	private int numOfCallsTocreateJsonToDataActionLink = 0;
 
 	@Override
-	public JsonToClientDataConverter createForJsonObject(JsonValue jsonValue) {
-		this.jsonValue = jsonValue;
+	public JsonToClientDataConverter factorUsingString(String json) {
+		this.jsonValue = json;
 		createForJsonObjectWasCalled = true;
 		factoredConverter = new JsonToDataConverterSpy();
 		factoredConverters.add(factoredConverter);

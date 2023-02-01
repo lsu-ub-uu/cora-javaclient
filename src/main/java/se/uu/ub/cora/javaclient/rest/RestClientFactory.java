@@ -37,9 +37,11 @@ public interface RestClientFactory {
 	/**
 	 * factorUsingUserIdAndAppToken factors a RestClient using the specified userId and appToken
 	 * 
-	 * @param userId
-	 * @param appToken
-	 * @return
+	 * @param userId,
+	 *            a String with the userId
+	 * @param appToken,
+	 *            a String with a valid appToken
+	 * @return {@link RestClient}
 	 */
 	RestClient factorUsingUserIdAndAppToken(String userId, String appToken);
 

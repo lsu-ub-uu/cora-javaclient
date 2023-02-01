@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020, 2021 Uppsala University Library
+ * Copyright 2018, 2020, 2021, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -23,57 +23,83 @@ import static org.testng.Assert.assertSame;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientSpy;
+import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class DataClientTest {
-	private DataClientImp coraClient;
+	private static final String RECORD_TYPE = "someRecordType";
+	private DataClientImp dataClient;
 	private RestClientSpy restClient;
-	// private JsonToClientDataConverterFactory jsonToDataFactory
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
+	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
 
 	@BeforeMethod
 	public void setUp() {
-		restClient = new RestClientSpy();
-		coraClient = new DataClientImp(restClient);
-
 		dataToJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
 		ClientDataToJsonConverterProvider
 				.setDataToJsonConverterFactoryCreator(dataToJsonFactoryCreator);
+
+		jsonToDataFactory = new JsonToClientDataConverterFactorySpy();
+		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataFactory);
+
+		restClient = new RestClientSpy();
+		dataClient = new DataClientImp(restClient);
+
 	}
 
 	@Test
 	public void testInit() throws Exception {
-		RestClient restClient2 = coraClient.onlyForTestGetRestClient();
+		RestClient restClient2 = dataClient.onlyForTestGetRestClient();
 		assertSame(restClient2, restClient);
 
-		ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
-				.onlyForTestGetDataToJsonConverterFactory();
+		dataToJsonFactoryCreator.MCR.assertParameters("createFactory", 0);
 
 	}
 
 	@Test
 	public void testCreate() throws Exception {
 
-		coraClient.create("someRecordType", new ClientDataGroupSpy());
+		ClientDataGroupSpy dataGroup = new ClientDataGroupSpy();
+		ClientDataRecord createdDataRecord = dataClient.create(RECORD_TYPE, dataGroup);
 
-		// String readJson = coraClient.read("someType", "someId");
-		//
-		// restClient.MCR.assertParameters("factor", 0, null);
+		String json = assertDataGroupConvertedToJsonByProviderReturnJsonString(dataGroup);
 
-		// RestClientSpyOld restClient = restClientFactory.factored.get(0);
-		// assertEquals(restClientFactory.factored.size(), 1);
-		// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-		// assertEquals(restClient.recordType, "someType");
-		// assertEquals(restClient.recordId, "someId");
-		// assertEquals(readJson, restClient.restResponse.responseText);
-		// assertEquals(restClient.methodCalled, "read");
+		restClient.MCR.assertParameters("createRecordFromJson", 0, RECORD_TYPE, json);
 
+		RestResponse createdResponse = (RestResponse) restClient.MCR
+				.getReturnValue("createRecordFromJson", 0);
+
+		String createdJson = createdResponse.responseText();
+
+		jsonToDataFactory.MCR.assertParameters("factor", 0, createdJson);
+
+		JsonToClientDataConverterSpy jsonToClientConverter = (JsonToClientDataConverterSpy) jsonToDataFactory.MCR
+				.getReturnValue("factor", 0);
+		jsonToClientConverter.MCR.assertReturn("toInstance", 0, createdDataRecord);
+		// JsonToClientDataConverterFactorySpy
+
+	}
+
+	private String assertDataGroupConvertedToJsonByProviderReturnJsonString(
+			ClientDataGroupSpy dataGroup) {
+		ClientDataToJsonConverterFactorySpy converterFactorySpy = (ClientDataToJsonConverterFactorySpy) dataToJsonFactoryCreator.MCR
+				.getReturnValue("createFactory", 0);
+		converterFactorySpy.MCR.assertParameters("factorUsingConvertible", 0, dataGroup);
+
+		ClientDataToJsonConverterSpy converterSpy = (ClientDataToJsonConverterSpy) converterFactorySpy.MCR
+				.getReturnValue("factorUsingConvertible", 0);
+		return (String) converterSpy.MCR.getReturnValue("toJson", 0);
 	}
 
 	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
