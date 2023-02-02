@@ -1,6 +1,6 @@
 package se.uu.ub.cora.javaclient;
 
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.BasicClientActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
 
@@ -11,7 +11,7 @@ public class JsonToDataActionLinkConverterSpy implements JsonToDataActionLinkCon
 	@Override
 	public ClientData toInstance() {
 		if (actionLinkToReturn == null) {
-			return ActionLink.withAction(Action.READ);
+			return BasicClientActionLink.withAction(Action.READ);
 
 		}
 		return actionLinkToReturn;

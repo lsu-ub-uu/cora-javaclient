@@ -228,7 +228,7 @@ public class CommonCoraClient {
 
 	private ClientDataGroup getWorkOrderDataGroup(ClientDataRecord clientDataRecord,
 			boolean explicitCommit) {
-		ActionLink index = clientDataRecord.getActionLink("index");
+		BasicClientActionLink index = clientDataRecord.getActionLink("index");
 		ClientDataGroup bodyDataGroup = index.getBody();
 		bodyDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("performCommit",
 				String.valueOf(explicitCommit)));

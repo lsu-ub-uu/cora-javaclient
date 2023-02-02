@@ -30,7 +30,8 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.BasicClientActionLink;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
@@ -256,7 +257,7 @@ public class AuthtokenBasedClientTest {
 
 		ClientDataRecord clientDataRecord = ClientDataRecord
 				.withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
-		ActionLink actionLink = createActionLinkIndex();
+		ClientActionLink actionLink = createActionLinkIndex();
 		clientDataRecord.addActionLink("index", actionLink);
 
 		String createdJson = coraClient.indexData(clientDataRecord);
@@ -268,10 +269,10 @@ public class AuthtokenBasedClientTest {
 				"workOrder");
 	}
 
-	private ActionLink createActionLinkIndex() {
+	private ClientActionLink createActionLinkIndex() {
 		ClientDataGroup workOrder = createBodyForIndexLink();
 
-		ActionLink actionLink = ActionLink.withAction(Action.INDEX);
+		ClientActionLink actionLink = BasicClientActionLink.withAction(Action.INDEX);
 		actionLink.setBody(workOrder);
 		actionLink.setRequestMethod("POST");
 		actionLink.setURL("http://localhost:8080/systemone/rest/record/workOrder/");
@@ -335,11 +336,11 @@ public class AuthtokenBasedClientTest {
 
 	private void setUpActionLinksToReturn() {
 		List<ClientData> actionLinksToReturn = new ArrayList<>();
-		ActionLink actionLinkIndex = ActionLink.withAction(Action.INDEX);
+		BasicClientActionLink actionLinkIndex = BasicClientActionLink.withAction(Action.INDEX);
 		actionLinkIndex.setBody(ClientDataGroup.withNameInData("index"));
 		actionLinksToReturn.add(actionLinkIndex);
 
-		ActionLink actionLink = ActionLink.withAction(Action.READ);
+		BasicClientActionLink actionLink = BasicClientActionLink.withAction(Action.READ);
 		actionLinksToReturn.add(actionLink);
 		jsonToDataConverterFactory.actionLinksToReturn = actionLinksToReturn;
 	}
