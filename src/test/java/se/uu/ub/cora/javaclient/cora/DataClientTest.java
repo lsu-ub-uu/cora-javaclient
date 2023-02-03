@@ -27,6 +27,7 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
@@ -69,6 +70,13 @@ public class DataClientTest {
 
 	@Test
 	public void testCreate() throws Exception {
+		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
+		JsonToClientDataConverterSpy jsonToDataConverter = new JsonToClientDataConverterSpy();
+
+		jsonToDataConverter.MRV.setDefaultReturnValuesSupplier("toInstance",
+				() -> clientDataRecordSpy);
+		jsonToDataFactory.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				() -> jsonToDataConverter);
 
 		ClientDataGroupSpy dataGroup = new ClientDataGroupSpy();
 		ClientDataRecord createdDataRecord = dataClient.create(RECORD_TYPE, dataGroup);
@@ -82,10 +90,10 @@ public class DataClientTest {
 
 		String createdJson = createdResponse.responseText();
 
-		jsonToDataFactory.MCR.assertParameters("factor", 0, createdJson);
+		jsonToDataFactory.MCR.assertParameters("factorUsingString", 0, createdJson);
 
 		JsonToClientDataConverterSpy jsonToClientConverter = (JsonToClientDataConverterSpy) jsonToDataFactory.MCR
-				.getReturnValue("factor", 0);
+				.getReturnValue("factorUsingString", 0);
 		jsonToClientConverter.MCR.assertReturn("toInstance", 0, createdDataRecord);
 		// JsonToClientDataConverterFactorySpy
 
