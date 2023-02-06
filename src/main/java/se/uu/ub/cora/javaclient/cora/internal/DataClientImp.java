@@ -63,7 +63,7 @@ public class DataClientImp implements DataClient {
 		String json = converterToJson.toJson();
 		RestResponse createRecordFromJson = restClient.createRecordFromJson(recordType, json);
 		JsonToClientDataConverter converterToData = JsonToClientDataConverterProvider
-				.getConverterUsingJsonObject(createRecordFromJson.responseText());
+				.getConverterUsingJsonString(createRecordFromJson.responseText());
 		return (ClientDataRecord) converterToData.toInstance();
 	}
 
