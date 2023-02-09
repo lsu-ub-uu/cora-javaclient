@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2018, 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,32 +18,30 @@
  */
 package se.uu.ub.cora.javaclient.doubles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
+import se.uu.ub.cora.javaclient.rest.RestClientSpy;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
 public class RestClientFactorySpy implements RestClientFactory {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	public String baseUrl;
-	public String authToken;
-	public RestClientSpyOld restClientSpy;
-	public List<RestClientSpyOld> factored = new ArrayList<>();
-	public String usedAuthToken;
-
-	@Override
-	public RestClient factorUsingAuthToken(String authToken) {
-		this.authToken = authToken;
-		this.usedAuthToken = authToken;
-		restClientSpy = new RestClientSpyOld();
-		factored.add(restClientSpy);
-		return restClientSpy;
+	public RestClientFactorySpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("factorUsingAuthToken", RestClientSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorUsingUserIdAndAppToken", RestClientSpy::new);
 	}
 
 	@Override
-	public String getBaseUrl() {
-		return "http://localhost:8080/therest/rest/record/";
+	public RestClient factorUsingAuthToken(String authToken) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("authToken", authToken);
+	}
+
+	@Override
+	public RestClient factorUsingUserIdAndAppToken(String userId, String appToken) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("userId", userId, "appToken", appToken);
 	}
 
 }

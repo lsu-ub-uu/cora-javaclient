@@ -20,7 +20,7 @@ package se.uu.ub.cora.javaclient.cora;
 
 public interface CoraClientFactory {
 
-	DataClient factor(String userId, String appToken);
+	DataClient factorUsingUserIdAndAppToken(String userId, String appToken);
 
 	DataClient factorUsingAuthToken(String authToken);
 

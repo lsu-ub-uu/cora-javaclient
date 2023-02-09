@@ -57,11 +57,11 @@ public class RestClientFactoryImp implements RestClientFactory {
 		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(httpHandlerFactory,
 				authTokenCredentials);
 	}
-
-	@Override
-	public String getBaseUrl() {
-		return baseUrl;
-	}
+	//
+	// @Override
+	// public String getBaseUrl() {
+	// return baseUrl;
+	// }
 
 	@Override
 	public RestClient factorUsingUserIdAndAppToken(String userId, String appToken) {
@@ -77,5 +77,13 @@ public class RestClientFactoryImp implements RestClientFactory {
 				userId, appToken);
 		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
 				appTokenCredentials);
+	}
+
+	public String onlyForTestGetBaseUrl() {
+		return baseUrl;
+	}
+
+	public String onlyForTestGetAppTokenVerifierUrl() {
+		return appTokenVerifierUrl;
 	}
 }

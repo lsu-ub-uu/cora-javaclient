@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019, 2020 Uppsala University Library
+ * Copyright 2018, 2019, 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,21 +18,13 @@
  */
 package se.uu.ub.cora.javaclient.cora;
 
-import se.uu.ub.cora.clientbasicdata.converter.datatojson.BasicClientDataToJsonConverterFactory;
-import se.uu.ub.cora.clientbasicdata.converter.jsontodata.JsonToBasicClientDataConverterFactoryImp;
-import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
-import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
-import se.uu.ub.cora.javaclient.cora.internal.ApptokenBasedClientDependencies;
-import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
 public final class DataClientFactoryImp implements CoraClientFactory {
-
-	private AppTokenClientFactoryImp appTokenClientFactory;
-	private RestClientFactoryImp restClientFactory;
+	private RestClientFactory restClientFactory;
 	private String appTokenVerifierUrl;
 	private String baseUrl;
 
@@ -44,46 +36,36 @@ public final class DataClientFactoryImp implements CoraClientFactory {
 	private DataClientFactoryImp(String appTokenVerifierUrl, String baseUrl) {
 		this.appTokenVerifierUrl = appTokenVerifierUrl;
 		this.baseUrl = baseUrl;
-		appTokenClientFactory = new AppTokenClientFactoryImp(appTokenVerifierUrl);
-		restClientFactory = new RestClientFactoryImp(baseUrl);
+		restClientFactory = RestClientFactoryImp.usingBaseUrlAndAppTokenVerifierUrl(baseUrl,
+				appTokenVerifierUrl);
 	}
 
 	@Override
-	public DataClient factor(String userId, String appToken) {
-		// ClientDataToJsonConverterFactory dataToJsonConverterFactory =
-		// BasicClientDataToJsonConverterFactory
-		// .usingBuilderFactory(jsonBuilderFactory);
-		ClientDataToJsonConverterFactory dataToJsonConverterFactory = BasicClientDataToJsonConverterFactory
-				.usingBuilderFactory(null);
-		JsonToClientDataConverterFactory jsonToDataConverterFactory = new JsonToBasicClientDataConverterFactoryImp();
-		ApptokenBasedClientDependencies coraClientDependencies = new ApptokenBasedClientDependencies(
-				appTokenClientFactory, restClientFactory, dataToJsonConverterFactory,
-				jsonToDataConverterFactory, userId, appToken);
-
-		return new DataClientImp(coraClientDependencies);
-	}
-
-	public String getAppTokenVerifierUrl() {
-		// needed for test
-		return appTokenVerifierUrl;
-	}
-
-	public String getBaseUrl() {
-		// needed for test
-		return baseUrl;
+	public DataClient factorUsingUserIdAndAppToken(String userId, String appToken) {
+		RestClient restClient = restClientFactory.factorUsingUserIdAndAppToken(userId, appToken);
+		return new DataClientImp(restClient);
 	}
 
 	@Override
 	public DataClient factorUsingAuthToken(String authToken) {
 		RestClient restClient = restClientFactory.factorUsingAuthToken(authToken);
-		// ClientDataToJsonConverterFactory dataToJsonConverterFactory = new
-		// BasicClientDataToJsonConverterFactory.usingBuilderFactory(
-		// null);
-		// JsonToClientDataConverterFactory jsonToDataConverterFactory = new
-		// JsonToClientDataConverterFactoryImp();
-		// return new AuthtokenBasedClient(restClient, dataToJsonConverterFactory,
-		// jsonToDataConverterFactory);
-		return new AuthtokenBasedClient(restClient, null, null);
+		return new DataClientImp(restClient);
+	}
+
+	public String onlyForTestGetBaseUrl() {
+		return baseUrl;
+	}
+
+	public String onlyForTestGetAppTokenVerifierUrl() {
+		return appTokenVerifierUrl;
+	}
+
+	public RestClientFactory onlyForTestGetRestClientFactory() {
+		return restClientFactory;
+	}
+
+	void onlyForTestSetRestClientFactory(RestClientFactory restClientFactory) {
+		this.restClientFactory = restClientFactory;
 	}
 
 }

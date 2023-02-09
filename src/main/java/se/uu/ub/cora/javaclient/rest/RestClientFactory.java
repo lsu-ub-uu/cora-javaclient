@@ -45,11 +45,4 @@ public interface RestClientFactory {
 	 */
 	RestClient factorUsingUserIdAndAppToken(String userId, String appToken);
 
-	/**
-	 * Returns the base url that is expected to be set when the RestClientFactory is instantiated
-	 * 
-	 * @return A String to use as base url
-	 */
-	String getBaseUrl();
-
 }

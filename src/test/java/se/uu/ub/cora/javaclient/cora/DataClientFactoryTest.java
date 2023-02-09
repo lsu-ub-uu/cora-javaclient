@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019 Uppsala University Library
+ * Copyright 2018, 2019, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -24,25 +24,27 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
-import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.javaclient.apptoken.AppTokenClientFactoryImp;
-import se.uu.ub.cora.javaclient.cora.internal.AuthtokenBasedClient;
 import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
+import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
+import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
-import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
 public class DataClientFactoryTest {
+	private static final String APP_TOKEN = "someAppToken";
+	private static final String USER_ID = "someUserId";
 	private String appTokenVerifierUrl;
 	private String baseUrl;
 	private DataClientFactoryImp clientFactory;
+	private RestClientFactorySpy restClientFactorySpy;
 
 	@BeforeMethod
 	public void beforeMethod() {
 		ClientDataToJsonConverterProvider.setDataToJsonConverterFactoryCreator(null);
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(null);
+		restClientFactorySpy = new RestClientFactorySpy();
+
 		appTokenVerifierUrl = "someVerifierUrl";
 		baseUrl = "someBaseUrl";
 		clientFactory = DataClientFactoryImp.usingAppTokenVerifierUrlAndBaseUrl(appTokenVerifierUrl,
@@ -50,60 +52,48 @@ public class DataClientFactoryTest {
 	}
 
 	@Test
-	public void testCorrectFactoriesAreSentToCoraClient() throws Exception {
-		DataClientImp coraClient = (DataClientImp) clientFactory.factor("someUserId",
-				"someAppToken");
+	public void testInit() throws Exception {
+		RestClientFactoryImp restClientFactory = (RestClientFactoryImp) clientFactory
+				.onlyForTestGetRestClientFactory();
 
-		AppTokenClientFactoryImp appTokenClientFactory = (AppTokenClientFactoryImp) coraClient
-				.getAppTokenClientFactory();
-		assertEquals(appTokenClientFactory.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
-
-		RestClientFactoryImp restClientFactory = (RestClientFactoryImp) coraClient
-				.getRestClientFactory();
-		assertEquals(restClientFactory.getBaseUrl(), baseUrl);
-
-		// ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
-		// .getDataToJsonConverterFactory();
-		// assertTrue(dataToJsonConverterFactory instanceof ClientDataToJsonConverterFactory);
-		//
-		// JsonToClientDataConverterFactory jsonToDataConverterFactory = coraClient
-		// .getJsonToDataConverterFactory();
-		// assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
+		assertTrue(restClientFactory instanceof RestClientFactoryImp);
+		assertEquals(restClientFactory.onlyForTestGetBaseUrl(), baseUrl);
+		assertEquals(restClientFactory.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
 	}
 
 	@Test
-	public void testFactorParametersSentAlong() throws Exception {
-		DataClientImp coraClient = (DataClientImp) clientFactory.factor("someUserId",
-				"someAppToken");
-		assertEquals(coraClient.getUserId(), "someUserId");
-		assertEquals(coraClient.getAppToken(), "someAppToken");
+	public void testFactorUsingUserIdAndAppToken() throws Exception {
+		clientFactory.onlyForTestSetRestClientFactory(restClientFactorySpy);
+
+		DataClientImp dataClient = (DataClientImp) clientFactory
+				.factorUsingUserIdAndAppToken(USER_ID, APP_TOKEN);
+
+		restClientFactorySpy.MCR.assertParameters("factorUsingUserIdAndAppToken", 0, USER_ID,
+				APP_TOKEN);
+		RestClient restClient = dataClient.onlyForTestGetRestClient();
+		restClientFactorySpy.MCR.assertReturn("factorUsingUserIdAndAppToken", 0, restClient);
 	}
 
 	@Test
-	public void testCorrectFactoriesAreSentToCoraClientWhenUsingAuthToken() throws Exception {
-		AuthtokenBasedClient coraClient = (AuthtokenBasedClient) clientFactory
-				.factorUsingAuthToken("someAuthTokenToken");
+	public void testFactorUsingAuthToken() throws Exception {
+		clientFactory.onlyForTestSetRestClientFactory(restClientFactorySpy);
 
-		RestClientImp restClient = (RestClientImp) coraClient.getRestClient();
-		assertEquals(restClient.getBaseUrl(), baseUrl + "record/");
-		assertEquals(restClient.onlyForTestGetTokenClient(), "someAuthTokenToken");
+		DataClientImp dataClient = (DataClientImp) clientFactory
+				.factorUsingAuthToken("someAuthToken");
 
-		ClientDataToJsonConverterFactory dataToJsonConverterFactory = coraClient
-				.getDataToJsonConverterFactory();
-		assertTrue(dataToJsonConverterFactory instanceof DataToJsonConverterFactoryImp);
+		restClientFactorySpy.MCR.assertParameters("factorUsingAuthToken", 0, "someAuthToken");
 
-		JsonToClientDataConverterFactory jsonToDataConverterFactory = coraClient
-				.getJsonToDataConverterFactory();
-		assertTrue(jsonToDataConverterFactory instanceof JsonToDataConverterFactoryImp);
+		RestClient restClient = dataClient.onlyForTestGetRestClient();
+		restClientFactorySpy.MCR.assertReturn("factorUsingAuthToken", 0, restClient);
 	}
 
 	@Test
 	public void testGetAppTokenVerifierUrl() throws Exception {
-		assertEquals(clientFactory.getAppTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(clientFactory.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
 	}
 
 	@Test
 	public void testGetBaseUrl() throws Exception {
-		assertEquals(clientFactory.getBaseUrl(), baseUrl);
+		assertEquals(clientFactory.onlyForTestGetBaseUrl(), baseUrl);
 	}
 }
