@@ -68,7 +68,7 @@ public class CommonCoraClient {
 	}
 
 	protected String convertDataGroupToJson(ClientDataGroup dataGroup) {
-		ClientDataToJsonConverter converter = createConverter(dataGroup);
+		ClientDataToJsonConverter converter = createConverterToJson(dataGroup);
 		return converter.toJson();
 	}
 

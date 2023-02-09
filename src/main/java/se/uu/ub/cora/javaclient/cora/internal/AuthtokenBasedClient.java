@@ -23,6 +23,7 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterFactory;
 import se.uu.ub.cora.javaclient.cora.DataClient;
@@ -54,8 +55,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 	}
 
 	@Override
-	public String create(String recordType, ClientDataGroup dataGroup) {
-		return create(restClient, recordType, dataGroup);
+	public String create(String recordType, ClientDataRecordGroup dataRecordGroup) {
+		return create(restClient, recordType, dataRecordGroup);
 	}
 
 	@Override
@@ -64,7 +65,7 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 	}
 
 	@Override
-	public ClientDataRecord readAsDataRecord(String recordType, String recordId) {
+	public ClientDataRecord read(String recordType, String recordId) {
 		return readAsDataRecord(restClient, recordType, recordId);
 	}
 
@@ -74,8 +75,8 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 	}
 
 	@Override
-	public String update(String recordType, String recordId, ClientDataGroup dataGroup) {
-		return update(restClient, recordType, recordId, dataGroup);
+	public String update(String recordType, String recordId, ClientDataRecordGroup dataRecordGroup) {
+		return update(restClient, recordType, recordId, dataRecordGroup);
 	}
 
 	@Override
@@ -105,7 +106,7 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 
 	@Override
 	public String indexData(String recordType, String recordId) {
-		ClientDataRecord dataRecord = readAsDataRecord(recordType, recordId);
+		ClientDataRecord dataRecord = read(recordType, recordId);
 		return indexData(dataRecord);
 	}
 

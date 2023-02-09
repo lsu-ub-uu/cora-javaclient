@@ -85,7 +85,7 @@ public class AuthtokenBasedClientTest {
 	@Test
 	public void testReadAsDataRecord() {
 		ClientDataRecord dataRecord = coraClient
-				.readAsDataRecord("someRecordTypeToBeReturnedAsDataGroup", "someRecordId");
+				.read("someRecordTypeToBeReturnedAsDataGroup", "someRecordId");
 		assertNotNull(dataRecord);
 
 		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsDataGroup");

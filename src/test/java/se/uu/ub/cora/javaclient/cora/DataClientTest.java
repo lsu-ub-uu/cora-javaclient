@@ -20,13 +20,16 @@ package se.uu.ub.cora.javaclient.cora;
 
 import static org.testng.Assert.assertSame;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.clientdata.spies.ClientDataGroupSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataRecordGroupSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
@@ -40,23 +43,28 @@ import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class DataClientTest {
 	private static final String RECORD_TYPE = "someRecordType";
+	private static final String RECORD_ID = "someRecordId";
 	private DataClientImp dataClient;
 	private RestClientSpy restClient;
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
+	private static final RestResponse OK_RESPONSE = new RestResponse(200, "", Optional.empty());
+	private static final RestResponse INTERNAL_ERROR_RESPONSE = new RestResponse(500, "",
+			Optional.empty());
 
 	@BeforeMethod
 	public void setUp() {
+
 		dataToJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
 		ClientDataToJsonConverterProvider
 				.setDataToJsonConverterFactoryCreator(dataToJsonFactoryCreator);
 
 		jsonToDataFactory = new JsonToClientDataConverterFactorySpy();
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataFactory);
+		setUpConverterToReturnDataRecord();
 
 		restClient = new RestClientSpy();
 		dataClient = new DataClientImp(restClient);
-
 	}
 
 	@Test
@@ -65,11 +73,25 @@ public class DataClientTest {
 		assertSame(restClient2, restClient);
 
 		dataToJsonFactoryCreator.MCR.assertParameters("createFactory", 0);
-
 	}
 
 	@Test
 	public void testCreate() throws Exception {
+		new RestResponse(201, "", Optional.of("someNewId"));
+		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson",
+				() -> INTERNAL_ERROR_RESPONSE);
+
+		ClientDataRecordGroupSpy dataRecordGroup = new ClientDataRecordGroupSpy();
+
+		ClientDataRecord createdDataRecord = dataClient.create(RECORD_TYPE, dataRecordGroup);
+
+		String json = assertDataGroupConvertedToJsonByProviderReturnJsonString(dataRecordGroup);
+		RestResponse createResponse = assertCreateRecord(json);
+		assertConvertToData(createdDataRecord, createResponse);
+
+	}
+
+	private void setUpConverterToReturnDataRecord() {
 		ClientDataRecordSpy clientDataRecordSpy = new ClientDataRecordSpy();
 		JsonToClientDataConverterSpy jsonToDataConverter = new JsonToClientDataConverterSpy();
 
@@ -77,17 +99,18 @@ public class DataClientTest {
 				() -> clientDataRecordSpy);
 		jsonToDataFactory.MRV.setDefaultReturnValuesSupplier("factorUsingString",
 				() -> jsonToDataConverter);
+	}
 
-		ClientDataGroupSpy dataGroup = new ClientDataGroupSpy();
-		ClientDataRecord createdDataRecord = dataClient.create(RECORD_TYPE, dataGroup);
-
-		String json = assertDataGroupConvertedToJsonByProviderReturnJsonString(dataGroup);
-
+	private RestResponse assertCreateRecord(String json) {
 		restClient.MCR.assertParameters("createRecordFromJson", 0, RECORD_TYPE, json);
 
 		RestResponse createdResponse = (RestResponse) restClient.MCR
 				.getReturnValue("createRecordFromJson", 0);
+		return createdResponse;
+	}
 
+	private void assertConvertToData(ClientDataRecord createdDataRecord,
+			RestResponse createdResponse) {
 		String createdJson = createdResponse.responseText();
 
 		jsonToDataFactory.MCR.assertParameters("factorUsingString", 0, createdJson);
@@ -95,68 +118,73 @@ public class DataClientTest {
 		JsonToClientDataConverterSpy jsonToClientConverter = (JsonToClientDataConverterSpy) jsonToDataFactory.MCR
 				.getReturnValue("factorUsingString", 0);
 		jsonToClientConverter.MCR.assertReturn("toInstance", 0, createdDataRecord);
-		// JsonToClientDataConverterFactorySpy
-
 	}
 
 	private String assertDataGroupConvertedToJsonByProviderReturnJsonString(
-			ClientDataGroupSpy dataGroup) {
-		ClientDataToJsonConverterFactorySpy converterFactorySpy = (ClientDataToJsonConverterFactorySpy) dataToJsonFactoryCreator.MCR
-				.getReturnValue("createFactory", 0);
-		converterFactorySpy.MCR.assertParameters("factorUsingConvertible", 0, dataGroup);
+			ClientDataRecordGroup dataRecordGroup) {
+		ClientDataToJsonConverterFactorySpy converterFactorySpy = getConverterFactory();
 
+		converterFactorySpy.MCR.assertParameters("factorUsingConvertible", 0, dataRecordGroup);
 		ClientDataToJsonConverterSpy converterSpy = (ClientDataToJsonConverterSpy) converterFactorySpy.MCR
 				.getReturnValue("factorUsingConvertible", 0);
 		return (String) converterSpy.MCR.getReturnValue("toJson", 0);
 	}
 
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not read record of type: thisRecordTypeTriggersAnError and id: someRecordId from
-	// server using "
-	// + "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
+	private ClientDataToJsonConverterFactorySpy getConverterFactory() {
+		return (ClientDataToJsonConverterFactorySpy) dataToJsonFactoryCreator.MCR
+				.getReturnValue("createFactory", 0);
+	}
+
+	/**
+	 * TODO testCreateErrorOnConvertToJson testCreateErrorOnRestCall testCreateErrorOnConvertToData
+	 */
+
+	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = "Blabla")
+	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp =
+	// "Could "
+	// + "not read record of type: thisRecordTypeTriggersAnError and id: someRecordId from"
+	// + "server using base url: http://localhost:8080/therest/rest/record/. Returned error was: "
 	// + "Answer from CoraRestClientSpy read")
-	// public void testReadError() throws Exception {
-	// coraClient.read(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someRecordId");
-	// }
-	//
-	// @Test
-	// public void testReadAsDataRecord() {
-	// ClientDataRecord dataRecord = coraClient
-	// .readAsDataRecord("someRecordTypeToBeReturnedAsDataGroup", "someRecordId");
-	// assertNotNull(dataRecord);
-	//
-	// assertCorrectFactoredRestClient();
-	// assertTrue(jsonToDataConverterFactory.createForJsonObjectWasCalled);
-	//
-	// JsonObject jsonSentToConverterFactory = (JsonObject) jsonToDataConverterFactory.jsonValue;
-	// String dataGroupPartOfRecordJson = jsonSentToConverterFactory.toJsonFormattedString();
-	//
-	// String dataGroupPartOfRecord = getExpectedDataGroupJson();
-	// assertEquals(dataGroupPartOfRecordJson, dataGroupPartOfRecord);
-	//
-	// ClientDataGroup clientDataGroupInRecord = dataRecord.getDataGroup();
-	// ClientDataGroup dataGroupReturnedFromConverter =
-	// jsonToDataConverterFactory.factoredConverter.returnedDataGroup;
-	// assertSame(clientDataGroupInRecord, dataGroupReturnedFromConverter);
-	//
-	// }
-	//
+	public void testReadErrorCodeOnOnRestClient() throws Exception {
+		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson",
+				() -> INTERNAL_ERROR_RESPONSE);
+
+		dataClient.read(RECORD_TYPE, RECORD_ID);
+	}
+
+	@Test
+	public void testRead() {
+		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson", () -> OK_RESPONSE);
+
+		ClientDataRecord record = dataClient.read(RECORD_TYPE, RECORD_ID);
+
+		restClient.MCR.assertParameters("readRecordAsJson", 0, RECORD_TYPE, RECORD_ID);
+
+		var restResponse = restClient.MCR.getReturnValue("readRecordAsJson", 0);
+		assertConvertToData(record, (RestResponse) restResponse);
+	}
+
+	@Test
+	public void testName() throws Exception {
+
+	}
+
 	// private void assertCorrectFactoredRestClient() {
 	// RestClientSpyOld restClient = restClientFactory.factored.get(0);
 	// assertEquals(restClientFactory.factored.size(), 1);
 	// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
 	// assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsDataGroup");
-	// assertEquals(restClient.recordId, "someRecordId");
+	// assertEquals(restClient.recordId, RECORD_ID);
 	// }
 	//
 	// private String getExpectedDataGroupJson() {
 	// return
 	// "{\"children\":[{\"name\":\"nameInData\",\"value\":\"historicCountry\"},{\"children\":[{\"name\":\"id\",\"value\":\"historicCountryCollection\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataItemCollection\"}],\"name\":\"type\"}],\"name\":\"recordInfo\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"gaulHistoricCountryItem\"}],\"name\":\"ref\"},{\"repeatId\":\"1\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"genericCollectionItem\"},{\"name\":\"linkedRecordId\",\"value\":\"britainHistoricCountryItem\"}],\"name\":\"ref\"}],\"name\":\"collectionItemReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"itemCollection\"}}";
 	// }
-	//
+
 	// @Test
 	// public void testReadList() throws Exception {
-	// String readListJson = coraClient.readList("someType");
+	// String readListJson = dataClient.readList("someType");
 	// RestClientSpyOld restClient = restClientFactory.factored.get(0);
 	// assertEquals(restClientFactory.factored.size(), 1);
 	// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");

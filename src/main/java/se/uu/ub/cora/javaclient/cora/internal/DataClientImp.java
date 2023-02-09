@@ -22,11 +22,13 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
@@ -58,46 +60,35 @@ public class DataClientImp implements DataClient {
 	}
 
 	@Override
-	public ClientDataRecord create(String recordType, ClientDataGroup dataGroup) {
-		ClientDataToJsonConverter converterToJson = createConverter(dataGroup);
-		String json = converterToJson.toJson();
+	public ClientDataRecord create(String recordType, ClientDataRecordGroup dataRecordGroup) {
+		String json = convertToJson(dataRecordGroup);
 		RestResponse createRecordFromJson = restClient.createRecordFromJson(recordType, json);
+		return convertToData(createRecordFromJson);
+	}
+
+	private String convertToJson(ClientDataRecordGroup dataRecordGroup) {
+		ClientDataToJsonConverter converterToJson = createConverterToJson(dataRecordGroup);
+		return converterToJson.toJson();
+	}
+
+	protected ClientDataToJsonConverter createConverterToJson(
+			ClientDataRecordGroup dataRecordGroup) {
+		return dataToJsonConverterFactory.factorUsingConvertible(dataRecordGroup);
+	}
+
+	private ClientDataRecord convertToData(RestResponse createRecordFromJson) {
 		JsonToClientDataConverter converterToData = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(createRecordFromJson.responseText());
 		return (ClientDataRecord) converterToData.toInstance();
 	}
 
-	protected ClientDataToJsonConverter createConverter(ClientDataGroup dataGroup) {
-		return dataToJsonConverterFactory.factorUsingConvertible(dataGroup);
-	}
-	// @Override
-	// public String create(String recordType, String json) {
-	// return setUpRestClientAndCreateRecord(recordType, json);
-	// }
-
-	// private String setUpRestClientAndCreateRecord(String recordType, String json) {
-	// // RestClient restClient = setUpRestClientWithAuthToken();
-	// RestResponse response = restClient.createRecordFromJson(recordType, json);
-	// possiblyThrowErrorIfNotCreated(restClient, recordType, response);
-	// return response.responseText();
-	// }
-
-	private RestClient setUpRestClientWithAuthToken() {
-		// // String authToken = appTokenClient.getAuthToken();
-		// // return restClientFactory.factorUsingAuthToken(authToken);
-		return null;
-	}
-
-	// @Override
-	// public String read(String recordType, String recordId) {
-	// // RestClient restClient = setUpRestClientWithAuthToken();
-	// return read(restClient, recordType, recordId);
-	// }
-
 	@Override
-	public ClientDataRecord readAsDataRecord(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return readAsDataRecord(restClient, recordType, recordId);
+	public ClientDataRecord read(String recordType, String recordId) {
+		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
+		if (response.responseCode() == 200) {
+			return convertToData(response);
+		}
+		throw new CoraClientException("Blabla");
 	}
 
 	// @Override
@@ -107,9 +98,10 @@ public class DataClientImp implements DataClient {
 	// }
 
 	@Override
-	public ClientDataRecord update(String recordType, String recordId, ClientDataGroup dataGroup) {
+	public ClientDataRecord update(String recordType, String recordId,
+			ClientDataRecordGroup dataRecordGroup) {
 		RestClient restClient = setUpRestClientWithAuthToken();
-		return update(restClient, recordType, recordId, dataGroup);
+		return update(restClient, recordType, recordId, dataRecordGroup);
 	}
 
 	@Override

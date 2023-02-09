@@ -24,6 +24,7 @@ import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataLink;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
 /**
@@ -41,16 +42,16 @@ public interface DataClient {
 	 * 
 	 * @param recordType
 	 *            A String, the type of the record to be created
-	 * @param dataGroup
-	 *            A {@link ClientDataGroup}, the data to crete the record from
+	 * @param dataRecordGroup
+	 *            A {@link ClientDataRecordGroup}, the data to crete the record from
 	 * @return A String containing the response text
 	 */
-	ClientDataRecord create(String recordType, ClientDataGroup dataGroup);
+	ClientDataRecord create(String recordType, ClientDataRecordGroup dataRecordGroup);
 
 	/**
 	 * Reads a record using recordType and recordId. The result is returned as a
-	 * {@link ClientDataRecord} A {@link CoraClientException} MUST be thrown if the record could not
-	 * be read.
+	 * {@link ClientDataRecord}. If the record cannot be read a {@link CoraClientException} MUST be
+	 * thrown .
 	 * 
 	 * @param recordType
 	 *            A String, the type of the record to read
@@ -58,7 +59,7 @@ public interface DataClient {
 	 *            A String, the id of the record to be read
 	 * @return A {@link ClientDataRecord} created from the response text
 	 */
-	ClientDataRecord readAsDataRecord(String recordType, String recordId);
+	ClientDataRecord read(String recordType, String recordId);
 
 	/**
 	 * Updates a record using recordType,recordId and a {@link ClientDataGroup} to update from. The
@@ -69,11 +70,12 @@ public interface DataClient {
 	 *            A String, the type of the record to be up dated
 	 * @param recordId
 	 *            A String, the id of the record to be updated
-	 * @param json
-	 *            A String, the data to update the record from
+	 * @param dataRecordGroup
+	 *            The ClientDataRecordGroup to be updated to
 	 * @return A {@link ClientDataGroup} created from the response text
 	 */
-	ClientDataRecord update(String recordType, String recordId, ClientDataGroup dataGroup);
+	ClientDataRecord update(String recordType, String recordId,
+			ClientDataRecordGroup dataRecordGroup);
 
 	/**
 	 * Deletes a record using recordType and recordId. The result is returned as a String. A
