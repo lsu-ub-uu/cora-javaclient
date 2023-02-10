@@ -36,9 +36,9 @@ public class RestClientSpy implements RestClient {
 		MRV.setDefaultReturnValuesSupplier("updateRecordFromJson", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("deleteRecord", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("readRecordListAsJson", () -> createRestResponse());
-		MRV.setDefaultReturnValuesSupplier("readIncomingLinksAsJson", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("readRecordListWithFilterAsJson",
 				() -> createRestResponse());
+		MRV.setDefaultReturnValuesSupplier("readIncomingLinksAsJson", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("batchIndexWithFilterAsJson",
 				() -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("getBaseUrl", String::new);

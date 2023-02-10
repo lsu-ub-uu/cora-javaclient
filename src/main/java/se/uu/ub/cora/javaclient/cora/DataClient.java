@@ -62,6 +62,17 @@ public interface DataClient {
 	ClientDataRecord read(String recordType, String recordId);
 
 	/**
+	 * Reads records as a list using recordType. The result is returned as a List of
+	 * {@link ClientDataRecord}. A {@link CoraClientException} MUST be thrown if records could not
+	 * be listed.
+	 * 
+	 * @param recordType
+	 *            A String, the type of the records to read as list
+	 * @return A {@link ClientDataList} containing a list with records of the requested type
+	 */
+	ClientDataList readList(String recordType);
+
+	/**
 	 * Updates a record using recordType,recordId and a {@link ClientDataGroup} to update from. The
 	 * result is returned as a String. A {@link CoraClientException} MUST be thrown if the record
 	 * could not be updated.
@@ -100,17 +111,6 @@ public interface DataClient {
 	 * @return A {@link ClientDataList}, containing the response text and response code
 	 */
 	List<ClientDataLink> readIncomingLinks(String recordType, String recordId);
-
-	/**
-	 * Reads records as a list using recordType. The result is returned as a List of
-	 * {@link ClientDataRecord}. A {@link CoraClientException} MUST be thrown if records could not
-	 * be listed.
-	 * 
-	 * @param recordType
-	 *            A String, the type of the records to read as list
-	 * @return A List of {@link ClientDataRecord} containing the records of the requested recordType
-	 */
-	List<ClientDataRecord> readListAsDataRecords(String recordType);
 
 	/**
 	 * Indexes a {@link ClientDataRecord}, by sending an index order for the record.

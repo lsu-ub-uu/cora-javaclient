@@ -23,10 +23,6 @@ import java.util.Optional;
 /**
  * RestResponse is used to store information from a HttpResponse.
  */
-public record RestResponse(
-		/**
-		 * statusCode is realy responseCode
-		 */
-		int responseCode, String responseText, Optional<String> createdId) {
+public record RestResponse(int responseCode, String responseText, Optional<String> createdId) {
 
 }

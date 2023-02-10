@@ -19,9 +19,8 @@
 
 package se.uu.ub.cora.javaclient.cora.internal;
 
-import java.util.List;
-
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
@@ -85,12 +84,12 @@ public class AuthtokenBasedClient extends CommonCoraClient implements DataClient
 	}
 
 	@Override
-	public String readList(String recordType) {
+	public ClientDataList readList(String recordType) {
 		return readList(restClient, recordType);
 	}
 
 	@Override
-	public List<ClientDataRecord> readListAsDataRecords(String recordType) {
+	public ClientDataList readList(String recordType) {
 		return readListAsDataRecords(restClient, recordType);
 	}
 

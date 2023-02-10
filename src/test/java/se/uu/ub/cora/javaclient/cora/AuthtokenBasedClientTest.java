@@ -119,7 +119,7 @@ public class AuthtokenBasedClientTest {
 	@Test
 	public void testReadListAsDataRecords() throws Exception {
 		List<ClientDataRecord> dataRecords = coraClient
-				.readListAsDataRecords("someRecordTypeToBeReturnedAsRecordDataInList");
+				.readList("someRecordTypeToBeReturnedAsRecordDataInList");
 
 		assertEquals(restClient.recordType, "someRecordTypeToBeReturnedAsRecordDataInList");
 		assertEquals(restClient.methodCalled, "readList");

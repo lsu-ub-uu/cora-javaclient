@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019, 2020, 2021 Uppsala University Library
+ * Copyright 2018, 2019, 2020, 2021, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,9 +18,11 @@
  */
 package se.uu.ub.cora.javaclient.cora.internal;
 
-import java.util.List;
+import java.text.MessageFormat;
 
+import se.uu.ub.cora.clientdata.ClientConvertible;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverter;
@@ -31,28 +33,22 @@ import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.javaclient.cora.CoraClientException;
 import se.uu.ub.cora.javaclient.cora.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class DataClientImp implements DataClient {
 
+	private static final int RESPONSE_CODE_OK = 200;
+	private static final int RESPONSE_CODE_CREATED = 201;
+	private static final String ERROR_MESSAGE_CREATE = "Could not create record of type: {0}. "
+			+ "Returned error was: {1}";
+	private static final String ERROR_MESSAGE_READ = "Could not read record of type: {0} and id: {1}. "
+			+ "Returned error was: {2}";
+	private static final String ERROR_MESSAGE_READ_LIST = "Could not list records of type: {0}. "
+			+ "Returned error was: {1}";
+	private static final String ERROR_MESSAGE_UPDATE = "Could not update record of type: {0} and id: {1}. "
+			+ "Returned error was: {2}";
 	protected ClientDataToJsonConverterFactory dataToJsonConverterFactory;
-	private RestClientFactory restClientFactory;
-	// private AppTokenClient appTokenClient;
-	// private AppTokenClientFactory appTokenClientFactory;
-	private String userId;
-	private String appToken;
 	private RestClient restClient;
-
-	// public CoraClientImp(ApptokenBasedClientDependencies coraClientDependencies) {
-	// this.appTokenClientFactory = coraClientDependencies.appTokenClientFactory;
-	// this.restClientFactory = coraClientDependencies.restClientFactory;
-	// this.dataToJsonConverterFactory = coraClientDependencies.dataToJsonConverterFactory;
-	// this.jsonToDataConverterFactory = coraClientDependencies.jsonToDataConverterFactory;
-	// this.userId = coraClientDependencies.userId;
-	// this.appToken = coraClientDependencies.appToken;
-	// appTokenClient = appTokenClientFactory.factor(userId, appToken);
-	// }
 
 	public DataClientImp(RestClient restClient) {
 		this.restClient = restClient;
@@ -61,9 +57,37 @@ public class DataClientImp implements DataClient {
 
 	@Override
 	public ClientDataRecord create(String recordType, ClientDataRecordGroup dataRecordGroup) {
+		try {
+			return tryToCreate(recordType, dataRecordGroup);
+		} catch (Exception e) {
+			rethrowIfClientException(e);
+			throw createErrorUsingRecordTypeAndMessage(recordType, e.getMessage());
+		}
+	}
+
+	private ClientDataRecord tryToCreate(String recordType, ClientDataRecordGroup dataRecordGroup) {
 		String json = convertToJson(dataRecordGroup);
-		RestResponse createRecordFromJson = restClient.createRecordFromJson(recordType, json);
-		return convertToData(createRecordFromJson);
+		RestResponse response = restClient.createRecordFromJson(recordType, json);
+		throwErrorIfNotCreated(recordType, response);
+		return (ClientDataRecord) convertToData(response);
+	}
+
+	private void throwErrorIfNotCreated(String recordType, RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_CREATED) {
+			throw createErrorUsingRecordTypeAndMessage(recordType, response.responseText());
+		}
+	}
+
+	private CoraClientException createErrorUsingRecordTypeAndMessage(String recordType,
+			String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_CREATE, recordType, message));
+	}
+
+	private void rethrowIfClientException(Exception e) {
+		if (e instanceof CoraClientException) {
+			throw (CoraClientException) e;
+		}
 	}
 
 	private String convertToJson(ClientDataRecordGroup dataRecordGroup) {
@@ -76,50 +100,94 @@ public class DataClientImp implements DataClient {
 		return dataToJsonConverterFactory.factorUsingConvertible(dataRecordGroup);
 	}
 
-	private ClientDataRecord convertToData(RestResponse createRecordFromJson) {
+	private ClientConvertible convertToData(RestResponse createRecordFromJson) {
 		JsonToClientDataConverter converterToData = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(createRecordFromJson.responseText());
-		return (ClientDataRecord) converterToData.toInstance();
+		return converterToData.toInstance();
 	}
 
 	@Override
 	public ClientDataRecord read(String recordType, String recordId) {
-		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
-		if (response.responseCode() == 200) {
-			return convertToData(response);
+		try {
+			return tryToRead(recordType, recordId);
+		} catch (Exception e) {
+			rethrowIfClientException(e);
+			throw readErrorUsingRecordTypeAndMessage(recordType, recordId, e.getMessage());
 		}
-		throw new CoraClientException("Blabla");
 	}
 
-	// @Override
-	// public String update(String recordType, String recordId, String json) {
-	// RestClient restClient = setUpRestClientWithAuthToken();
-	// return update(restClient, recordType, recordId, json);
-	// }
+	private ClientDataRecord tryToRead(String recordType, String recordId) {
+		RestResponse response = restClient.readRecordAsJson(recordType, recordId);
+		throwErrorIfNotRead(recordType, recordId, response);
+		return (ClientDataRecord) convertToData(response);
+	}
+
+	private void throwErrorIfNotRead(String recordType, String recordId, RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_OK) {
+			throw readErrorUsingRecordTypeAndMessage(recordType, recordId, response.responseText());
+		}
+	}
+
+	private CoraClientException readErrorUsingRecordTypeAndMessage(String recordType,
+			String recordId, String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_READ, recordType, recordId, message));
+	}
+
+	@Override
+	public ClientDataList readList(String recordType) {
+		try {
+			return tryToReadList(recordType);
+		} catch (Exception e) {
+			rethrowIfClientException(e);
+			throw readListErrorUsingRecordTypeAndMessage(recordType, e.getMessage());
+		}
+	}
+
+	private ClientDataList tryToReadList(String recordType) {
+		RestResponse response = restClient.readRecordListAsJson(recordType);
+		throwErrorIfNotReadList(recordType, response);
+		return (ClientDataList) convertToData(response);
+	}
+
+	private void throwErrorIfNotReadList(String recordType, RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_OK) {
+			throw readListErrorUsingRecordTypeAndMessage(recordType, response.responseText());
+		}
+	}
+
+	private CoraClientException readListErrorUsingRecordTypeAndMessage(String recordType,
+			String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_READ_LIST, recordType, message));
+	}
 
 	@Override
 	public ClientDataRecord update(String recordType, String recordId,
 			ClientDataRecordGroup dataRecordGroup) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return update(restClient, recordType, recordId, dataRecordGroup);
+		String json = convertToJson(dataRecordGroup);
+		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
+		throwErrorIfNotUpdate(recordType, recordId, response);
+		return (ClientDataRecord) convertToData(response);
+	}
+
+	private void throwErrorIfNotUpdate(String recordType, String recordId, RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_OK) {
+			throw updateErrorUsingRecordTypeAndMessage(recordType, recordId,
+					response.responseText());
+		}
+	}
+
+	private CoraClientException updateErrorUsingRecordTypeAndMessage(String recordType,
+			String recordId, String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
 	@Override
 	public void delete(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
 		return deleteRecord(restClient, recordType, recordId);
-	}
-
-	// @Override
-	// public String readList(String recordType) {
-	// RestClient restClient = setUpRestClientWithAuthToken();
-	// return readList(restClient, recordType);
-	// }
-
-	@Override
-	public List<ClientDataRecord> readListAsDataRecords(String recordType) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return readListAsDataRecords(restClient, recordType);
 	}
 
 	@Override
@@ -147,26 +215,6 @@ public class DataClientImp implements DataClient {
 		return create("workOrder", workOrder);
 	}
 
-	// public AppTokenClientFactory getAppTokenClientFactory() {
-	// // needed for test
-	// return appTokenClientFactory;
-	// }
-
-	public RestClientFactory getRestClientFactory() {
-		// needed for test
-		return restClientFactory;
-	}
-
-	public String getUserId() {
-		// needed for test
-		return userId;
-	}
-
-	public String getAppToken() {
-		// needed for test
-		return appToken;
-	}
-
 	@Override
 	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
 		RestClient restClient = setUpRestClientWithAuthToken();
@@ -183,9 +231,5 @@ public class DataClientImp implements DataClient {
 	public RestClient onlyForTestGetRestClient() {
 		return restClient;
 	}
-
-	// public ClientDataToJsonConverterFactory onlyForTestGetDataToJsonConverterFactory() {
-	// return dataToJsonConverterFactory;
-	// }
 
 }
