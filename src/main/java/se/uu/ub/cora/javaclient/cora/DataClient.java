@@ -18,10 +18,7 @@
  */
 package se.uu.ub.cora.javaclient.cora;
 
-import java.util.List;
-
 import se.uu.ub.cora.clientdata.ClientDataGroup;
-import se.uu.ub.cora.clientdata.ClientDataLink;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
@@ -110,48 +107,49 @@ public interface DataClient {
 	 *            A String, the id of the record to read the incoming links for
 	 * @return A {@link ClientDataList}, containing the response text and response code
 	 */
-	List<ClientDataLink> readIncomingLinks(String recordType, String recordId);
+	ClientDataList readIncomingLinks(String recordType, String recordId);
 
-	/**
-	 * Indexes a {@link ClientDataRecord}, by sending an index order for the record.
-	 * 
-	 * @param {@link
-	 *            ClientDataRecord}, the record to index
-	 * 
-	 */
-	String indexData(ClientDataRecord clientDataRecord);
-
-	/**
-	 * Indexes a record by sending an index order for a recordtype and a recordId. When using this
-	 * method, no explicit commit is made, which is useful when multiple calls are made within a
-	 * short period of time. * @param recordType, A String, the type of the record to index
-	 * 
-	 * @param recordId
-	 *            A String, the id of the record to index
-	 */
-	String indexDataWithoutExplicitCommit(String recordType, String recordId);
-
-	/**
-	 * Removes a record from index, by sending recordType and a recordId.
-	 * 
-	 * @param recordType
-	 *            A String, the type of the record to remove from index
-	 * @param recordId
-	 *            A String, the id of the record to remove from index
-	 */
-	String removeFromIndex(String recordType, String recordId);
-
-	/**
-	 * Indexes, by sending an batch index order for a recordType. The list of records to be indexed
-	 * may be limited by a filter.
-	 * 
-	 * @param recordType
-	 *            A String, the type of the records to index
-	 * @param settingsAsJson
-	 *            A String, with Json specifying a index settings, including a filter that is
-	 *            applied to the list before indexing
-	 * @return A String with the json representation of the newly created indexbatchjob
-	 */
-	String indexRecordsOfType(String recordType, String settingsAsJson);
+	// /**
+	// * Indexes a {@link ClientDataRecord}, by sending an index order for the record.
+	// *
+	// * @param {@link
+	// * ClientDataRecord}, the record to index
+	// *
+	// */
+	// String indexData(ClientDataRecord clientDataRecord);
+	//
+	// /**
+	// * Indexes a record by sending an index order for a recordtype and a recordId. When using this
+	// * method, no explicit commit is made, which is useful when multiple calls are made within a
+	// * short period of time. * @param recordType, A String, the type of the record to index
+	// *
+	// * @param recordId
+	// * A String, the id of the record to index
+	// */
+	// String indexDataWithoutExplicitCommit(String recordType, String recordId);
+	//
+	// /**
+	// * Removes a record from index, by sending recordType and a recordId.
+	// *
+	// * @param recordType
+	// * A String, the type of the record to remove from index
+	// * @param recordId
+	// * A String, the id of the record to remove from index
+	// */
+	// String removeFromIndex(String recordType, String recordId);
+	//
+	// /**
+	// * Indexes, by sending an batch index order for a recordType. The list of records to be
+	// indexed
+	// * may be limited by a filter.
+	// *
+	// * @param recordType
+	// * A String, the type of the records to index
+	// * @param settingsAsJson
+	// * A String, with Json specifying a index settings, including a filter that is
+	// * applied to the list before indexing
+	// * @return A String with the json representation of the newly created indexbatchjob
+	// */
+	// String indexRecordsOfType(String recordType, String settingsAsJson);
 
 }

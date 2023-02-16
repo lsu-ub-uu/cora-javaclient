@@ -46,11 +46,6 @@ public class RestClientFactoryTest {
 	}
 
 	@Test
-	public void testInit() throws Exception {
-		assertEquals(factory.getBaseUrl(), baseUrl);
-	}
-
-	@Test
 	public void testFactorBaseUrlAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory.factorUsingAuthToken(authToken);
 

@@ -21,7 +21,6 @@ package se.uu.ub.cora.javaclient.cora.internal;
 import java.text.MessageFormat;
 
 import se.uu.ub.cora.clientdata.ClientConvertible;
-import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataList;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
@@ -41,12 +40,16 @@ public class DataClientImp implements DataClient {
 	private static final int RESPONSE_CODE_CREATED = 201;
 	private static final String ERROR_MESSAGE_CREATE = "Could not create record of type: {0}. "
 			+ "Returned error was: {1}";
-	private static final String ERROR_MESSAGE_READ = "Could not read record of type: {0} and id: {1}. "
-			+ "Returned error was: {2}";
+	private static final String ERROR_MESSAGE_READ = "Could not read record of type: {0} and "
+			+ "id: {1}. Returned error was: {2}";
 	private static final String ERROR_MESSAGE_READ_LIST = "Could not list records of type: {0}. "
 			+ "Returned error was: {1}";
-	private static final String ERROR_MESSAGE_UPDATE = "Could not update record of type: {0} and id: {1}. "
-			+ "Returned error was: {2}";
+	private static final String ERROR_MESSAGE_READ_INCOMMING_LINKS = "Could not read incomming "
+			+ "links for type: {0} and id: {1}. " + "Returned error was: {2}";
+	private static final String ERROR_MESSAGE_UPDATE = "Could not update record of type: {0} and "
+			+ "id: {1}. Returned error was: {2}";
+	private static final String ERROR_MESSAGE_DELETE = "Could not delete record of type: {0} and "
+			+ "id: {1}. Returned error was: {2}";
 	protected ClientDataToJsonConverterFactory dataToJsonConverterFactory;
 	private RestClient restClient;
 
@@ -165,6 +168,22 @@ public class DataClientImp implements DataClient {
 	@Override
 	public ClientDataRecord update(String recordType, String recordId,
 			ClientDataRecordGroup dataRecordGroup) {
+		try {
+			return tryToUpdate(recordType, recordId, dataRecordGroup);
+		} catch (Exception e) {
+			rethrowIfClientException(e);
+			throw createErrorMessageForUpdate(recordType, recordId, e.getMessage());
+		}
+	}
+
+	private CoraClientException createErrorMessageForUpdate(String recordType, String recordId,
+			String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
+	}
+
+	private ClientDataRecord tryToUpdate(String recordType, String recordId,
+			ClientDataRecordGroup dataRecordGroup) {
 		String json = convertToJson(dataRecordGroup);
 		RestResponse response = restClient.updateRecordFromJson(recordType, recordId, json);
 		throwErrorIfNotUpdate(recordType, recordId, response);
@@ -173,59 +192,56 @@ public class DataClientImp implements DataClient {
 
 	private void throwErrorIfNotUpdate(String recordType, String recordId, RestResponse response) {
 		if (response.responseCode() != RESPONSE_CODE_OK) {
-			throw updateErrorUsingRecordTypeAndMessage(recordType, recordId,
-					response.responseText());
+			throw createErrorMessageForUpdate(recordType, recordId, response.responseText());
 		}
-	}
-
-	private CoraClientException updateErrorUsingRecordTypeAndMessage(String recordType,
-			String recordId, String message) {
-		return new CoraClientException(
-				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
 	@Override
 	public void delete(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return deleteRecord(restClient, recordType, recordId);
+		RestResponse response = restClient.deleteRecord(recordType, recordId);
+		throwErrorIfNotDelete(recordType, recordId, response);
+	}
+
+	private void throwErrorIfNotDelete(String recordType, String recordId, RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_OK) {
+			throw createErrorMessageForDelete(recordType, recordId, response.responseText());
+		}
+	}
+
+	private CoraClientException createErrorMessageForDelete(String recordType, String recordId,
+			String message) {
+		return new CoraClientException(
+				MessageFormat.format(ERROR_MESSAGE_DELETE, recordType, recordId, message));
 	}
 
 	@Override
-	public String readIncomingLinks(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return readIncomingLinks(restClient, recordType, recordId);
+	public ClientDataList readIncomingLinks(String recordType, String recordId) {
+		try {
+			return tryToReadIncommingLinks(recordType, recordId);
+		} catch (Exception e) {
+			rethrowIfClientException(e);
+			throw createErrorMessageForIncommingLinks(recordType, recordId, e.getMessage());
+		}
 	}
 
-	@Override
-	public String indexData(ClientDataRecord clientDataRecord) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return indexData(restClient, clientDataRecord, true);
+	private ClientDataList tryToReadIncommingLinks(String recordType, String recordId) {
+		RestResponse response = restClient.readIncomingLinksAsJson(recordType, recordId);
+		throwErrorIfNotReadIncommingLinks(recordType, recordId, response);
+		return (ClientDataList) convertToData(response);
 	}
 
-	@Override
-	public String indexData(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		return indexData(restClient, clientDataRecord, true);
+	private void throwErrorIfNotReadIncommingLinks(String recordType, String recordId,
+			RestResponse response) {
+		if (response.responseCode() != RESPONSE_CODE_OK) {
+			throw createErrorMessageForIncommingLinks(recordType, recordId,
+					response.responseText());
+		}
 	}
 
-	@Override
-	public String removeFromIndex(String recordType, String recordId) {
-		ClientDataGroup workOrder = createWorkOrderForRemoveFromIndex(recordType, recordId);
-		return create("workOrder", workOrder);
-	}
-
-	@Override
-	public String indexDataWithoutExplicitCommit(String recordType, String recordId) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		ClientDataRecord clientDataRecord = readAsDataRecord(restClient, recordType, recordId);
-		return indexData(restClient, clientDataRecord, false);
-	}
-
-	@Override
-	public String indexRecordsOfType(String recordType, String indexSettings) {
-		RestClient restClient = setUpRestClientWithAuthToken();
-		return indexRecordList(restClient, recordType, indexSettings);
+	private CoraClientException createErrorMessageForIncommingLinks(String recordType,
+			String recordId, String message) {
+		return new CoraClientException(MessageFormat.format(ERROR_MESSAGE_READ_INCOMMING_LINKS,
+				recordType, recordId, message));
 	}
 
 	public RestClient onlyForTestGetRestClient() {

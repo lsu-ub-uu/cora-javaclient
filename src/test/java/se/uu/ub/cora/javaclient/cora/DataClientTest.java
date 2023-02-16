@@ -54,7 +54,6 @@ public class DataClientTest {
 	private RestClientSpy restClient;
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
-	private static final RestResponse OK_RESPONSE = new RestResponse(200, "", Optional.empty());
 	private static final RestResponse CREATED_RESPONSE = new RestResponse(201, "",
 			Optional.of("someNewId"));;
 	private static final RestResponse INTERNAL_ERROR_RESPONSE = new RestResponse(500,
@@ -169,7 +168,7 @@ public class DataClientTest {
 	@Test
 	public void testCreateExceptionOnConvertToJson() throws Exception {
 		dataToJsonConverterFactoryFromProvider.MRV.setAlwaysThrowException("factorUsingConvertible",
-				new RuntimeException("SomeErrorMessageFromException"));
+				new RuntimeException("someErrorConversionToJson"));
 
 		try {
 			dataClient.create(RECORD_TYPE, dataRecordGroup);
@@ -178,14 +177,14 @@ public class DataClientTest {
 		} catch (Exception e) {
 			assertTrue(e instanceof CoraClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
-					+ ". Returned error was: SomeErrorMessageFromException");
+					+ ". Returned error was: someErrorConversionToJson");
 		}
 	}
 
 	@Test
 	public void testCreateExceptionOnConvertToData() throws Exception {
 		jsonToDataFactory.MRV.setAlwaysThrowException("factorUsingString",
-				new RuntimeException("SomeErrorMessageFromException"));
+				new RuntimeException("someErrorConversionToData"));
 
 		restClient.MRV.setDefaultReturnValuesSupplier("createRecordFromJson",
 				() -> CREATED_RESPONSE);
@@ -197,7 +196,7 @@ public class DataClientTest {
 		} catch (Exception e) {
 			assertTrue(e instanceof CoraClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
-					+ ". Returned error was: SomeErrorMessageFromException");
+					+ ". Returned error was: someErrorConversionToData");
 		}
 	}
 
@@ -207,8 +206,6 @@ public class DataClientTest {
 
 	@Test
 	public void testRead() {
-		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson", () -> OK_RESPONSE);
-
 		ClientDataRecord record = dataClient.read(RECORD_TYPE, RECORD_ID);
 
 		restClient.MCR.assertParameters("readRecordAsJson", 0, RECORD_TYPE, RECORD_ID);
@@ -234,9 +231,7 @@ public class DataClientTest {
 	@Test
 	public void testReadExceptionOnConvertToData() throws Exception {
 		jsonToDataFactory.MRV.setAlwaysThrowException("factorUsingString",
-				new RuntimeException("SomeErrorMessageFromException"));
-
-		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson", () -> OK_RESPONSE);
+				new RuntimeException("someErrorConversionToData"));
 
 		try {
 			dataClient.read(RECORD_TYPE, RECORD_ID);
@@ -244,17 +239,14 @@ public class DataClientTest {
 			ensureItFails();
 		} catch (Exception e) {
 			assertTrue(e instanceof CoraClientException);
-			assertEquals(e.getMessage(),
-					"Could not read record of type: " + RECORD_TYPE + " and id: " + RECORD_ID
-							+ ". Returned error was: SomeErrorMessageFromException");
+			assertEquals(e.getMessage(), "Could not read record of type: " + RECORD_TYPE
+					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
 		}
 	}
 
 	@Test
 	public void testReadList() throws Exception {
 		setUpDataListToReturnForConverter();
-
-		restClient.MRV.setDefaultReturnValuesSupplier("readRecordListAsJson", () -> OK_RESPONSE);
 
 		ClientDataList recordList = dataClient.readList(RECORD_TYPE);
 
@@ -290,9 +282,7 @@ public class DataClientTest {
 		setUpDataListToReturnForConverter();
 
 		jsonToDataFactory.MRV.setAlwaysThrowException("factorUsingString",
-				new RuntimeException("SomeErrorMessageFromException"));
-
-		restClient.MRV.setDefaultReturnValuesSupplier("readRecordAsJson", () -> OK_RESPONSE);
+				new RuntimeException("someErrorConversionToData"));
 
 		try {
 			dataClient.readList(RECORD_TYPE);
@@ -301,14 +291,12 @@ public class DataClientTest {
 		} catch (Exception e) {
 			assertTrue(e instanceof CoraClientException);
 			assertEquals(e.getMessage(), "Could not list records of type: " + RECORD_TYPE
-					+ ". Returned error was: SomeErrorMessageFromException");
+					+ ". Returned error was: someErrorConversionToData");
 		}
 	}
 
 	@Test
 	public void testUpdate() throws Exception {
-
-		restClient.MRV.setDefaultReturnValuesSupplier("updateRecordFromJson", () -> OK_RESPONSE);
 
 		ClientDataRecord record = dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
 
@@ -335,263 +323,108 @@ public class DataClientTest {
 		}
 	}
 
-	// TODO: Continue with exception for converter on update
-	// TODO:Convert for DataList from JsonToData
+	@Test
+	public void testUpdateExceptionOnConversionToJson() throws Exception {
+		dataToJsonConverterFactoryFromProvider.MRV.setAlwaysThrowException("factorUsingConvertible",
+				new RuntimeException("someErrorConversionToJson"));
 
-	//
-	// @Test
-	// public void testUpdateFromClientDataGroup() throws Exception {
-	// ClientDataGroup dataGroup = ClientDataGroup.withNameInData("someDataGroup");
-	//
-	// String updatedJson = coraClient.update("someType", "someId", dataGroup);
-	//
-	// assertSame(dataToJsonConverterFactory.clientDataElement, dataGroup);
-	// assertFalse(dataToJsonConverterFactory.includeActionLinks);
-	// assertEquals(dataToJsonConverterFactory.methodCalled,
-	// "createForClientDataElementIncludingActionLinks");
-	//
-	// String jsonReturnedFromConverter =
-	// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-	// assertCorrectDataSentToRestClient(jsonReturnedFromConverter, updatedJson, "update",
-	// "someType");
-	//
-	// }
-	//
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not update record of type: thisRecordTypeTriggersAnError and id: someId "
-	// + "on server using "
-	// + "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
-	// + "Answer from CoraRestClientSpy update")
-	// public void testUpdateError() throws Exception {
-	// String json = "some fake json";
-	// coraClient.update(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId", json);
-	// }
-	//
-	// @Test
-	// public void testDelete() {
-	// String createdJson = coraClient.delete("someType", "someId");
-	// RestClientSpyOld restClient = restClientFactory.factored.get(0);
-	// assertEquals(restClientFactory.factored.size(), 1);
-	// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-	// assertEquals(restClient.recordType, "someType");
-	// assertEquals(restClient.recordId, "someId");
-	// assertEquals(createdJson, restClient.returnedAnswer + restClient.methodCalled);
-	// assertEquals(restClient.methodCalled, "delete");
-	// }
-	//
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not delete record of type: thisRecordTypeTriggersAnError and id: someId "
-	// + "from server using "
-	// + "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
-	// + "Answer from CoraRestClientSpy delete")
-	// public void testDeleteError() throws Exception {
-	// coraClient.delete(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
-	// }
-	//
-	// @Test
-	// public void testReadIncomingLinks() throws Exception {
-	// String readLinksJson = coraClient.readIncomingLinks("someType", "someId");
-	// RestClientSpyOld restClient = restClientFactory.factored.get(0);
-	// assertEquals(restClientFactory.factored.size(), 1);
-	// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-	// assertEquals(restClient.recordType, "someType");
-	// assertEquals(restClient.recordId, "someId");
-	// assertEquals(readLinksJson, restClient.returnedAnswer + restClient.methodCalled);
-	// assertEquals(restClient.methodCalled, "readincomingLinks");
-	// }
-	//
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not read incoming links of type: thisRecordTypeTriggersAnError and id: someId "
-	// + "from server using "
-	// + "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
-	// + "Answer from CoraRestClientSpy readincomingLinks")
-	// public void testReadincomingLinksError() throws Exception {
-	// coraClient.readIncomingLinks(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR, "someId");
-	// }
-	//
-	// @Test
-	// public void testIndexDataRecord() throws Exception {
-	//
-	// ClientDataRecord clientDataRecord = ClientDataRecord
-	// .withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
-	// ActionLink actionLink = createActionLinkIndex();
-	// clientDataRecord.addActionLink("index", actionLink);
-	//
-	// String createdJson = coraClient.indexData(clientDataRecord);
-	//
-	// assertSame(dataToJsonConverterFactory.clientDataElement, actionLink.getBody());
-	// String jsonReturnedFromConverter =
-	// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-	//
-	// assertCorrectDataSentToRestClient(jsonReturnedFromConverter, createdJson, "create",
-	// "workOrder");
-	//
-	// }
-	//
-	// private ActionLink createActionLinkIndex() {
-	// ClientDataGroup workOrder = createBodyForIndexLink();
-	//
-	// ActionLink actionLink = ActionLink.withAction(Action.INDEX);
-	// actionLink.setBody(workOrder);
-	// actionLink.setRequestMethod("POST");
-	// actionLink.setURL("http://localhost:8080/systemone/rest/record/workOrder/");
-	// return actionLink;
-	// }
-	//
-	// private ClientDataGroup createBodyForIndexLink() {
-	// ClientDataGroup workOrder = ClientDataGroup.withNameInData("workOrder");
-	// workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("type", "someRecordType"));
-	// workOrder.addChild(ClientDataAtomic.withNameInDataAndValue("recordId", "someRecordId"));
-	// ClientDataGroup recordType = ClientDataGroup.withNameInData("recordType");
-	// recordType.addChild(
-	// ClientDataAtomic.withNameInDataAndValue("linkedRecordType", "recordType"));
-	// recordType.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordId", "demo"));
-	// workOrder.addChild(recordType);
-	// return workOrder;
-	// }
-	//
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not read index data. No index link found in record.")
-	// public void testIndexDataRecordWhenNoIndexLink() {
-	//
-	// ClientDataRecord clientDataRecord = ClientDataRecord
-	// .withClientDataGroup(ClientDataGroup.withNameInData("someDataGroup"));
-	//
-	// coraClient.indexData(clientDataRecord);
-	//
-	// }
-	//
-	// @Test
-	// public void testIndexDataRecordUsingRecordTypeAndRecordId() throws Exception {
-	// String recordType = "someRecordType";
-	// String recordId = "someRecordId";
-	// setUpActionLinksToReturn();
-	// String responseText = coraClient.indexData(recordType, recordId);
-	//
-	// String performCommit = "true";
-	// assertCorrectExecutionWhenIndexingData(recordType, recordId, responseText, performCommit);
-	// }
-	//
-	// private void assertCorrectExecutionWhenIndexingData(String recordType, String recordId,
-	// String responseText, String performCommit) {
-	// RestClientSpyOld restClientSpy = restClientFactory.factored.get(0);
-	// assertCorrectApptokenAndRestClientCallWhenIndexing(restClientSpy, recordType, recordId);
-	//
-	// String jsonReturnedFromConverter =
-	// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-	// assertEquals(restClientSpy.json, jsonReturnedFromConverter);
-	//
-	// assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
-	//
-	// ClientDataGroup workOrderDataGroup = (ClientDataGroup)
-	// dataToJsonConverterFactory.clientDataElement;
-	// assertEquals(workOrderDataGroup.getFirstAtomicValueWithNameInData("performCommit"),
-	// performCommit);
-	//
-	// ActionLink actionLink = (ActionLink) jsonToDataConverterFactory.actionLinksToReturn.get(0);
-	// assertSame(workOrderDataGroup, actionLink.getBody());
-	// }
-	//
-	// private void assertCorrectApptokenAndRestClientCallWhenIndexing(RestClientSpyOld
-	// restClientSpy,
-	// String recordType, String recordId) {
-	// AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
-	// assertNotNull(appTokenClient.returnedAuthToken);
-	// assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
-	//
-	// assertEquals(restClientSpy.recordTypes.get(0), recordType);
-	// assertEquals(restClientSpy.recordIds.get(0), recordId);
-	//
-	// assertEquals(restClientSpy.recordTypes.get(1), "workOrder");
-	// }
-	//
-	// @Test
-	// public void testIndexDataWithoutExplicitCommitRecordUsingRecordTypeAndRecordId()
-	// throws Exception {
-	// String recordType = "someRecordType";
-	// String recordId = "someRecordId";
-	//
-	// setUpActionLinksToReturn();
-	//
-	// String responseText = coraClient.indexDataWithoutExplicitCommit(recordType, recordId);
-	// assertCorrectExecutionWhenIndexingData(recordType, recordId, responseText, "false");
-	// }
-	//
-	// private void setUpActionLinksToReturn() {
-	// List<ClientData> actionLinksToReturn = new ArrayList<>();
-	// ActionLink actionLinkIndex = ActionLink.withAction(Action.INDEX);
-	// actionLinkIndex.setBody(ClientDataGroup.withNameInData("index"));
-	// actionLinksToReturn.add(actionLinkIndex);
-	//
-	// ActionLink actionLink = ActionLink.withAction(Action.READ);
-	// actionLinksToReturn.add(actionLink);
-	// jsonToDataConverterFactory.actionLinksToReturn = actionLinksToReturn;
-	// }
-	//
-	// @Test
-	// public void testRemoveFromIndex() {
-	// String recordType = "someRecordType";
-	// String recordId = "someRecordId";
-	//
-	// String responseText = coraClient.removeFromIndex(recordType, recordId);
-	//
-	// AppTokenClientSpy appTokenClient = appTokenClientFactory.factored.get(0);
-	// assertNotNull(appTokenClient.returnedAuthToken);
-	// assertEquals(appTokenClient.returnedAuthToken, restClientFactory.authToken);
-	//
-	// RestClientSpyOld restClientSpy = restClientFactory.factored.get(0);
-	//
-	// String jsonReturnedFromConverter =
-	// dataToJsonConverterFactory.converterSpy.jsonToReturnFromSpy;
-	// ClientDataGroup dataGroupSentToConverter = (ClientDataGroup)
-	// dataToJsonConverterFactory.clientDataElement;
-	// assertCorrectWorkOrderDataGroupSentToConverter(recordType, recordId,
-	// dataGroupSentToConverter);
-	//
-	// assertEquals(restClientSpy.recordTypes.get(0), "workOrder");
-	// assertEquals(restClientSpy.json, jsonReturnedFromConverter);
-	// assertEquals(responseText, restClientSpy.extendedRestResponse.responseText);
-	// }
-	//
-	// private void assertCorrectWorkOrderDataGroupSentToConverter(String recordType, String
-	// recordId,
-	// ClientDataGroup dataGroupSentToConverter) {
-	// assertEquals(dataGroupSentToConverter.getNameInData(), "workOrder");
-	// assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("type"),
-	// "removeFromIndex");
-	// assertEquals(dataGroupSentToConverter.getFirstAtomicValueWithNameInData("recordId"),
-	// recordId);
-	// ClientDataGroup recordTypeGroup = dataGroupSentToConverter
-	// .getFirstGroupWithNameInData("recordType");
-	// assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordType"),
-	// "recordType");
-	// assertEquals(recordTypeGroup.getFirstAtomicValueWithNameInData("linkedRecordId"),
-	// recordType);
-	// }
-	//
-	// @Test
-	// public void testIndexRecordList() {
-	// String jsonFilter = "some fake filter json";
-	// String response = coraClient.indexRecordsOfType("someType", jsonFilter);
-	//
-	// assertEquals(restClientFactory.factored.size(), 1);
-	// assertEquals(restClientFactory.usedAuthToken, "someAuthTokenFromSpy");
-	//
-	// RestClientSpyOld restClient = restClientFactory.factored.get(0);
-	// assertEquals(restClient.methodCalled, "batchIndexWithFilterAsJson");
-	// assertEquals(restClient.recordType, "someType");
-	// assertEquals(restClient.filterAsJson, jsonFilter);
-	// assertEquals(response, restClient.returnedAnswer + restClient.methodCalled);
-	// }
-	//
-	// @Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
-	// + "Could not index record list of type: thisRecordTypeTriggersAnError on server using "
-	// + "base url: http://localhost:8080/therest/rest/record/. Returned error was: "
-	// + "Answer from CoraRestClientSpy batchIndexWithFilterAsJson")
-	// public void testIndexRecordListError() throws Exception {
-	// String jsonFilter = "some fake filter json";
-	// coraClient.indexRecordsOfType(RestClientSpyOld.THIS_RECORD_TYPE_TRIGGERS_AN_ERROR,
-	// jsonFilter);
-	// }
+		try {
+			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
+			ensureItFails();
+		} catch (Exception e) {
+			assertTrue(e instanceof CoraClientException);
+			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
+					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToJson");
+		}
+	}
+
+	@Test
+	public void testUpdateExceptionOnConversionToData() throws Exception {
+		jsonToDataFactory.MRV.setAlwaysThrowException("factorUsingString",
+				new RuntimeException("someErrorConversionToData"));
+		try {
+			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
+			ensureItFails();
+		} catch (Exception e) {
+			assertTrue(e instanceof CoraClientException);
+			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
+					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
+		}
+	}
+
+	@Test
+	public void testDelete() throws Exception {
+		dataClient.delete(RECORD_TYPE, RECORD_ID);
+
+		restClient.MCR.assertParameters("deleteRecord", 0, RECORD_TYPE, RECORD_ID);
+
+		var restResponse = restClient.MCR.getReturnValue("deleteRecord", 0);
+		assertEquals(((RestResponse) restResponse).responseCode(), 200);
+
+	}
+
+	@Test
+	public void testDeleteErrorCodeOnOnRestClient() throws Exception {
+		restClient.MRV.setDefaultReturnValuesSupplier("deleteRecord",
+				() -> INTERNAL_ERROR_RESPONSE);
+
+		try {
+			dataClient.delete(RECORD_TYPE, RECORD_ID);
+			ensureItFails();
+		} catch (Exception e) {
+			assertEquals(e.getMessage(),
+					"Could not delete record of type: " + RECORD_TYPE + " and id: " + RECORD_ID
+							+ ". Returned error was: " + INTERNAL_ERROR_RESPONSE.responseText());
+		}
+	}
+
+	@Test
+	public void testReadIncommingLinks() throws Exception {
+		setUpDataListToReturnForConverter();
+
+		ClientDataList incommingLinks = dataClient.readIncomingLinks(RECORD_TYPE, RECORD_ID);
+
+		restClient.MCR.assertParameters("readIncomingLinksAsJson", 0, RECORD_TYPE, RECORD_ID);
+
+		var restResponse = restClient.MCR.getReturnValue("readIncomingLinksAsJson", 0);
+		assertConvertToData(incommingLinks, (RestResponse) restResponse);
+	}
+
+	@Test
+	public void testReadIncommingLinksErrorCodeOnOnRestClient() throws Exception {
+		setUpDataListToReturnForConverter();
+
+		restClient.MRV.setDefaultReturnValuesSupplier("readIncomingLinksAsJson",
+				() -> INTERNAL_ERROR_RESPONSE);
+
+		try {
+			dataClient.readIncomingLinks(RECORD_TYPE, RECORD_ID);
+
+			ensureItFails();
+		} catch (Exception e) {
+			assertEquals(e.getMessage(),
+					"Could not read incomming links for type: " + RECORD_TYPE + " and id: "
+							+ RECORD_ID + ". Returned error was: "
+							+ INTERNAL_ERROR_RESPONSE.responseText());
+		}
+	}
+
+	@Test
+	public void testReadIncommingLinksExceptionOnConvertToData() throws Exception {
+		setUpDataListToReturnForConverter();
+
+		jsonToDataFactory.MRV.setAlwaysThrowException("factorUsingString",
+				new RuntimeException("someErrorConversionToData"));
+
+		try {
+			dataClient.readIncomingLinks(RECORD_TYPE, RECORD_ID);
+
+			ensureItFails();
+		} catch (Exception e) {
+			assertTrue(e instanceof CoraClientException);
+			assertEquals(e.getMessage(), "Could not read incomming links for type: " + RECORD_TYPE
+					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
+		}
+	}
 
 }
