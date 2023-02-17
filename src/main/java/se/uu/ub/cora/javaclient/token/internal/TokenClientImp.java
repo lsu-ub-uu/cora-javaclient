@@ -25,7 +25,7 @@ import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class TokenClientImp implements TokenClient {
 
-	private static final String CORA_REST_APPTOKEN_ENDPOINT = "rest/apptoken/";
+	private static final String CORA_REST_APPTOKEN_ENDPOINT = "apptoken/";
 	private static final int CREATED = 201;
 	private static final int DISTANCE_TO_START_OF_TOKEN = 21;
 	private HttpHandlerFactory httpHandlerFactory;
