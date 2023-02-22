@@ -98,7 +98,7 @@ public class DataClientRealTest {
 		// assertEquals(read.getReadPermissions(), "");
 	}
 
-	@Test(enabled = true)
+	@Test(enabled = false)
 	public void testProvaLite() throws Exception {
 
 		DataClient dataClient = dataClientFactory.factorUsingUserIdAndAppToken("141414",
