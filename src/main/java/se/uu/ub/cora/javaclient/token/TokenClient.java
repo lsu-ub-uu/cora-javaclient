@@ -16,12 +16,17 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.token;
 
-public interface CoraClientFactory {
-
-	DataClient factorUsingUserIdAndAppToken(String userId, String appToken);
-
-	DataClient factorUsingAuthToken(String authToken);
-
+/**
+ * TokenClient is responsible for always beeing able to return a valid authToken. TokenClients
+ * SHOULD be created using {@link TokenClientFactory}.
+ */
+public interface TokenClient {
+	/**
+	 * getAuthToken returns a valid authToken.
+	 * 
+	 * @return A String with a valid authToken
+	 */
+	String getAuthToken();
 }

@@ -16,12 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.token.internal;
 
-public interface CoraClientFactory {
-
-	DataClient factorUsingUserIdAndAppToken(String userId, String appToken);
-
-	DataClient factorUsingAuthToken(String authToken);
-
+public record AppTokenCredentials(String appTokenVerifierUrl, String userId, String appToken) {
 }

@@ -35,10 +35,14 @@ public interface RestClientFactory {
 	RestClient factorUsingAuthToken(String authToken);
 
 	/**
-	 * Returns the base url that is expected to be set when the RestClientFactory is instantiated
+	 * factorUsingUserIdAndAppToken factors a RestClient using the specified userId and appToken
 	 * 
-	 * @return A String to use as base url
+	 * @param userId,
+	 *            a String with the userId
+	 * @param appToken,
+	 *            a String with a valid appToken
+	 * @return {@link RestClient}
 	 */
-	String getBaseUrl();
+	RestClient factorUsingUserIdAndAppToken(String userId, String appToken);
 
 }

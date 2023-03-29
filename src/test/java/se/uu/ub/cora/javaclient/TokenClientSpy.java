@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,12 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient;
 
-public interface CoraClientFactory {
+import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-	DataClient factorUsingUserIdAndAppToken(String userId, String appToken);
+public class TokenClientSpy implements TokenClient {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	DataClient factorUsingAuthToken(String authToken);
+	public TokenClientSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("getAuthToken", String::new);
+	}
+
+	@Override
+	public String getAuthToken() {
+		return (String) MCR.addCallAndReturnFromMRV();
+	}
 
 }
