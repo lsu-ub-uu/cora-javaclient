@@ -31,10 +31,10 @@
 	<name>Java client</name>
 
 	<properties>
-		<httphandler.version>2.11.0</httphandler.version>
+		<httphandler.version>2.15.0</httphandler.version>
 		<httphandler-spies.version>1.5.0</httphandler-spies.version>
-		<clientdata.version>6.2.0</clientdata.version>
-		<basicclientdata.version>1.2.0</basicclientdata.version>
+		<clientdata.version>6.3.0</clientdata.version>
+		<basicclientdata.version>1.3.0</basicclientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		
