@@ -30,18 +30,24 @@ public class RestClientFactorySpy implements RestClientFactory {
 
 	public RestClientFactorySpy() {
 		MCR.useMRV(MRV);
-		MRV.setDefaultReturnValuesSupplier("factorUsingAuthToken", RestClientSpy::new);
-		MRV.setDefaultReturnValuesSupplier("factorUsingUserIdAndAppToken", RestClientSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken",
+				RestClientSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken",
+				RestClientSpy::new);
 	}
 
 	@Override
-	public RestClient factorUsingAuthToken(String authToken) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("authToken", authToken);
+	public RestClient factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(String baseUrl,
+			String appTokenUrl, String authToken) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", baseUrl, "appTokenUrl",
+				appTokenUrl, "authToken", authToken);
 	}
 
 	@Override
-	public RestClient factorUsingUserIdAndAppToken(String userId, String appToken) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("userId", userId, "appToken", appToken);
+	public RestClient factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(String baseUrl,
+			String appTokenUrl, String userId, String appToken) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("baseUrl", baseUrl, "appTokenUrl",
+				appTokenUrl, "userId", userId, "appToken", appToken);
 	}
 
 }

@@ -129,10 +129,4 @@ public interface RestClient {
 	 */
 	RestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson);
 
-	/**
-	 * Returns the base url that this RestClient uses
-	 * 
-	 * @return A String with the base url used by this RestClient
-	 */
-	String getBaseUrl();
 }

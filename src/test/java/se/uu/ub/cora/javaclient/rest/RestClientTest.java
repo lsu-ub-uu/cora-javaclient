@@ -67,7 +67,7 @@ public class RestClientTest {
 		RestClientImp restClientImp = (RestClientImp) restClient;
 
 		assertSame(restClientImp.onlyForTestGetHttpHandlerFactory(), httpHandlerFactorySpy);
-		assertSame(restClientImp.getBaseUrl(), baseUrl);
+		assertSame(restClientImp.onlyForTestGetBaseUrl(), baseUrl);
 		assertSame(restClientImp.onlyForTestGetTokenClient(), tokenClient);
 	}
 

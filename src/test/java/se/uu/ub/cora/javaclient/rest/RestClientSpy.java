@@ -41,7 +41,6 @@ public class RestClientSpy implements RestClient {
 		MRV.setDefaultReturnValuesSupplier("readIncomingLinksAsJson", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("batchIndexWithFilterAsJson",
 				() -> createRestResponse());
-		MRV.setDefaultReturnValuesSupplier("getBaseUrl", String::new);
 	}
 
 	private RestResponse createRestResponse() {
@@ -93,11 +92,6 @@ public class RestClientSpy implements RestClient {
 	public RestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson) {
 		return (RestResponse) MCR.addCallAndReturnFromMRV("recordType", recordType,
 				"indexSettingsAsJson", indexSettingsAsJson);
-	}
-
-	@Override
-	public String getBaseUrl() {
-		return (String) MCR.addCallAndReturnFromMRV();
 	}
 
 }

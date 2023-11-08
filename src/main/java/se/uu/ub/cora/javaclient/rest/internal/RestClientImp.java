@@ -205,8 +205,7 @@ public final class RestClientImp implements RestClient {
 		return setUpHttpHandlerForPost(indexSettingsAsJson, url);
 	}
 
-	@Override
-	public String getBaseUrl() {
+	public String onlyForTestGetBaseUrl() {
 		return baseUrl;
 	}
 

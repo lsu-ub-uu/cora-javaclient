@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -19,8 +19,20 @@
 package se.uu.ub.cora.javaclient.data;
 
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public interface DataClientFactory {
+public class DataClientFactorySpy implements DataClientFactory {
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
 
-	DataClient factorUsingRestClient(RestClient restClient);
+	public DataClientFactorySpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("factorUsingRestClient", DataClientSpy::new);
+	}
+
+	@Override
+	public DataClient factorUsingRestClient(RestClient restClient) {
+		return (DataClient) MCR.addCallAndReturnFromMRV("restClient", restClient);
+	}
 }

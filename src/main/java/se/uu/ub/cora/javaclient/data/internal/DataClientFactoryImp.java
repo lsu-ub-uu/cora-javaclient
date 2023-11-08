@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2019, 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,11 +16,16 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.data;
+package se.uu.ub.cora.javaclient.data.internal;
 
+import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.javaclient.data.DataClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
-public interface DataClientFactory {
+public final class DataClientFactoryImp implements DataClientFactory {
 
-	DataClient factorUsingRestClient(RestClient restClient);
+	@Override
+	public DataClient factorUsingRestClient(RestClient restClient) {
+		return new DataClientImp(restClient);
+	}
 }

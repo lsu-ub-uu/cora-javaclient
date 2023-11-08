@@ -26,16 +26,20 @@ public interface RestClientFactory {
 
 	/**
 	 * Factors a RestClient using an authToken
+	 * @param baseUrl TODO
+	 * @param appTokenUrl TODO
 	 * 
 	 * @param authToken,
 	 *            a String to use as an authToken
 	 * 
 	 * @return {@link RestClient}
 	 */
-	RestClient factorUsingAuthToken(String authToken);
+	RestClient factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(String baseUrl, String appTokenUrl, String authToken);
 
 	/**
 	 * factorUsingUserIdAndAppToken factors a RestClient using the specified userId and appToken
+	 * @param baseUrl TODO
+	 * @param appTokenUrl TODO
 	 * 
 	 * @param userId,
 	 *            a String with the userId
@@ -43,6 +47,6 @@ public interface RestClientFactory {
 	 *            a String with a valid appToken
 	 * @return {@link RestClient}
 	 */
-	RestClient factorUsingUserIdAndAppToken(String userId, String appToken);
+	RestClient factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(String baseUrl, String appTokenUrl, String userId, String appToken);
 
 }
