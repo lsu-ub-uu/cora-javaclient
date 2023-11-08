@@ -21,8 +21,6 @@ package se.uu.ub.cora.javaclient.data;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.javaclient.data.DataClientException;
-
 public class DataClientExceptionTest {
 	@Test
 	public void testInit() {

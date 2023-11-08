@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -19,69 +20,45 @@
 package se.uu.ub.cora.javaclient;
 
 import se.uu.ub.cora.javaclient.data.DataClient;
-import se.uu.ub.cora.javaclient.data.DataClientFactory;
-import se.uu.ub.cora.javaclient.data.internal.DataClientFactoryImp;
+import se.uu.ub.cora.javaclient.internal.JavaClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
-import se.uu.ub.cora.javaclient.rest.internal.RestClientFactoryImp;
 
 public class JavaClientProvider {
 
-	private static RestClientFactory restClientFactory = new RestClientFactoryImp();
-	private static DataClientFactory dataClientFactory = new DataClientFactoryImp();
-	private static RestClientFactory onlyForTestRestClientFactory;
-	private static DataClientFactory onlyForTestDataClientFactory;
+	private static JavaClientFactory javaClientFactory = new JavaClientFactoryImp();
+	private static JavaClientFactory onlyForTestJavaClientFactory;
 
-	public static RestClient getRestClientUsingBaseUrlAndApptokenUrlAndAuthToken(String baseUrl,
-			String appTokenVerifierUrl, String authToken) {
-		return getRestClientFactory().factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(baseUrl,
-				appTokenVerifierUrl, authToken);
+	public static RestClient getRestClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials) {
+		return getJavaClientFactory()
+				.factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
 	}
 
-	public static RestClient getRestClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken(
-			String someBaseUrl, String someAppTokenVerifierUrl, String someUserId,
-			String someAppToken) {
-		return getRestClientFactory().factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(
-				someBaseUrl, someAppTokenVerifierUrl, someUserId, someAppToken);
+	public static RestClient getRestClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials) {
+		return getJavaClientFactory().factorRestClientUsingAppTokenCredentials(appTokenCredentials);
 	}
 
-	public static DataClient getDataClientUsingBaseUrlAndApptokenUrlAndAuthToken(String baseUrl,
-			String appTokenVerifierUrl, String authToken) {
-		RestClient restClient = getRestClientUsingBaseUrlAndApptokenUrlAndAuthToken(baseUrl,
-				appTokenVerifierUrl, authToken);
-		return getDataClientFactory().factorUsingRestClient(restClient);
+	public static DataClient getDataClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials) {
+		return getJavaClientFactory()
+				.factorDataClientUsingAuthTokenCredentials(authTokenCredentials);
 	}
 
-	public static DataClient getDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken(
-			String someBaseUrl, String someAppTokenVerifierUrl, String someUserId,
-			String someAppToken) {
-		RestClient restClient = getRestClientFactory()
-				.factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(someBaseUrl,
-						someAppTokenVerifierUrl, someUserId, someAppToken);
-		return getDataClientFactory().factorUsingRestClient(restClient);
+	public static DataClient getDataClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials) {
+		return getJavaClientFactory().factorDataClientUsingAppTokenCredentials(appTokenCredentials);
 	}
 
-	private static RestClientFactory getRestClientFactory() {
-		if (onlyForTestRestClientFactory == null) {
-			return restClientFactory;
+	private static JavaClientFactory getJavaClientFactory() {
+		if (onlyForTestJavaClientFactory == null) {
+			return javaClientFactory;
 		}
-		return onlyForTestRestClientFactory;
+		return onlyForTestJavaClientFactory;
 	}
 
-	private static DataClientFactory getDataClientFactory() {
-		if (onlyForTestDataClientFactory == null) {
-			return dataClientFactory;
-		}
-		return onlyForTestDataClientFactory;
-	}
-
-	public static void onlyForTestSetRestClientFactory(RestClientFactory restClientFactory) {
-		JavaClientProvider.onlyForTestRestClientFactory = restClientFactory;
+	public static void onlyForTestSetJavaClientFactory(JavaClientFactory javaClientFactory) {
+		JavaClientProvider.onlyForTestJavaClientFactory = javaClientFactory;
 
 	}
-
-	public static void onlyForTestSetDataClientFactory(DataClientFactory dataClientFactory) {
-		JavaClientProvider.onlyForTestDataClientFactory = dataClientFactory;
-	}
-
 }

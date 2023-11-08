@@ -1,5 +1,6 @@
 /*
  * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -16,37 +17,48 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.rest;
+package se.uu.ub.cora.javaclient;
+
+import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.javaclient.rest.RestClient;
 
 /**
  * RestClientFactory factors RestClient. The RestClientFactory implementation is expected to be
  * instantiated with a base url.
  */
-public interface RestClientFactory {
+public interface JavaClientFactory {
 
 	/**
 	 * Factors a RestClient using an authToken
-	 * @param baseUrl TODO
-	 * @param appTokenUrl TODO
 	 * 
+	 * @param authTokenCredentials
+	 *            TODO
 	 * @param authToken,
 	 *            a String to use as an authToken
 	 * 
 	 * @return {@link RestClient}
 	 */
-	RestClient factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(String baseUrl, String appTokenUrl, String authToken);
+	RestClient factorRestClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials);
 
 	/**
 	 * factorUsingUserIdAndAppToken factors a RestClient using the specified userId and appToken
-	 * @param baseUrl TODO
-	 * @param appTokenUrl TODO
 	 * 
+	 * @param appTokenCredentials
+	 *            TODO
 	 * @param userId,
 	 *            a String with the userId
 	 * @param appToken,
 	 *            a String with a valid appToken
 	 * @return {@link RestClient}
 	 */
-	RestClient factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(String baseUrl, String appTokenUrl, String userId, String appToken);
+	RestClient factorRestClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials);
+
+	DataClient factorDataClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials);
+
+	DataClient factorDataClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials);
 
 }

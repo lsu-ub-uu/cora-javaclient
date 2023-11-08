@@ -23,7 +23,6 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.ClientDataRecordGroup;
 import se.uu.ub.cora.clientdata.spies.ClientDataListSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataRecordSpy;
-import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 

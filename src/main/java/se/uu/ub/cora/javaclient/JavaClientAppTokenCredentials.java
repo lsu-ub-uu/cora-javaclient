@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019, 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -16,16 +16,9 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.data.internal;
+package se.uu.ub.cora.javaclient;
 
-import se.uu.ub.cora.javaclient.data.DataClient;
-import se.uu.ub.cora.javaclient.data.DataClientFactory;
-import se.uu.ub.cora.javaclient.rest.RestClient;
+public record JavaClientAppTokenCredentials(String baseUrl, String appTokenUrl, String userId,
+		String appToken) {
 
-public final class DataClientFactoryImp implements DataClientFactory {
-
-	@Override
-	public DataClient factorUsingRestClient(RestClient restClient) {
-		return new DataClientImp(restClient);
-	}
 }

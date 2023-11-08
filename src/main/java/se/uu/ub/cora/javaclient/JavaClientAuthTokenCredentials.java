@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -16,11 +16,8 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.data;
+package se.uu.ub.cora.javaclient;
 
-import se.uu.ub.cora.javaclient.rest.RestClient;
+public record JavaClientAuthTokenCredentials(String baseUrl, String appTokenUrl, String authToken) {
 
-public interface DataClientFactory {
-
-	DataClient factorUsingRestClient(RestClient restClient);
 }

@@ -43,7 +43,6 @@ import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.javaclient.data.DataClientException;
-import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientSpy;
 import se.uu.ub.cora.javaclient.rest.RestResponse;

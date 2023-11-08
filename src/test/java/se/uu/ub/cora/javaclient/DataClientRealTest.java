@@ -18,20 +18,16 @@
  */
 package se.uu.ub.cora.javaclient;
 
-import org.testng.annotations.BeforeMethod;
-
-import se.uu.ub.cora.javaclient.data.internal.DataClientFactoryImp;
-
 public class DataClientRealTest {
 
-	private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/apptokenverifier/rest/";
-	private String baseUrl = "https://cora.epc.ub.uu.se/systemone/rest/";
-	private DataClientFactoryImp dataClientFactory;
-
-	@BeforeMethod
-	private void beforeMethod() {
-		dataClientFactory = new DataClientFactoryImp();
-	}
+	// private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/apptokenverifier/rest/";
+	// private String baseUrl = "https://cora.epc.ub.uu.se/systemone/rest/";
+	// private DataClientFactoryImp dataClientFactory;
+	//
+	// @BeforeMethod
+	// private void beforeMethod() {
+	// dataClientFactory = new DataClientFactoryImp();
+	// }
 
 	// @Test(enabled = false)
 	// public void testRead() throws Exception {

@@ -1,5 +1,6 @@
 /*
  * Copyright 2018, 2019, 2020, 2021, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -29,8 +30,8 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 

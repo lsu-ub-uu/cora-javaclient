@@ -1,5 +1,6 @@
 /*
  * Copyright 2018, 2020, 2023 Uppsala University Library
+ * Copyright 2023 Olov McKie
  *
  * This file is part of Cora.
  *
@@ -16,27 +17,33 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.rest.internal;
+package se.uu.ub.cora.javaclient.internal;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
+import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
+import se.uu.ub.cora.javaclient.JavaClientFactory;
+import se.uu.ub.cora.javaclient.data.DataClient;
+import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
-import se.uu.ub.cora.javaclient.rest.RestClientFactory;
+import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
-public class RestClientFactoryImp implements RestClientFactory {
+public class JavaClientFactoryImp implements JavaClientFactory {
 
 	@Override
-	public RestClient factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken(String baseUrl,
-			String appTokenUrl, String authToken) {
-		TokenClient tokenClient = createTokenClientForAuthToken(appTokenUrl, authToken);
+	public RestClient factorRestClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials) {
+		TokenClient tokenClient = createTokenClientForAuthToken(authTokenCredentials.appTokenUrl(),
+				authTokenCredentials.authToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
-				baseUrl, tokenClient);
+				authTokenCredentials.baseUrl(), tokenClient);
 	}
 
 	private TokenClient createTokenClientForAuthToken(String appTokenUrl, String authToken) {
@@ -48,13 +55,14 @@ public class RestClientFactoryImp implements RestClientFactory {
 	}
 
 	@Override
-	public RestClient factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(String baseUrl,
-			String appTokenUrl, String userId, String appToken) {
-		TokenClient tokenClient = createTokenClientForUserIdAndAppToken(appTokenUrl, userId,
-				appToken);
+	public RestClient factorRestClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials) {
+		TokenClient tokenClient = createTokenClientForUserIdAndAppToken(
+				appTokenCredentials.appTokenUrl(), appTokenCredentials.userId(),
+				appTokenCredentials.appToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
-				baseUrl, tokenClient);
+				appTokenCredentials.baseUrl(), tokenClient);
 	}
 
 	private TokenClient createTokenClientForUserIdAndAppToken(String appTokenUrl, String userId,
@@ -64,5 +72,19 @@ public class RestClientFactoryImp implements RestClientFactory {
 				appToken);
 		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
 				appTokenCredentials);
+	}
+
+	@Override
+	public DataClient factorDataClientUsingAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials) {
+		RestClient restClient = factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+		return new DataClientImp(restClient);
+	}
+
+	@Override
+	public DataClient factorDataClientUsingAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials) {
+		RestClient restClient = factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+		return new DataClientImp(restClient);
 	}
 }
