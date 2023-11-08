@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora.internal;
+package se.uu.ub.cora.javaclient.data.internal;
 
 import java.text.MessageFormat;
 
@@ -29,8 +29,8 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterFactory;
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.javaclient.cora.CoraClientException;
-import se.uu.ub.cora.javaclient.cora.DataClient;
+import se.uu.ub.cora.javaclient.data.DataClientException;
+import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
@@ -81,15 +81,15 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException createErrorUsingRecordTypeAndMessage(String recordType,
+	private DataClientException createErrorUsingRecordTypeAndMessage(String recordType,
 			String message) {
-		return new CoraClientException(
+		return new DataClientException(
 				MessageFormat.format(ERROR_MESSAGE_CREATE, recordType, message));
 	}
 
 	private void rethrowIfClientException(Exception e) {
-		if (e instanceof CoraClientException) {
-			throw (CoraClientException) e;
+		if (e instanceof DataClientException) {
+			throw (DataClientException) e;
 		}
 	}
 
@@ -131,9 +131,9 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException readErrorUsingRecordTypeAndMessage(String recordType,
+	private DataClientException readErrorUsingRecordTypeAndMessage(String recordType,
 			String recordId, String message) {
-		return new CoraClientException(
+		return new DataClientException(
 				MessageFormat.format(ERROR_MESSAGE_READ, recordType, recordId, message));
 	}
 
@@ -159,9 +159,9 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException readListErrorUsingRecordTypeAndMessage(String recordType,
+	private DataClientException readListErrorUsingRecordTypeAndMessage(String recordType,
 			String message) {
-		return new CoraClientException(
+		return new DataClientException(
 				MessageFormat.format(ERROR_MESSAGE_READ_LIST, recordType, message));
 	}
 
@@ -176,9 +176,9 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException createErrorMessageForUpdate(String recordType, String recordId,
+	private DataClientException createErrorMessageForUpdate(String recordType, String recordId,
 			String message) {
-		return new CoraClientException(
+		return new DataClientException(
 				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
@@ -208,9 +208,9 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException createErrorMessageForDelete(String recordType, String recordId,
+	private DataClientException createErrorMessageForDelete(String recordType, String recordId,
 			String message) {
-		return new CoraClientException(
+		return new DataClientException(
 				MessageFormat.format(ERROR_MESSAGE_DELETE, recordType, recordId, message));
 	}
 
@@ -238,9 +238,9 @@ public class DataClientImp implements DataClient {
 		}
 	}
 
-	private CoraClientException createErrorMessageForIncommingLinks(String recordType,
+	private DataClientException createErrorMessageForIncommingLinks(String recordType,
 			String recordId, String message) {
-		return new CoraClientException(MessageFormat.format(ERROR_MESSAGE_READ_INCOMMING_LINKS,
+		return new DataClientException(MessageFormat.format(ERROR_MESSAGE_READ_INCOMMING_LINKS,
 				recordType, recordId, message));
 	}
 

@@ -20,7 +20,7 @@ package se.uu.ub.cora.javaclient.token.internal;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
-import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class TokenClientImp implements TokenClient {
@@ -91,7 +91,7 @@ public final class TokenClientImp implements TokenClient {
 		if (CREATED == httpHandler.getResponseCode()) {
 			return getAuthToken(httpHandler);
 		}
-		throw new CoraClientException("Could not create authToken");
+		throw new DataClientException("Could not create authToken");
 	}
 
 	private String getAuthToken(HttpHandler httpHandler) {

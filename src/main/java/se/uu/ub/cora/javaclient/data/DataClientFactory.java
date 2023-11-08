@@ -16,16 +16,12 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+public interface DataClientFactory {
 
-public class CoraClientExceptionTest {
-	@Test
-	public void testInit() {
-		CoraClientException notAuthenticated = new CoraClientException("message");
+	DataClient factorUsingUserIdAndAppToken(String userId, String appToken);
 
-		Assert.assertEquals(notAuthenticated.getMessage(), "message");
-	}
+	DataClient factorUsingAuthToken(String authToken);
+
 }

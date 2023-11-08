@@ -6,6 +6,6 @@ module se.uu.ub.cora.javaclient {
 	requires se.uu.ub.cora.clientbasicdata;
 
 	exports se.uu.ub.cora.javaclient.token;
-	exports se.uu.ub.cora.javaclient.cora;
+	exports se.uu.ub.cora.javaclient.data;
 	exports se.uu.ub.cora.javaclient.rest;
 }

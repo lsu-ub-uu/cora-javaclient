@@ -20,7 +20,7 @@ package se.uu.ub.cora.javaclient.rest;
 
 import java.io.UnsupportedEncodingException;
 
-import se.uu.ub.cora.javaclient.cora.DataClient;
+import se.uu.ub.cora.javaclient.data.DataClient;
 
 /**
  * RestClient is a java client for handling records in a Cora based system. Methods in this class

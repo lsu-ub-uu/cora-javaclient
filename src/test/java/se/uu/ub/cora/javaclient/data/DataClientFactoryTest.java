@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -26,7 +26,8 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
-import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
+import se.uu.ub.cora.javaclient.data.DataClientFactoryImp;
+import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.doubles.RestClientFactorySpy;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;

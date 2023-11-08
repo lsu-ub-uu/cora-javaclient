@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
-import se.uu.ub.cora.javaclient.cora.CoraClientException;
+import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public class TokenClientTest {
@@ -99,7 +99,7 @@ public class TokenClientTest {
 		assertSame(authToken, authToken2);
 	}
 
-	@Test(expectedExceptions = CoraClientException.class, expectedExceptionsMessageRegExp = ""
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
 			+ "Could not create authToken")
 	public void testGetAuthTokenNotOk() {
 		createClientUsingApptoken();

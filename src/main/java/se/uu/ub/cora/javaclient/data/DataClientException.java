@@ -16,13 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
-public class CoraClientException extends RuntimeException {
+public class DataClientException extends RuntimeException {
 
 	private static final long serialVersionUID = -3141384493591308355L;
 
-	public CoraClientException(String message) {
+	public DataClientException(String message) {
 		super(message);
 	}
 

@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataList;
@@ -34,20 +34,20 @@ public interface DataClient {
 
 	/**
 	 * Creates a record using recordType and a {@link ClientDataGroup} to create from. The result is
-	 * returned as a String. A {@link CoraClientException} MUST be thrown if the record could not be
+	 * returned as a String. A {@link DataClientException} MUST be thrown if the record could not be
 	 * created.
 	 * 
 	 * @param recordType
 	 *            A String, the type of the record to be created
 	 * @param dataRecordGroup
-	 *            A {@link ClientDataRecordGroup}, the data to crete the record from
+	 *            A {@link ClientDataRecordGroup}, the data to create the record from
 	 * @return A String containing the response text
 	 */
 	ClientDataRecord create(String recordType, ClientDataRecordGroup dataRecordGroup);
 
 	/**
 	 * Reads a record using recordType and recordId. The result is returned as a
-	 * {@link ClientDataRecord}. If the record cannot be read a {@link CoraClientException} MUST be
+	 * {@link ClientDataRecord}. If the record cannot be read a {@link DataClientException} MUST be
 	 * thrown .
 	 * 
 	 * @param recordType
@@ -60,7 +60,7 @@ public interface DataClient {
 
 	/**
 	 * Reads records as a list using recordType. The result is returned as a List of
-	 * {@link ClientDataRecord}. A {@link CoraClientException} MUST be thrown if records could not
+	 * {@link ClientDataRecord}. A {@link DataClientException} MUST be thrown if records could not
 	 * be listed.
 	 * 
 	 * @param recordType
@@ -71,7 +71,7 @@ public interface DataClient {
 
 	/**
 	 * Updates a record using recordType,recordId and a {@link ClientDataGroup} to update from. The
-	 * result is returned as a String. A {@link CoraClientException} MUST be thrown if the record
+	 * result is returned as a String. A {@link DataClientException} MUST be thrown if the record
 	 * could not be updated.
 	 * 
 	 * @param recordType
@@ -87,7 +87,7 @@ public interface DataClient {
 
 	/**
 	 * Deletes a record using recordType and recordId. The result is returned as a String. A
-	 * {@link CoraClientException} MUST be thrown if the record could not be deleted.
+	 * {@link DataClientException} MUST be thrown if the record could not be deleted.
 	 * 
 	 * @param recordType
 	 *            A String, the type of the record to delete
@@ -99,7 +99,7 @@ public interface DataClient {
 
 	/**
 	 * Reads incoming links for a record using recordType and recordId. The result is returned as a
-	 * String. A {@link CoraClientException} MUST be thrown if incoming links could not be read.
+	 * String. A {@link DataClientException} MUST be thrown if incoming links could not be read.
 	 * 
 	 * @param recordType
 	 *            A String, the type of the record to read the incoming links for

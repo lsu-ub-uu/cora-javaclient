@@ -16,14 +16,14 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
-import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
+import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientFactory;
 import se.uu.ub.cora.javaclient.rest.RestClientFactoryImp;
 
-public final class DataClientFactoryImp implements CoraClientFactory {
+public final class DataClientFactoryImp implements DataClientFactory {
 	private RestClientFactory restClientFactory;
 	private String appTokenVerifierUrl;
 	private String baseUrl;

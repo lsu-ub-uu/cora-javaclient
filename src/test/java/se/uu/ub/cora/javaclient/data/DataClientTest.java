@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.cora;
+package se.uu.ub.cora.javaclient.data;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -42,7 +42,8 @@ import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
-import se.uu.ub.cora.javaclient.cora.internal.DataClientImp;
+import se.uu.ub.cora.javaclient.data.DataClientException;
+import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientSpy;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
@@ -175,7 +176,7 @@ public class DataClientTest {
 
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
 					+ ". Returned error was: someErrorConversionToJson");
 		}
@@ -194,7 +195,7 @@ public class DataClientTest {
 
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
 					+ ". Returned error was: someErrorConversionToData");
 		}
@@ -238,7 +239,7 @@ public class DataClientTest {
 
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not read record of type: " + RECORD_TYPE
 					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
 		}
@@ -289,7 +290,7 @@ public class DataClientTest {
 
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not list records of type: " + RECORD_TYPE
 					+ ". Returned error was: someErrorConversionToData");
 		}
@@ -332,7 +333,7 @@ public class DataClientTest {
 			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
 					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToJson");
 		}
@@ -346,7 +347,7 @@ public class DataClientTest {
 			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
 					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
 		}
@@ -421,7 +422,7 @@ public class DataClientTest {
 
 			ensureItFails();
 		} catch (Exception e) {
-			assertTrue(e instanceof CoraClientException);
+			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not read incomming links for type: " + RECORD_TYPE
 					+ " and id: " + RECORD_ID + ". Returned error was: someErrorConversionToData");
 		}
