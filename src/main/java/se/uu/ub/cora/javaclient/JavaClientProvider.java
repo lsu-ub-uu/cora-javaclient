@@ -52,6 +52,15 @@ public class JavaClientProvider {
 		return getDataClientFactory().factorUsingRestClient(restClient);
 	}
 
+	public static DataClient getDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken(
+			String someBaseUrl, String someAppTokenVerifierUrl, String someUserId,
+			String someAppToken) {
+		RestClient restClient = getRestClientFactory()
+				.factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(someBaseUrl,
+						someAppTokenVerifierUrl, someUserId, someAppToken);
+		return getDataClientFactory().factorUsingRestClient(restClient);
+	}
+
 	private static RestClientFactory getRestClientFactory() {
 		if (onlyForTestRestClientFactory == null) {
 			return restClientFactory;

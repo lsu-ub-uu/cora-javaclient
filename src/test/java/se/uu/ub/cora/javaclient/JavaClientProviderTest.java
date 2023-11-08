@@ -95,9 +95,6 @@ public class JavaClientProviderTest {
 
 	@Test
 	public void testGetDataClientUsingBaseUrlAndApptokenUrlAndAuthToken() throws Exception {
-		// RestClientFactorySpy restClientFactory = new RestClientFactorySpy();
-		// JavaClientProvider.onlyForTestSetRestClientFactory(restClientFactory);
-
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
 				.getDataClientUsingBaseUrlAndApptokenUrlAndAuthToken(SOME_BASE_URL,
 						SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
@@ -118,6 +115,35 @@ public class JavaClientProviderTest {
 						SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
 		dataClientFactory.MCR.assertParameters("factorUsingRestClient", 0, restClientFactory.MCR
 				.getReturnValue("factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken", 0));
+		dataClientFactory.MCR.assertReturn("factorUsingRestClient", 0, dataClient);
+	}
+
+	@Test
+	public void testGetDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken() throws Exception {
+		DataClientImp dataClient = (DataClientImp) JavaClientProvider
+				.getDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken(SOME_BASE_URL,
+						SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
+		assertTrue(dataClient instanceof DataClientImp);
+		assertTrue(dataClient.onlyForTestGetRestClient() instanceof RestClientImp);
+	}
+
+	public void testGetDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppTokenPassedParameteres()
+			throws Exception {
+		RestClientFactorySpy restClientFactory = new RestClientFactorySpy();
+		JavaClientProvider.onlyForTestSetRestClientFactory(restClientFactory);
+		DataClientFactorySpy dataClientFactory = new DataClientFactorySpy();
+		JavaClientProvider.onlyForTestSetDataClientFactory(dataClientFactory);
+
+		DataClientImp dataClient = (DataClientImp) JavaClientProvider
+				.getDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken(SOME_BASE_URL,
+						SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
+
+		restClientFactory.MCR.assertParameters(
+				"factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken", 0, SOME_BASE_URL,
+				SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
+		dataClientFactory.MCR.assertParameters("factorUsingRestClient", 0, restClientFactory.MCR
+				.getReturnValue("factorUsingBaseUrlAndAppTokenVerifierUrlAndAuthToken", 0));
+		dataClientFactory.MCR.assertReturn("factorUsingRestClient", 0, dataClient);
 	}
 
 	// @Test
