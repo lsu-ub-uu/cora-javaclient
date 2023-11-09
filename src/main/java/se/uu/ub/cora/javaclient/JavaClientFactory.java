@@ -23,41 +23,59 @@ import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 
 /**
- * RestClientFactory factors RestClient. The RestClientFactory implementation is expected to be
- * instantiated with a base url.
+ * JavaClientFactory factors java clients.
  */
 public interface JavaClientFactory {
 
 	/**
-	 * Factors a RestClient using an authToken
+	 * factorRestClientUsingAuthTokenCredentials factors a new RestClient using the provided
+	 * {@link JavaClientAuthTokenCredentials}
 	 * 
 	 * @param authTokenCredentials
-	 *            TODO
-	 * @param authToken,
-	 *            a String to use as an authToken
+	 *            A {@link JavaClientAuthTokenCredentials} with information about the server and
+	 *            user to use
+	 * @return A {@link RestClient} set up according to the {@link JavaClientAuthTokenCredentials}
 	 * 
-	 * @return {@link RestClient}
 	 */
 	RestClient factorRestClientUsingAuthTokenCredentials(
 			JavaClientAuthTokenCredentials authTokenCredentials);
 
 	/**
-	 * factorUsingUserIdAndAppToken factors a RestClient using the specified userId and appToken
+	 * factorRestClientUsingAppTokenCredentials factors a new RestClient using the provided
+	 * {@link JavaClientAppTokenCredentials}
 	 * 
 	 * @param appTokenCredentials
-	 *            TODO
-	 * @param userId,
-	 *            a String with the userId
-	 * @param appToken,
-	 *            a String with a valid appToken
-	 * @return {@link RestClient}
+	 *            A {@link JavaClientAppTokenCredentials} with information about the server and user
+	 *            to use
+	 * @return A {@link RestClient} set up according to the {@link JavaClientAppTokenCredentials}
+	 * 
 	 */
 	RestClient factorRestClientUsingAppTokenCredentials(
 			JavaClientAppTokenCredentials appTokenCredentials);
 
+	/**
+	 * factorDataClientUsingAuthTokenCredentials factors a new DataClient using the provided
+	 * {@link JavaClientAuthTokenCredentials}
+	 * 
+	 * @param authTokenCredentials
+	 *            A {@link JavaClientAuthTokenCredentials} with information about the server and
+	 *            user to use
+	 * @return A {@link DataClient} set up according to the {@link JavaClientAuthTokenCredentials}
+	 * 
+	 */
 	DataClient factorDataClientUsingAuthTokenCredentials(
 			JavaClientAuthTokenCredentials authTokenCredentials);
 
+	/**
+	 * factorDataClientUsingAppTokenCredentials factors a new DataClient using the provided
+	 * {@link JavaClientAppTokenCredentials}
+	 * 
+	 * @param appTokenCredentials
+	 *            A {@link JavaClientAppTokenCredentials} with information about the server and user
+	 *            to use
+	 * @return A {@link DataClient} set up according to the {@link JavaClientAppTokenCredentials}
+	 * 
+	 */
 	DataClient factorDataClientUsingAppTokenCredentials(
 			JavaClientAppTokenCredentials appTokenCredentials);
 
