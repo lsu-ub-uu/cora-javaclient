@@ -18,7 +18,6 @@
  */
 package se.uu.ub.cora.javaclient.rest.internal;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -184,10 +183,9 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
-			throws UnsupportedEncodingException {
+	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter) {
 		String url = baseUrlRecord + recordType + "?filter="
-				+ URLEncoder.encode(filter, StandardCharsets.UTF_8.name());
+				+ URLEncoder.encode(filter, StandardCharsets.UTF_8);
 		return readRecordListUsingUrl(url);
 	}
 
@@ -217,4 +215,36 @@ public final class RestClientImp implements RestClient {
 		return tokenClient;
 	}
 
+	@Override
+	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
+		return searchRecord(searchId, json);
+	}
+
+	private RestResponse searchRecord(String searchId, String json) {
+		String url = setUrlForSearch(searchId, json);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+
+		return composeReadRestResponseFromHttpHandler(httpHandler);
+	}
+
+	private String setUrlForSearch(String searchId, String json) {
+		return baseUrlRecord + "searchResult/" + searchId + "?searchData="
+				+ URLEncoder.encode(json, StandardCharsets.UTF_8);
+	}
+
+	@Override
+	public RestResponse validateRecordAsJson(String json) {
+		String url = baseUrlRecord + "workOrder";
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		setHttpHandlerValidateWorkOrder(httpHandler, json);
+		return composeReadRestResponseFromHttpHandler(httpHandler);
+	}
+
+	protected void setHttpHandlerValidateWorkOrder(HttpHandler httpHandler, String json) {
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.workorder+json");
+		httpHandler.setOutput(json);
+	}
 }

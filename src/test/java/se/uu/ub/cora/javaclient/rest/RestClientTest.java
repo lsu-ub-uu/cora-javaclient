@@ -23,8 +23,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -52,10 +52,10 @@ public class RestClientTest {
 
 	@BeforeMethod
 	public void setUp() {
+		baseUrl = "http://localhost:8080/therest/rest/";
 		httpHandlerSpy = new HttpHandlerSpy();
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
 		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandlerSpy);
-		baseUrl = "http://localhost:8080/therest/rest/";
 		tokenClient = new TokenClientSpy();
 		tokenClient.MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someToken");
 		restClient = RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(
@@ -128,12 +128,11 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testReadRecordListWithFilterHttpHandlerSetupCorrectly()
-			throws UnsupportedEncodingException {
+	public void testReadRecordListWithFilterHttpHandlerSetupCorrectly() {
 
 		restClient.readRecordListWithFilterAsJson(SOME_TYPE, FILTER);
 
-		String encodedJson = URLEncoder.encode(FILTER, "UTF-8");
+		String encodedJson = URLEncoder.encode(FILTER, StandardCharsets.UTF_8);
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
 		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
@@ -143,14 +142,14 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testReadRecordListWithFilterOk() throws UnsupportedEncodingException {
+	public void testReadRecordListWithFilterOk() {
 		RestResponse response = restClient.readRecordListWithFilterAsJson(SOME_TYPE, FILTER);
 
 		assertResponseOK(response);
 	}
 
 	@Test
-	public void testReadRecordListWithFilterNotOk() throws UnsupportedEncodingException {
+	public void testReadRecordListWithFilterNotOk() {
 		setHttpHandlerToReturnErrorResponseCode();
 
 		RestResponse response = restClient.readRecordListWithFilterAsJson(SOME_TYPE, FILTER);
@@ -288,8 +287,7 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testBatchIndexWithFilterHttpHandlerSetupCorrectly()
-			throws UnsupportedEncodingException {
+	public void testBatchIndexWithFilterHttpHandlerSetupCorrectly() {
 		setHttpHandlerToReturnCreatedResponseCodeAndLocation();
 
 		restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER);
@@ -309,7 +307,7 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testBatchIndexWithFilterOk() throws UnsupportedEncodingException {
+	public void testBatchIndexWithFilterOk() {
 		setHttpHandlerToReturnCreatedResponseCodeAndLocation();
 
 		RestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER);
@@ -318,7 +316,7 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testBatchIndexWithFilterNotOk() throws UnsupportedEncodingException {
+	public void testBatchIndexWithFilterNotOk() {
 		setHttpHandlerToReturnErrorResponseCode();
 
 		RestResponse response = restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER);
@@ -357,4 +355,62 @@ public class RestClientTest {
 		assertTrue(response.createdId().isEmpty());
 	}
 
+	@Test
+	public void testSearchRecordOK() throws Exception {
+		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
+				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
+		String searchId = "someSearchId";
+
+		RestResponse response = restClient.searchRecordWithSearchCriteriaAsJson(searchId, json);
+
+		String jsonEncoded = URLEncoder.encode(json, StandardCharsets.UTF_8.name());
+		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
+				baseUrl + "record/searchResult/" + searchId + "?searchData=" + jsonEncoded);
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+				tokenClient.getAuthToken());
+		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
+		assertResponseOK(response);
+
+	}
+
+	@Test
+	public void testSearchRecordNotOk() throws Exception {
+		setHttpHandlerToReturnErrorResponseCode();
+		String json = "{\"name\":\"search\",\"children\":[{\"name\":\"include\",\"children\":["
+				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
+		String searchId = "someSearchId";
+
+		RestResponse response = restClient.searchRecordWithSearchCriteriaAsJson(searchId, json);
+
+		assertResponseOnError(response);
+	}
+
+	@Test
+	public void testValidateRecordOK() throws Exception {
+		String json = "someJson";
+		RestResponse response = restClient.validateRecordAsJson(json);
+
+		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, baseUrl + "record/workOrder");
+
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+				tokenClient.getAuthToken());
+		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+				"application/vnd.uub.record+json");
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
+				"application/vnd.uub.workorder+json");
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
+		httpHandlerSpy.MCR.assertParameters("setOutput", 0, json);
+
+		assertResponseOK(response);
+	}
+
+	@Test
+	public void testValidateRecordNotOk() throws Exception {
+		setHttpHandlerToReturnErrorResponseCode();
+		String json = "someJson";
+		RestResponse response = restClient.validateRecordAsJson(json);
+
+		assertResponseOnError(response);
+	}
 }

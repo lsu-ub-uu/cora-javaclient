@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Uppsala University Library
+ * Copyright 2018, 2020, 2023 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -17,8 +17,6 @@
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
 package se.uu.ub.cora.javaclient.rest;
-
-import java.io.UnsupportedEncodingException;
 
 import se.uu.ub.cora.javaclient.data.DataClient;
 
@@ -108,12 +106,13 @@ public interface RestClient {
 	 * 
 	 * @param recordType,
 	 *            A String, the type of the records to be listed
+	 * 
 	 * @param filter,
 	 *            A String, a json string to use as a filter to limit the result
+	 * 
 	 * @return A {@link RestResponse}, containing the response
 	 */
-	RestResponse readRecordListWithFilterAsJson(String recordType, String filter)
-			throws UnsupportedEncodingException;
+	RestResponse readRecordListWithFilterAsJson(String recordType, String filter);
 
 	/**
 	 * Creates an IndexBatchJob for the provided recordType.
@@ -123,10 +122,31 @@ public interface RestClient {
 	 * 
 	 * @param indexSettingsAsJson
 	 *            A JSON-formatted String with settings for index including a filter used to filter
-	 *            the result
-	 * @throws UnsupportedEncodingException
 	 * 
+	 * @return the result A {@link RestResponse}, containing the response
 	 */
 	RestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson);
+
+	/**
+	 * Searches for records using url, authToken and a string to define the search. The result is
+	 * returned as a responseText in the {@link BasicHttpResponse}
+	 * 
+	 * @param json
+	 *            A String used to define the search
+	 * 
+	 * @return A {@link RestResponse}, containing the response
+	 */
+	RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json);
+
+	/**
+	 * Validates a record using a workorder as json. The result is returned as a responseText in the
+	 * {@link RestResponse}
+	 * 
+	 * @param json
+	 *            A String used to use as output in the http request
+	 * 
+	 * @return A {@link BasicHttpResponse} containing the response
+	 */
+	RestResponse validateRecordAsJson(String json);
 
 }
