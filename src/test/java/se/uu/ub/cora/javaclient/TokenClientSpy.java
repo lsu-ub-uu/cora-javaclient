@@ -28,7 +28,7 @@ public class TokenClientSpy implements TokenClient {
 
 	public TokenClientSpy() {
 		MCR.useMRV(MRV);
-		MRV.setDefaultReturnValuesSupplier("getAuthToken", String::new);
+		MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someAuthTokenfromSpy");
 	}
 
 	@Override

@@ -21,6 +21,8 @@ package se.uu.ub.cora.javaclient.internal;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientFactory;
@@ -29,21 +31,19 @@ import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 import se.uu.ub.cora.javaclient.token.TokenClient;
-import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
-import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientFactoryImp implements JavaClientFactory {
 
 	@Override
-	public RestClient factorRestClientUsingAuthTokenCredentials(
-			JavaClientAuthTokenCredentials authTokenCredentials) {
-		TokenClient tokenClient = createTokenClientForAuthToken(authTokenCredentials.appTokenUrl(),
-				authTokenCredentials.authToken());
+	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
+			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
+		TokenClient tokenClient = createTokenClientForAuthToken(
+				javaClientAuthTokenCredentials.appTokenUrl(), javaClientAuthTokenCredentials.authToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
-				authTokenCredentials.baseUrl(), tokenClient);
+				javaClientAuthTokenCredentials.baseUrl(), tokenClient);
 	}
 
 	private TokenClient createTokenClientForAuthToken(String appTokenUrl, String authToken) {
@@ -55,14 +55,14 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	}
 
 	@Override
-	public RestClient factorRestClientUsingAppTokenCredentials(
-			JavaClientAppTokenCredentials appTokenCredentials) {
+	public RestClient factorRestClientUsingJavaClientAppTokenCredentials(
+			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForUserIdAndAppToken(
-				appTokenCredentials.appTokenUrl(), appTokenCredentials.userId(),
-				appTokenCredentials.appToken());
+				javaClientAppTokenCredentials.appTokenUrl(), javaClientAppTokenCredentials.userId(),
+				javaClientAppTokenCredentials.appToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
-				appTokenCredentials.baseUrl(), tokenClient);
+				javaClientAppTokenCredentials.baseUrl(), tokenClient);
 	}
 
 	private TokenClient createTokenClientForUserIdAndAppToken(String appTokenUrl, String userId,
@@ -75,16 +75,34 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	}
 
 	@Override
-	public DataClient factorDataClientUsingAuthTokenCredentials(
-			JavaClientAuthTokenCredentials authTokenCredentials) {
-		RestClient restClient = factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+	public DataClient factorDataClientUsingJavaClientAuthTokenCredentials(
+			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
+		RestClient restClient = factorRestClientUsingJavaClientAuthTokenCredentials(
+				javaClientAuthTokenCredentials);
 		return new DataClientImp(restClient);
 	}
 
 	@Override
-	public DataClient factorDataClientUsingAppTokenCredentials(
-			JavaClientAppTokenCredentials appTokenCredentials) {
-		RestClient restClient = factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+	public DataClient factorDataClientUsingJavaClientAppTokenCredentials(
+			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
+		RestClient restClient = factorRestClientUsingJavaClientAppTokenCredentials(
+				javaClientAppTokenCredentials);
 		return new DataClientImp(restClient);
+	}
+
+	@Override
+	public TokenClient factorTokenClientUsingAppTokenCredentials(
+			AppTokenCredentials appTokenCredentials) {
+		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
+				appTokenCredentials);
+	}
+
+	@Override
+	public TokenClient factorTokenClientUsingAuthTokenCredentials(
+			AuthTokenCredentials authTokenCredentials) {
+		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(httpHandlerFactory,
+				authTokenCredentials);
 	}
 }

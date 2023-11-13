@@ -19,13 +19,17 @@
  */
 package se.uu.ub.cora.javaclient.doubles;
 
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientFactory;
+import se.uu.ub.cora.javaclient.TokenClientSpy;
 import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.javaclient.data.DataClientSpy;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestClientSpy;
+import se.uu.ub.cora.javaclient.token.TokenClient;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
@@ -35,40 +39,60 @@ public class JavaClientFactorySpy implements JavaClientFactory {
 
 	public JavaClientFactorySpy() {
 		MCR.useMRV(MRV);
-		MRV.setDefaultReturnValuesSupplier("factorRestClientUsingAuthTokenCredentials",
+		MRV.setDefaultReturnValuesSupplier("factorRestClientUsingJavaClientAuthTokenCredentials",
 				RestClientSpy::new);
-		MRV.setDefaultReturnValuesSupplier("factorRestClientUsingAppTokenCredentials",
+		MRV.setDefaultReturnValuesSupplier("factorRestClientUsingJavaClientAppTokenCredentials",
 				RestClientSpy::new);
-		MRV.setDefaultReturnValuesSupplier("factorDataClientUsingAuthTokenCredentials",
+		MRV.setDefaultReturnValuesSupplier("factorDataClientUsingJavaClientAuthTokenCredentials",
 				DataClientSpy::new);
-		MRV.setDefaultReturnValuesSupplier("factorDataClientUsingAppTokenCredentials",
+		MRV.setDefaultReturnValuesSupplier("factorDataClientUsingJavaClientAppTokenCredentials",
 				DataClientSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorTokenClientUsingAppTokenCredentials",
+				TokenClientSpy::new);
+		MRV.setDefaultReturnValuesSupplier("factorTokenClientUsingAuthTokenCredentials",
+				TokenClientSpy::new);
 	}
 
 	@Override
-	public RestClient factorRestClientUsingAuthTokenCredentials(
-			JavaClientAuthTokenCredentials authTokenCredentials) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("authTokenCredentials",
+	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
+			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("javaClientAuthTokenCredentials",
+				javaClientAuthTokenCredentials);
+	}
+
+	@Override
+	public RestClient factorRestClientUsingJavaClientAppTokenCredentials(
+			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
+		return (RestClient) MCR.addCallAndReturnFromMRV("javaClientAppTokenCredentials",
+				javaClientAppTokenCredentials);
+	}
+
+	@Override
+	public DataClient factorDataClientUsingJavaClientAuthTokenCredentials(
+			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
+		return (DataClient) MCR.addCallAndReturnFromMRV("javaClientAuthTokenCredentials",
+				javaClientAuthTokenCredentials);
+	}
+
+	@Override
+	public DataClient factorDataClientUsingJavaClientAppTokenCredentials(
+			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
+		return (DataClient) MCR.addCallAndReturnFromMRV("javaClientAppTokenCredentials",
+				javaClientAppTokenCredentials);
+	}
+
+	@Override
+	public TokenClient factorTokenClientUsingAppTokenCredentials(
+			AppTokenCredentials appTokenCredentials) {
+		return (TokenClient) MCR.addCallAndReturnFromMRV("appTokenCredentials",
+				appTokenCredentials);
+	}
+
+	@Override
+	public TokenClient factorTokenClientUsingAuthTokenCredentials(
+			AuthTokenCredentials authTokenCredentials) {
+		return (TokenClient) MCR.addCallAndReturnFromMRV("authTokenCredentials",
 				authTokenCredentials);
-	}
-
-	@Override
-	public RestClient factorRestClientUsingAppTokenCredentials(
-			JavaClientAppTokenCredentials appTokenCredentials) {
-		return (RestClient) MCR.addCallAndReturnFromMRV("appTokenCredentials", appTokenCredentials);
-	}
-
-	@Override
-	public DataClient factorDataClientUsingAuthTokenCredentials(
-			JavaClientAuthTokenCredentials authTokenCredentials) {
-		return (DataClient) MCR.addCallAndReturnFromMRV("authTokenCredentials",
-				authTokenCredentials);
-	}
-
-	@Override
-	public DataClient factorDataClientUsingAppTokenCredentials(
-			JavaClientAppTokenCredentials appTokenCredentials) {
-		return (DataClient) MCR.addCallAndReturnFromMRV("appTokenCredentials", appTokenCredentials);
 	}
 
 }

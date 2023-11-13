@@ -26,13 +26,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAppTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
-import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
-import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientFactoryTest {
@@ -43,10 +43,14 @@ public class JavaClientFactoryTest {
 	private String appTokenUrl = "someAptokenUrl";
 	private String userId = "someUserId";
 	private String appToken = "someAppToken";
-	private JavaClientAppTokenCredentials appTokenCredentials = new JavaClientAppTokenCredentials(
+	private JavaClientAppTokenCredentials javaClientAppTokenCredentials = new JavaClientAppTokenCredentials(
 			baseUrl, appTokenUrl, userId, appToken);
-	private JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+	private JavaClientAuthTokenCredentials javaClientAuthTokenCredentials = new JavaClientAuthTokenCredentials(
 			baseUrl, appTokenUrl, authToken);
+	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, userId,
+			appToken);
+	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(appTokenUrl,
+			authToken);
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -56,7 +60,8 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorBaseUrlAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		assertTrue(restClient instanceof RestClientImp);
 		assertEquals(restClient.onlyForTestGetBaseUrl(), baseUrl);
@@ -65,7 +70,8 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorHttpHandlerFactoryCreatedAndAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		assertTrue(restClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
 	}
@@ -73,7 +79,8 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorTokenClientCreatedCorrectlyAndAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
@@ -88,7 +95,7 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorAppBaseUrlAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		assertTrue(restClient instanceof RestClientImp);
 		assertEquals(restClient.onlyForTestGetBaseUrl(), baseUrl);
@@ -97,7 +104,7 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorAppHttpHandlerFactoryCreatedAndAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		assertTrue(restClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
 	}
@@ -105,22 +112,17 @@ public class JavaClientFactoryTest {
 	@Test
 	public void testFactorAppTokenClientCreatedCorrectlyAndAddedToRestClient() throws Exception {
 		RestClientImp restClient = (RestClientImp) factory
-				.factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
-		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-
-		AppTokenCredentials appTokenCredentials = tokenClient.onlyForTestGetAppTokenCredentials();
-
-		assertEquals(appTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
-		assertEquals(appTokenCredentials.userId(), userId);
-		assertEquals(appTokenCredentials.appToken(), appToken);
+		assertTokenClientUsingAppTokenCredentials(tokenClient);
 	}
 
 	@Test
 	public void testFactorBaseUrlAddedToRestClient_dataClient() throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorDataClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		assertTrue(dataClient instanceof DataClientImp);
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
@@ -131,7 +133,8 @@ public class JavaClientFactoryTest {
 	public void testFactorHttpHandlerFactoryCreatedAndAddedToRestClient_dataClient()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorDataClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
 
@@ -142,24 +145,19 @@ public class JavaClientFactoryTest {
 	public void testFactorTokenClientCreatedCorrectlyAndAddedToRestClient_dataClient()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorDataClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
-		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-
-		AuthTokenCredentials authTokenCredentials = tokenClient
-				.onlyForTestGetAuthTokenCredentials();
-
-		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
-		assertEquals(authTokenCredentials.authToken(), authToken);
+		assertTokenClientUsingAuthTokenCredentials(tokenClient);
 	}
 
 	@Test
 	public void testFactorAppBaseUrlAddedToRestClient_dataClient() throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		assertTrue(dataClient instanceof DataClientImp);
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
@@ -172,7 +170,7 @@ public class JavaClientFactoryTest {
 	public void testFactorAppHttpHandlerFactoryCreatedAndAddedToRestClient_dataClient()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
 
@@ -183,11 +181,15 @@ public class JavaClientFactoryTest {
 	public void testFactorAppTokenClientCreatedCorrectlyAndAddedToRestClient_dataClient()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) factory
-				.factorDataClientUsingAppTokenCredentials(appTokenCredentials);
+				.factorDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTokenClientUsingAppTokenCredentials(tokenClient);
+	}
+
+	private void assertTokenClientUsingAppTokenCredentials(TokenClientImp tokenClient) {
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
 
 		AppTokenCredentials appTokenCredentials = tokenClient.onlyForTestGetAppTokenCredentials();
@@ -197,4 +199,31 @@ public class JavaClientFactoryTest {
 		assertEquals(appTokenCredentials.appToken(), appToken);
 	}
 
+	@Test
+	public void testFactorTokenClientUsingAppTokenCredentials() throws Exception {
+
+		TokenClientImp tokenClient = (TokenClientImp) factory
+				.factorTokenClientUsingAppTokenCredentials(appTokenCredentials);
+
+		assertTokenClientUsingAppTokenCredentials(tokenClient);
+	}
+
+	@Test
+	public void testFactorTokenClientUsingAuthTokenCredentials() throws Exception {
+
+		TokenClientImp tokenClient = (TokenClientImp) factory
+				.factorTokenClientUsingAuthTokenCredentials(authTokenCredentials);
+
+		assertTokenClientUsingAuthTokenCredentials(tokenClient);
+	}
+
+	private void assertTokenClientUsingAuthTokenCredentials(TokenClientImp tokenClient) {
+		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
+
+		AuthTokenCredentials authTokenCredentials = tokenClient
+				.onlyForTestGetAuthTokenCredentials();
+
+		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
+		assertEquals(authTokenCredentials.authToken(), authToken);
+	}
 }

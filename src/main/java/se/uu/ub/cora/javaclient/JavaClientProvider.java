@@ -22,6 +22,7 @@ package se.uu.ub.cora.javaclient;
 import se.uu.ub.cora.javaclient.data.DataClient;
 import se.uu.ub.cora.javaclient.internal.JavaClientFactoryImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
+import se.uu.ub.cora.javaclient.token.TokenClient;
 
 /**
  * JavaClientProvider provides a means for other classes in the system to create instances of
@@ -45,7 +46,7 @@ public class JavaClientProvider {
 	private static JavaClientFactory onlyForTestJavaClientFactory;
 
 	/**
-	 * createRestClientUsingAuthTokenCredentials creates a {@link RestClient} from a
+	 * createRestClientUsingJavaClientAuthTokenCredentials creates a {@link RestClient} from a
 	 * {@link JavaClientAuthTokenCredentials}
 	 * 
 	 * @param authTokenCredentials
@@ -53,14 +54,14 @@ public class JavaClientProvider {
 	 * @return A {@link RestClient} set up with the information from the provided
 	 *         {@link JavaClientAuthTokenCredentials}
 	 */
-	public static RestClient createRestClientUsingAuthTokenCredentials(
+	public static RestClient createRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials authTokenCredentials) {
 		return getJavaClientFactory()
-				.factorRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorRestClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 	}
 
 	/**
-	 * createRestClientUsingAppTokenCredentials creates a {@link RestClient} from a
+	 * createRestClientUsingJavaClientAppTokenCredentials creates a {@link RestClient} from a
 	 * {@link JavaClientAppTokenCredentials}
 	 * 
 	 * @param authTokenCredentials
@@ -68,13 +69,14 @@ public class JavaClientProvider {
 	 * @return A {@link RestClient} set up with the information from the provided
 	 *         {@link JavaClientAppTokenCredentials}
 	 */
-	public static RestClient createRestClientUsingAppTokenCredentials(
+	public static RestClient createRestClientUsingJavaClientAppTokenCredentials(
 			JavaClientAppTokenCredentials appTokenCredentials) {
-		return getJavaClientFactory().factorRestClientUsingAppTokenCredentials(appTokenCredentials);
+		return getJavaClientFactory()
+				.factorRestClientUsingJavaClientAppTokenCredentials(appTokenCredentials);
 	}
 
 	/**
-	 * createDataClientUsingAuthTokenCredentials creates a {@link DataClient} from a
+	 * createDataClientUsingJavaClientAuthTokenCredentials creates a {@link DataClient} from a
 	 * {@link JavaClientAuthTokenCredentials}
 	 * 
 	 * @param authTokenCredentials
@@ -82,14 +84,14 @@ public class JavaClientProvider {
 	 * @return A {@link DataClient} set up with the information from the provided
 	 *         {@link JavaClientAuthTokenCredentials}
 	 */
-	public static DataClient createDataClientUsingAuthTokenCredentials(
+	public static DataClient createDataClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials authTokenCredentials) {
 		return getJavaClientFactory()
-				.factorDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.factorDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
 	}
 
 	/**
-	 * createDataClientUsingAppTokenCredentials creates a {@link DataClient} from a
+	 * createDataClientUsingJavaClientAppTokenCredentials creates a {@link DataClient} from a
 	 * {@link JavaClientAppTokenCredentials}
 	 * 
 	 * @param authTokenCredentials
@@ -97,9 +99,10 @@ public class JavaClientProvider {
 	 * @return A {@link DataClient} set up with the information from the provided
 	 *         {@link JavaClientAppTokenCredentials}
 	 */
-	public static DataClient createDataClientUsingAppTokenCredentials(
+	public static DataClient createDataClientUsingJavaClientAppTokenCredentials(
 			JavaClientAppTokenCredentials appTokenCredentials) {
-		return getJavaClientFactory().factorDataClientUsingAppTokenCredentials(appTokenCredentials);
+		return getJavaClientFactory()
+				.factorDataClientUsingJavaClientAppTokenCredentials(appTokenCredentials);
 	}
 
 	private static JavaClientFactory getJavaClientFactory() {
@@ -107,6 +110,36 @@ public class JavaClientProvider {
 			return javaClientFactory;
 		}
 		return onlyForTestJavaClientFactory;
+	}
+
+	/**
+	 * createTokenClientUsingAppTokenCredentials creates a {@link TokenClient} from a
+	 * {@link AppTokenCredentials}
+	 * 
+	 * @param appTokenCredentials
+	 *            A {@link AppTokenCredentials} to use for setting up the created client
+	 * @return A {@link TokenClient} set up with the information from the provided
+	 *         {@link AppTokenCredentials}
+	 */
+	public static TokenClient createTokenClientUsingAppTokenCredentials(
+			AppTokenCredentials appTokenCredentials) {
+		return getJavaClientFactory()
+				.factorTokenClientUsingAppTokenCredentials(appTokenCredentials);
+	}
+
+	/**
+	 * createTokenClientUsingAuthTokenCredentials creates a {@link TokenClient} from a
+	 * {@link AuthTokenCredentials}
+	 * 
+	 * @param authTokenCredentials
+	 *            A {@link AuthTokenCredentials} to use for setting up the created client
+	 * @return A {@link TokenClient} set up with the information from the provided
+	 *         {@link AuthTokenCredentials}
+	 */
+	public static TokenClient createTokenClientUsingAuthTokenCredentials(
+			AuthTokenCredentials authTokenCredentials) {
+		return getJavaClientFactory()
+				.factorTokenClientUsingAuthTokenCredentials(authTokenCredentials);
 	}
 
 	/**
@@ -122,4 +155,5 @@ public class JavaClientProvider {
 	public static void onlyForTestSetJavaClientFactory(JavaClientFactory javaClientFactory) {
 		JavaClientProvider.onlyForTestJavaClientFactory = javaClientFactory;
 	}
+
 }

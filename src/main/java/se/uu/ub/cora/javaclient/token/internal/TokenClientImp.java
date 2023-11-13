@@ -20,6 +20,8 @@ package se.uu.ub.cora.javaclient.token.internal;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 

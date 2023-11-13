@@ -19,8 +19,8 @@
 package se.uu.ub.cora.javaclient.token;
 
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
-import se.uu.ub.cora.javaclient.token.internal.AppTokenCredentials;
-import se.uu.ub.cora.javaclient.token.internal.AuthTokenCredentials;
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class TokenClientFactoryImp implements TokenClientFactory {

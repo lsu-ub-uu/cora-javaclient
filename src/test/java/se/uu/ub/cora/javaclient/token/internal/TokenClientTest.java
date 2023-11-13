@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
+import se.uu.ub.cora.javaclient.AppTokenCredentials;
+import se.uu.ub.cora.javaclient.AuthTokenCredentials;
 import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Uppsala University Library
+ * Copyright 2018 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient.token.internal;
+package se.uu.ub.cora.javaclient;
 
-public record AuthTokenCredentials(String appTokenVerifierUrl, String authToken) {
+public record AppTokenCredentials(String appTokenVerifierUrl, String userId, String appToken) {
 }

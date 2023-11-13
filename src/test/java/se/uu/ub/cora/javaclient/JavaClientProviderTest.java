@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.javaclient.data.DataClientSpy;
@@ -33,6 +34,8 @@ import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.doubles.JavaClientFactorySpy;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
+import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientProviderTest {
 
@@ -41,15 +44,24 @@ public class JavaClientProviderTest {
 	private static final String SOME_AUTH_TOKEN = "someAuthToken";
 	private static final String SOME_APP_TOKEN_VERIFIER_URL = "someAppTokenVerifierUrl";
 	private static final String SOME_BASE_URL = "someBaseUrl";
-	private JavaClientAppTokenCredentials appTokenCredentials = new JavaClientAppTokenCredentials(
+	private JavaClientAppTokenCredentials javaClientAppTokenCredentials = new JavaClientAppTokenCredentials(
 			SOME_BASE_URL, SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
-	private JavaClientAuthTokenCredentials authTokenCredentials = new JavaClientAuthTokenCredentials(
+	private JavaClientAuthTokenCredentials javaClientAuthTokenCredentials = new JavaClientAuthTokenCredentials(
 			SOME_BASE_URL, SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
+	private JavaClientFactorySpy javaClientFactory;
+	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(
+			SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
+	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
+			SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
+
+	@BeforeMethod
+	private void beforeMethod() {
+		javaClientFactory = new JavaClientFactorySpy();
+	}
 
 	@AfterMethod
 	private void afterMethod() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(null);
-
 	}
 
 	@Test
@@ -71,21 +83,23 @@ public class JavaClientProviderTest {
 	@Test
 	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndAuthToken() throws Exception {
 		RestClientImp restClient = (RestClientImp) JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.createRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 		assertTrue(restClient instanceof RestClientImp);
 	}
 
 	@Test
 	public void testOnlyForTestSetjavaClientFactory() throws Exception {
-		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAuthTokenCredentials(authTokenCredentials);
+				.createRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
-		javaClientFactory.MCR.assertParameters("factorRestClientUsingAuthTokenCredentials", 0,
-				authTokenCredentials);
-		javaClientFactory.MCR.assertReturn("factorRestClientUsingAuthTokenCredentials", 0,
+		javaClientFactory.MCR.assertParameters(
+				"factorRestClientUsingJavaClientAuthTokenCredentials", 0,
+				javaClientAuthTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorRestClientUsingJavaClientAuthTokenCredentials", 0,
 				restClient);
 	}
 
@@ -93,29 +107,29 @@ public class JavaClientProviderTest {
 	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken()
 			throws Exception {
 		RestClientImp restClient = (RestClientImp) JavaClientProvider
-				.createRestClientUsingAppTokenCredentials(appTokenCredentials);
+				.createRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 		assertTrue(restClient instanceof RestClientImp);
 	}
 
 	@Test
 	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppTokenPassedParameteres()
 			throws Exception {
-		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		RestClient restClient = JavaClientProvider
-				.createRestClientUsingAppTokenCredentials(appTokenCredentials);
+				.createRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
-		javaClientFactory.MCR.assertParameters("factorRestClientUsingAppTokenCredentials", 0,
-				appTokenCredentials);
-		javaClientFactory.MCR.assertReturn("factorRestClientUsingAppTokenCredentials", 0,
+		javaClientFactory.MCR.assertParameters("factorRestClientUsingJavaClientAppTokenCredentials",
+				0, javaClientAppTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorRestClientUsingJavaClientAppTokenCredentials", 0,
 				restClient);
 	}
 
 	@Test
 	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthToken() throws Exception {
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
-				.createDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.createDataClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
 		assertTrue(dataClient instanceof DataClientImp);
 		assertTrue(dataClient.onlyForTestGetRestClient() instanceof RestClientImp);
@@ -124,15 +138,16 @@ public class JavaClientProviderTest {
 	@Test
 	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthTokenPassedOn()
 			throws Exception {
-		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		DataClientSpy dataClient = (DataClientSpy) JavaClientProvider
-				.createDataClientUsingAuthTokenCredentials(authTokenCredentials);
+				.createDataClientUsingJavaClientAuthTokenCredentials(
+						javaClientAuthTokenCredentials);
 
-		javaClientFactory.MCR.assertParameters("factorDataClientUsingAuthTokenCredentials", 0,
-				authTokenCredentials);
-		javaClientFactory.MCR.assertReturn("factorDataClientUsingAuthTokenCredentials", 0,
+		javaClientFactory.MCR.assertParameters(
+				"factorDataClientUsingJavaClientAuthTokenCredentials", 0,
+				javaClientAuthTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorDataClientUsingJavaClientAuthTokenCredentials", 0,
 				dataClient);
 	}
 
@@ -140,7 +155,7 @@ public class JavaClientProviderTest {
 	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
-				.createDataClientUsingAppTokenCredentials(appTokenCredentials);
+				.createDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 		assertTrue(dataClient instanceof DataClientImp);
 		assertTrue(dataClient.onlyForTestGetRestClient() instanceof RestClientImp);
 	}
@@ -148,18 +163,57 @@ public class JavaClientProviderTest {
 	@Test
 	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppTokenPassedParameteres()
 			throws Exception {
-		JavaClientFactorySpy javaClientFactory = new JavaClientFactorySpy();
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		DataClientSpy dataClient = (DataClientSpy) JavaClientProvider
-				.createDataClientUsingAppTokenCredentials(appTokenCredentials);
+				.createDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 
-		javaClientFactory.MCR.assertParameters("factorDataClientUsingAppTokenCredentials", 0,
-				appTokenCredentials);
-		javaClientFactory.MCR.assertParameters("factorDataClientUsingAppTokenCredentials", 0,
-				appTokenCredentials);
-		javaClientFactory.MCR.assertReturn("factorDataClientUsingAppTokenCredentials", 0,
+		javaClientFactory.MCR.assertParameters("factorDataClientUsingJavaClientAppTokenCredentials",
+				0, javaClientAppTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorDataClientUsingJavaClientAppTokenCredentials", 0,
 				dataClient);
+	}
+
+	@Test
+	public void testCreateTokenClientUsingAppTokenCredentials() throws Exception {
+		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
+
+		TokenClient tokenClient = JavaClientProvider
+				.createTokenClientUsingAppTokenCredentials(appTokenCredentials);
+
+		javaClientFactory.MCR.assertParameters("factorTokenClientUsingAppTokenCredentials", 0,
+				appTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorTokenClientUsingAppTokenCredentials", 0,
+				tokenClient);
+	}
+
+	@Test
+	public void testCreateTokenClientUsingAppTokenCredentialsRealJavaFactory() throws Exception {
+		TokenClient tokenClient = JavaClientProvider
+				.createTokenClientUsingAppTokenCredentials(appTokenCredentials);
+
+		assertTrue(tokenClient instanceof TokenClientImp);
+	}
+
+	@Test
+	public void testCreateTokenClientUsingAuthTokenCredentials() throws Exception {
+		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
+
+		TokenClient tokenClient = JavaClientProvider
+				.createTokenClientUsingAuthTokenCredentials(authTokenCredentials);
+
+		javaClientFactory.MCR.assertParameters("factorTokenClientUsingAuthTokenCredentials", 0,
+				authTokenCredentials);
+		javaClientFactory.MCR.assertReturn("factorTokenClientUsingAuthTokenCredentials", 0,
+				tokenClient);
+	}
+
+	@Test
+	public void testCreateTokenClientUsingAuthTokenCredentialsRealJavaFactory() throws Exception {
+		TokenClient tokenClient = JavaClientProvider
+				.createTokenClientUsingAuthTokenCredentials(authTokenCredentials);
+
+		assertTrue(tokenClient instanceof TokenClientImp);
 	}
 
 }

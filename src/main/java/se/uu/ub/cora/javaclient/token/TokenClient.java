@@ -18,13 +18,19 @@
  */
 package se.uu.ub.cora.javaclient.token;
 
+import se.uu.ub.cora.javaclient.JavaClientProvider;
+import se.uu.ub.cora.javaclient.data.DataClientException;
+
 /**
  * TokenClient is responsible for always beeing able to return a valid authToken. TokenClients
- * SHOULD be created using {@link TokenClientFactory}.
+ * SHOULD be created using {@link JavaClientProvider}.
  */
 public interface TokenClient {
 	/**
 	 * getAuthToken returns a valid authToken.
+	 * 
+	 * @throws DataClientException
+	 *             is thrown if fetching the authToken from server fails
 	 * 
 	 * @return A String with a valid authToken
 	 */
