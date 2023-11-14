@@ -102,7 +102,7 @@ public class TokenClientTest {
 	}
 
 	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
-			+ "Could not create authToken")
+			+ "Could not create authToken. Response code: 400")
 	public void testGetAuthTokenNotOk() {
 		createClientUsingApptoken();
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 400);
