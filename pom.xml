@@ -31,7 +31,7 @@
 	<name>Java client</name>
 
 	<properties>
-		<httphandler.version>2.15.0</httphandler.version>
+		<httphandler.version>2.16-SNAPSHOT</httphandler.version>
 		<httphandler-spies.version>1.5.0</httphandler-spies.version>
 		<clientdata.version>6.4-SNAPSHOT</clientdata.version>
 		<clientdata-spies.version>1.3.0</clientdata-spies.version>
