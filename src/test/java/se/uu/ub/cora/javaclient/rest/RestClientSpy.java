@@ -43,11 +43,12 @@ public class RestClientSpy implements RestClient {
 				() -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("batchIndexWithFilterAsJson",
 				() -> createRestResponse());
+		MRV.setDefaultReturnValuesSupplier("download", () -> createRestResponse());
 		MRV.setDefaultReturnValuesSupplier("getBaseUrl", String::new);
 	}
 
 	private RestResponse createRestResponse() {
-		return new RestResponse(200, "", Optional.empty());
+		return new RestResponse(200, "", Optional.empty(), Optional.empty());
 	}
 
 	@Override
@@ -104,5 +105,11 @@ public class RestClientSpy implements RestClient {
 	@Override
 	public RestResponse validateRecordAsJson(String json) {
 		return (RestResponse) MCR.addCallAndReturnFromMRV("json", json);
+	}
+
+	@Override
+	public RestResponse download(String recordType, String recordId, String representation) {
+		return (RestResponse) MCR.addCallAndReturnFromMRV("recordType", recordType, "recordId",
+				recordId);
 	}
 }
