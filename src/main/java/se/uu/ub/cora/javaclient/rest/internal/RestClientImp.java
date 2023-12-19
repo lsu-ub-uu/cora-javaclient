@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.javaclient.rest.internal;
 
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -80,11 +81,13 @@ public final class RestClientImp implements RestClient {
 	}
 
 	private RestResponse responseForOk(HttpHandler httpHandler, int responseCode) {
-		return new RestResponse(responseCode, httpHandler.getResponseText(), Optional.empty());
+		return new RestResponse(responseCode, httpHandler.getResponseText(), Optional.empty(),
+				Optional.empty());
 	}
 
 	private RestResponse responseForError(HttpHandler httpHandler, int responseCode) {
-		return new RestResponse(responseCode, httpHandler.getErrorText(), Optional.empty());
+		return new RestResponse(responseCode, httpHandler.getErrorText(), Optional.empty(),
+				Optional.empty());
 	}
 
 	@Override
@@ -110,7 +113,7 @@ public final class RestClientImp implements RestClient {
 			int responseCode) {
 		String createdId = extractCreatedIdFromLocationHeader(
 				httpHandler.getHeaderField("Location"));
-		return new RestResponse(responseCode, httpHandler.getResponseText(),
+		return new RestResponse(responseCode, httpHandler.getResponseText(), Optional.empty(),
 				Optional.of(createdId));
 	}
 
@@ -246,5 +249,21 @@ public final class RestClientImp implements RestClient {
 		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
 		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.workorder+json");
 		httpHandler.setOutput(json);
+	}
+
+	@Override
+	public RestResponse download(String type, String id, String representation) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(
+				baseUrl + "record/" + type + "/" + id + "/" + representation);
+		httpHandler.setRequestMethod("GET");
+
+		int responseCode = httpHandler.getResponseCode();
+		if (responseCode == 200) {
+			InputStream responseBinary = httpHandler.getResponseBinary();
+			return new RestResponse(responseCode, "", Optional.of(responseBinary),
+					Optional.empty());
+		}
+		String errorMessage = httpHandler.getErrorText();
+		return new RestResponse(responseCode, errorMessage, Optional.empty(), Optional.empty());
 	}
 }

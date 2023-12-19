@@ -149,4 +149,17 @@ public interface RestClient {
 	 */
 	RestResponse validateRecordAsJson(String json);
 
+	/**
+	 * download method downloads a resource from storage. The result is returned as a responseText
+	 * in the {@link RestResponse}
+	 * 
+	 * @param type
+	 *            the type of the resource to download
+	 * @param id
+	 *            the resource to download
+	 * @param representation
+	 *            the name of the representation to download
+	 */
+	RestResponse download(String type, String id, String representation);
+
 }

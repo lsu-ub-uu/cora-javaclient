@@ -18,11 +18,13 @@
  */
 package se.uu.ub.cora.javaclient.rest;
 
+import java.io.InputStream;
 import java.util.Optional;
 
 /**
  * RestResponse is used to store information from a HttpResponse.
  */
-public record RestResponse(int responseCode, String responseText, Optional<String> createdId) {
+public record RestResponse(int responseCode, String responseText,
+		Optional<InputStream> responseBinary, Optional<String> createdId) {
 
 }

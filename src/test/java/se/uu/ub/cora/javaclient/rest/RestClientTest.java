@@ -35,6 +35,7 @@ import se.uu.ub.cora.javaclient.TokenClientSpy;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 
 public class RestClientTest {
+	private static final String SOME_REPRESENTATION = "someRepresentation";
 	private static final String JSON_RECORD = "{\"name\":\"value\"}";
 	private static final String FILTER = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":["
 			+ "{\"name\":\"key\",\"value\":\"idFromLogin\"},"
@@ -413,4 +414,36 @@ public class RestClientTest {
 
 		assertResponseOnError(response);
 	}
+
+	@Test
+	public void testDownloadOk() throws Exception {
+		RestResponse response = restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION);
+
+		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
+				baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID + "/" + SOME_REPRESENTATION);
+
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+				tokenClient.getAuthToken());
+		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
+
+		assertResponseBinaryOK(response);
+	}
+
+	private void assertResponseBinaryOK(RestResponse response) {
+		httpHandlerSpy.MCR.assertReturn("getResponseCode", 0, response.responseCode());
+		httpHandlerSpy.MCR.assertReturn("getResponseBinary", 0, response.responseBinary().get());
+		assertEquals(response.responseCode(), OK_CODE);
+		assertEquals(response.responseText(), "");
+		assertTrue(response.createdId().isEmpty());
+	}
+
+	@Test
+	public void testDownloadNotOk() throws Exception {
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 500);
+
+		RestResponse response = restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION);
+
+		assertResponseOnError(response);
+	}
+
 }

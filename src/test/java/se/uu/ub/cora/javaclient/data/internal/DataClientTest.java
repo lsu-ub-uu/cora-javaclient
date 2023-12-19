@@ -54,10 +54,10 @@ public class DataClientTest {
 	private RestClientSpy restClient;
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
-	private static final RestResponse CREATED_RESPONSE = new RestResponse(201, "",
+	private static final RestResponse CREATED_RESPONSE = new RestResponse(201, "", Optional.empty(),
 			Optional.of("someNewId"));;
 	private static final RestResponse INTERNAL_ERROR_RESPONSE = new RestResponse(500,
-			"ErrorMessageFromRest", Optional.empty());
+			"ErrorMessageFromRest", Optional.empty(), Optional.empty());
 	private ClientDataRecordGroupSpy dataRecordGroup;
 	private ClientDataRecordSpy clientDataRecordSpy;
 	private JsonToClientDataConverterSpy jsonToDataConverter;
