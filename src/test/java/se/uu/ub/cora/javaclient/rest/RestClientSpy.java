@@ -110,6 +110,6 @@ public class RestClientSpy implements RestClient {
 	@Override
 	public RestResponse download(String recordType, String recordId, String representation) {
 		return (RestResponse) MCR.addCallAndReturnFromMRV("recordType", recordType, "recordId",
-				recordId);
+				recordId, "representation", representation);
 	}
 }
