@@ -132,4 +132,10 @@ public class HttpHandlerSpyOLD implements HttpHandler {
 		return null;
 	}
 
+	@Override
+	public Map<String, Object> getResponseHeaders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
