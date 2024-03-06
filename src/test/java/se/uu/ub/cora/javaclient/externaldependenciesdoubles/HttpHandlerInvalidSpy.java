@@ -101,7 +101,7 @@ public class HttpHandlerInvalidSpy implements HttpHandler {
 	}
 
 	@Override
-	public Map<String, Object> getResponseHeaders() {
+	public Map<String, String> getResponseHeaders() {
 		// TODO Auto-generated method stub
 		return null;
 	}
