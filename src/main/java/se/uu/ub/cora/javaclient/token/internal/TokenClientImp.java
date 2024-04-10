@@ -93,8 +93,7 @@ public final class TokenClientImp implements TokenClient {
 		if (CREATED == httpHandler.getResponseCode()) {
 			return getAuthToken(httpHandler);
 		}
-		throw new DataClientException(
-				"Could not create authToken. Response code: " + httpHandler.getResponseCode());
+		throw DataClientException.withMessage("Could not create authToken. Response code: " + httpHandler.getResponseCode());
 	}
 
 	private String getAuthToken(HttpHandler httpHandler) {

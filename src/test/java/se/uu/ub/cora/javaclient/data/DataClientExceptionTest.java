@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,14 +18,55 @@
  */
 package se.uu.ub.cora.javaclient.data;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Optional;
+
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class DataClientExceptionTest {
+	Exception e;
+
+	@BeforeMethod
+	private void beforeMethod() {
+		e = new Exception("some message");
+	}
+
 	@Test
 	public void testInit() {
-		DataClientException notAuthenticated = new DataClientException("message");
+		DataClientException notAuthenticated = DataClientException.withMessage("message");
 
 		Assert.assertEquals(notAuthenticated.getMessage(), "message");
+	}
+
+	@Test
+	public void testWithMessageAndException() throws Exception {
+		DataClientException exception = DataClientException
+				.withMessageAndException("second message", e);
+
+		assertEquals(exception.getMessage(), "second message");
+		assertEquals(exception.getCause().getMessage(), "some message");
+	}
+
+	@Test
+	public void testGetResponseCode_NoneResponseCodeSet() throws Exception {
+		DataClientException exception = DataClientException.withMessageAndException("message", e);
+
+		Optional<Integer> responseCode = exception.getResponseCode();
+
+		assertTrue(responseCode.isEmpty());
+	}
+
+	@Test
+	public void testGetResponseCode_WithResponseCodeSet() throws Exception {
+		DataClientException exception = DataClientException
+				.withMessageAndResponseCodeAndException("message", 401, e);
+
+		Optional<Integer> responseCode = exception.getResponseCode();
+
+		assertEquals(responseCode.get(), 401);
 	}
 }
