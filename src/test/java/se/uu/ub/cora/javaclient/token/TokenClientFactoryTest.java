@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -90,5 +90,11 @@ public class TokenClientFactoryTest {
 				.onlyForTestGetAuthTokenCredentials();
 		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
+	}
+
+	@Test
+	public void testOnlyForTest() throws Exception {
+		TokenClientFactoryImp factoryImp = (TokenClientFactoryImp) factory;
+		assertEquals(factoryImp.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
 	}
 }

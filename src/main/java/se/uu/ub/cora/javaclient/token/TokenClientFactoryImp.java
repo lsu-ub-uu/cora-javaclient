@@ -49,7 +49,6 @@ public class TokenClientFactoryImp implements TokenClientFactory {
 	}
 
 	public String onlyForTestGetAppTokenVerifierUrl() {
-		// needed for test
 		return appTokenVerifierUrl;
 	}
 
