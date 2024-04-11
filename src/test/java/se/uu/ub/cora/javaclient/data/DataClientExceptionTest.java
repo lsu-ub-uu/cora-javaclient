@@ -61,9 +61,19 @@ public class DataClientExceptionTest {
 	}
 
 	@Test
-	public void testGetResponseCode_WithResponseCodeSet() throws Exception {
+	public void testGetResponseCode_WithResponseCodeAndExceptionSet() throws Exception {
 		DataClientException exception = DataClientException
 				.withMessageAndResponseCodeAndException("message", 401, e);
+
+		Optional<Integer> responseCode = exception.getResponseCode();
+
+		assertEquals(responseCode.get(), 401);
+	}
+
+	@Test
+	public void testGetResponseCode_WithOnlyResponseCodeSet() throws Exception {
+		DataClientException exception = DataClientException.withMessageAndResponseCode("message",
+				401);
 
 		Optional<Integer> responseCode = exception.getResponseCode();
 

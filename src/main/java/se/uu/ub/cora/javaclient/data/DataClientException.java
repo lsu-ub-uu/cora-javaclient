@@ -39,6 +39,11 @@ public class DataClientException extends RuntimeException {
 		this.responseCode = responseCode;
 	}
 
+	public DataClientException(String message, int responseCode) {
+		super(message);
+		this.responseCode = responseCode;
+	}
+
 	public static DataClientException withMessage(String message) {
 		return new DataClientException(message);
 	}
@@ -54,5 +59,9 @@ public class DataClientException extends RuntimeException {
 	public static DataClientException withMessageAndResponseCodeAndException(String message,
 			int responseCode, Exception exception) {
 		return new DataClientException(message, responseCode, exception);
+	}
+
+	public static DataClientException withMessageAndResponseCode(String message, int responseCode) {
+		return new DataClientException(message, responseCode);
 	}
 }
