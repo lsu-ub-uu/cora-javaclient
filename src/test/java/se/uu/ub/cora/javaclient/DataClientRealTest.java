@@ -20,7 +20,7 @@ package se.uu.ub.cora.javaclient;
 
 public class DataClientRealTest {
 
-	// private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/apptokenverifier/rest/";
+	// private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/login/rest/";
 	// private String baseUrl = "https://cora.epc.ub.uu.se/systemone/rest/";
 	// private DataClientFactoryImp dataClientFactory;
 	//

@@ -36,11 +36,11 @@ public class TokenClientTest {
 	HttpHandlerFactorySpy httpHandlerFactorySpy;
 	HttpHandlerSpy httpHandlerSpy;
 	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(
-			"http://localhost:8080/apptokenverifier/rest/", "someUserId",
+			"http://localhost:8080/login/rest/", "someUserId",
 			"02a89fd5-c768-4209-9ecc-d80bd793b01e");
 	private TokenClient tokenClient;
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
-			"http://localhost:8080/apptokenverifier/rest/", EXAMPLE_AUTHTOKEN);
+			"http://localhost:8080/login/rest/", EXAMPLE_AUTHTOKEN);
 
 	@BeforeMethod
 	public void setUp() {
@@ -69,7 +69,7 @@ public class TokenClientTest {
 		createClientUsingApptoken();
 		tokenClient.getAuthToken();
 
-		String expectedUrl = "http://localhost:8080/apptokenverifier/rest/apptoken/someUserId";
+		String expectedUrl = "http://localhost:8080/login/rest/apptoken/someUserId";
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, expectedUrl);
 
 		HttpHandlerSpy httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
