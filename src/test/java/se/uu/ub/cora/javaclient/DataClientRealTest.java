@@ -75,8 +75,9 @@ public class DataClientRealTest {
 	// public void testNameAppToken() throws Exception {
 	//
 	// DataClient dataClient = dataClientFactory
-	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null, "141414",
-	// "63e6bd34-02a1-4c82-8001-158c104cae0e");
+	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null,
+	// "jsClientUser@system.cora.uu.se",
+	// "5d3f3ed4-4931-4924-9faa-8eaf5ac6457e");
 	// ClientDataRecord read = dataClient.read("demo", "asdf");
 	// assertEquals(read.getId(), "asdf");
 	// // assertEquals(read.getReadPermissions(), "");
@@ -86,8 +87,9 @@ public class DataClientRealTest {
 	// public void testProvaLite() throws Exception {
 	//
 	// DataClient dataClient = dataClientFactory
-	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null, "141414",
-	// "63e6bd34-02a1-4c82-8001-158c104cae0e");
+	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null,
+	// "jsClientUser@system.cora.uu.se",
+	// "5d3f3ed4-4931-4924-9faa-8eaf5ac6457e");
 	// ClientDataList readRecordTypes = dataClient.readList("recordType");
 	// List<ClientData> listOfRecordTypes = readRecordTypes.getDataList();
 	// for (ClientData data : listOfRecordTypes) {
