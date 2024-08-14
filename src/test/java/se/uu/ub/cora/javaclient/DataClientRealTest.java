@@ -76,7 +76,7 @@ public class DataClientRealTest {
 	//
 	// DataClient dataClient = dataClientFactory
 	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null,
-	// "jsClientUser@system.cora.uu.se",
+	// "systemoneAdmin@system.cora.uu.se",
 	// "5d3f3ed4-4931-4924-9faa-8eaf5ac6457e");
 	// ClientDataRecord read = dataClient.read("demo", "asdf");
 	// assertEquals(read.getId(), "asdf");
@@ -88,7 +88,7 @@ public class DataClientRealTest {
 	//
 	// DataClient dataClient = dataClientFactory
 	// .factorUsingBaseUrlAndAppTokenUrlAndUserIdAndAppToken(null, null,
-	// "jsClientUser@system.cora.uu.se",
+	// "systemoneAdmin@system.cora.uu.se",
 	// "5d3f3ed4-4931-4924-9faa-8eaf5ac6457e");
 	// ClientDataList readRecordTypes = dataClient.readList("recordType");
 	// List<ClientData> listOfRecordTypes = readRecordTypes.getDataList();
