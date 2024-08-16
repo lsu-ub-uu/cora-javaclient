@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -35,4 +35,13 @@ public interface TokenClient {
 	 * @return A String with a valid authToken
 	 */
 	String getAuthToken();
+
+	/**
+	 * renewAuthToken force to get a new authToken whenever the token client has been set up with an
+	 * appToken.
+	 * 
+	 * @throws DataClientException
+	 *             is thrown if fetching the authToken from server fails
+	 */
+	void possiblyRenewAuthToken();
 }

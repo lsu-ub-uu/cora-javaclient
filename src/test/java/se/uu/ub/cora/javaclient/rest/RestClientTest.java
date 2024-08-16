@@ -25,6 +25,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -49,14 +50,33 @@ public class RestClientTest {
 	private String baseUrl;
 	private TokenClientSpy tokenClient;
 	private RestClient restClient;
-	private HttpHandlerSpy httpHandlerSpy;
+	private HttpHandlerSpy httpHandlerSpy_first;
+	private HttpHandlerSpy httpHandlerSpy_second;
 
 	@BeforeMethod
 	public void setUp() {
 		baseUrl = "http://localhost:8080/therest/rest/";
-		httpHandlerSpy = new HttpHandlerSpy();
+
+		httpHandlerSpy_first = new HttpHandlerSpy();
+		httpHandlerSpy_second = new HttpHandlerSpy();
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
-		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandlerSpy);
+		String readUrl = baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID;
+		String readListUrl = baseUrl + "record/" + SOME_TYPE;
+		String workOrderUrl = baseUrl + "record/workOrder";
+		String incommingLinksUrl = baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID
+				+ "/incomingLinks";
+		String batchIndex = baseUrl + "record/index/" + SOME_TYPE;
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), readUrl);
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), readListUrl);
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), workOrderUrl);
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), incommingLinksUrl);
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), batchIndex);
+
 		tokenClient = new TokenClientSpy();
 		tokenClient.MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someToken");
 		restClient = RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(
@@ -78,10 +98,10 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/someId");
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
@@ -101,15 +121,21 @@ public class RestClientTest {
 	}
 
 	@Test
+	public void testReadRecord_RenewAuthTokenIfAnauthorized() throws Exception {
+
+		restClient.readRecordAsJson(SOME_TYPE, SOME_ID);
+	}
+
+	@Test
 	public void testReadRecordListHttpHandlerSetupCorrectly() {
 		restClient.readRecordListAsJson(SOME_TYPE);
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType");
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
@@ -136,10 +162,10 @@ public class RestClientTest {
 		String encodedJson = URLEncoder.encode(FILTER, StandardCharsets.UTF_8);
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType?filter=" + encodedJson);
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
@@ -167,16 +193,16 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType");
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
-		httpHandlerSpy.MCR.assertParameters("setOutput", 0, JSON_RECORD);
+		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
 	}
 
 	@Test
@@ -203,16 +229,16 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/" + SOME_ID);
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
-		httpHandlerSpy.MCR.assertParameters("setOutput", 0, JSON_RECORD);
+		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
 	}
 
 	@Test
@@ -237,10 +263,10 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/" + SOME_ID);
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "DELETE");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "DELETE");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
@@ -265,10 +291,10 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/" + SOME_ID + "/incomingLinks");
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
 	}
 
 	@Test
@@ -293,18 +319,20 @@ public class RestClientTest {
 
 		restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER);
 
+		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 1);
+
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/index/recordTypeToIndex");
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
-		httpHandlerSpy.MCR.assertParameters("setOutput", 0, FILTER);
+		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, FILTER);
 	}
 
 	@Test
@@ -326,32 +354,34 @@ public class RestClientTest {
 	}
 
 	private void setHttpHandlerToReturnCreatedResponseCodeAndLocation() {
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> CREATED_CODE);
-		httpHandlerSpy.MRV.setSpecificReturnValuesSupplier("getHeaderField",
+		httpHandlerSpy_first.MRV.setDefaultReturnValuesSupplier("getResponseCode",
+				() -> CREATED_CODE);
+		httpHandlerSpy_first.MRV.setSpecificReturnValuesSupplier("getHeaderField",
 				() -> "http://some.place/rest/record/type/" + SOME_ID, "Location");
 	}
 
 	private void setHttpHandlerToReturnErrorResponseCode() {
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> ERROR_CODE);
+		httpHandlerSpy_first.MRV.setDefaultReturnValuesSupplier("getResponseCode",
+				() -> ERROR_CODE);
 	}
 
 	private void assertResponseOK(RestResponse response) {
-		httpHandlerSpy.MCR.assertReturn("getResponseCode", 0, response.responseCode());
-		httpHandlerSpy.MCR.assertReturn("getResponseText", 0, response.responseText());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseCode", 0, response.responseCode());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseText", 0, response.responseText());
 		assertEquals(response.responseCode(), OK_CODE);
 		assertTrue(response.createdId().isEmpty());
 	}
 
 	private void assertResponseCreatedOK(RestResponse response) {
-		httpHandlerSpy.MCR.assertReturn("getResponseCode", 0, response.responseCode());
-		httpHandlerSpy.MCR.assertReturn("getResponseText", 0, response.responseText());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseCode", 0, response.responseCode());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseText", 0, response.responseText());
 		assertEquals(response.responseCode(), CREATED_CODE);
 		assertEquals(response.createdId().get(), SOME_ID);
 	}
 
 	private void assertResponseOnError(RestResponse response) {
-		httpHandlerSpy.MCR.assertReturn("getResponseCode", 0, response.responseCode());
-		httpHandlerSpy.MCR.assertReturn("getErrorText", 0, response.responseText());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseCode", 0, response.responseCode());
+		httpHandlerSpy_first.MCR.assertReturn("getErrorText", 0, response.responseText());
 		assertEquals(response.responseCode(), ERROR_CODE);
 		assertTrue(response.createdId().isEmpty());
 	}
@@ -367,9 +397,9 @@ public class RestClientTest {
 		String jsonEncoded = URLEncoder.encode(json, StandardCharsets.UTF_8.name());
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				baseUrl + "record/searchResult/" + searchId + "?searchData=" + jsonEncoded);
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
 		assertResponseOK(response);
 
 	}
@@ -393,15 +423,15 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, baseUrl + "record/workOrder");
 
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.uub.record+json");
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
 				"application/vnd.uub.workorder+json");
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
-		httpHandlerSpy.MCR.assertParameters("setOutput", 0, json);
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
+		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, json);
 
 		assertResponseOK(response);
 	}
@@ -422,16 +452,17 @@ public class RestClientTest {
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID + "/" + SOME_REPRESENTATION);
 
-		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "GET");
+		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
 
 		assertResponseBinaryOK(response);
 	}
 
 	private void assertResponseBinaryOK(RestResponse response) {
-		httpHandlerSpy.MCR.assertReturn("getResponseCode", 0, response.responseCode());
-		httpHandlerSpy.MCR.assertReturn("getResponseBinary", 0, response.responseBinary().get());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseCode", 0, response.responseCode());
+		httpHandlerSpy_first.MCR.assertReturn("getResponseBinary", 0,
+				response.responseBinary().get());
 		assertEquals(response.responseCode(), OK_CODE);
 		assertEquals(response.responseText(), "");
 		assertTrue(response.createdId().isEmpty());
@@ -439,7 +470,7 @@ public class RestClientTest {
 
 	@Test
 	public void testDownloadNotOk() throws Exception {
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 500);
+		httpHandlerSpy_first.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 500);
 
 		RestResponse response = restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION);
 

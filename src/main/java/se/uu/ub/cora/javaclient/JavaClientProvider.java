@@ -64,7 +64,7 @@ public class JavaClientProvider {
 	 * createRestClientUsingJavaClientAppTokenCredentials creates a {@link RestClient} from a
 	 * {@link JavaClientAppTokenCredentials}
 	 * 
-	 * @param authTokenCredentials
+	 * @param appTokenCredentials
 	 *            A {@link JavaClientAppTokenCredentials} to use for setting up the created client
 	 * @return A {@link RestClient} set up with the information from the provided
 	 *         {@link JavaClientAppTokenCredentials}
@@ -94,7 +94,7 @@ public class JavaClientProvider {
 	 * createDataClientUsingJavaClientAppTokenCredentials creates a {@link DataClient} from a
 	 * {@link JavaClientAppTokenCredentials}
 	 * 
-	 * @param authTokenCredentials
+	 * @param appTokenCredentials
 	 *            A {@link JavaClientAppTokenCredentials} to use for setting up the created client
 	 * @return A {@link DataClient} set up with the information from the provided
 	 *         {@link JavaClientAppTokenCredentials}
