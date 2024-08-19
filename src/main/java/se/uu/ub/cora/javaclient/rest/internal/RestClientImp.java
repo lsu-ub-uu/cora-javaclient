@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
@@ -30,14 +31,16 @@ import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class RestClientImp implements RestClient {
-	private static final int CREATED = 201;
 	private static final int OK = 200;
+	private static final int CREATED = 201;
+	private static final int UNAUTHORIZED = 401;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final String ACCEPT = "Accept";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl;
 	private TokenClient tokenClient;
 	private String baseUrlRecord;
+	// private int waitTimeMillis = 10000;
 
 	public static RestClientImp usingHttpHandlerFactoryAndBaseUrlAndTokenClient(
 			HttpHandlerFactory httpHandlerFactory, String baseUrl, TokenClient tokenClient) {
@@ -56,7 +59,8 @@ public final class RestClientImp implements RestClient {
 	public RestResponse readRecordAsJson(String recordType, String recordId) {
 		HttpHandler httpHandler = createUpHttpHandlerForRead(recordType, recordId);
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler,
+				() -> readRecordAsJson(recordType, recordId));
 	}
 
 	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
@@ -72,12 +76,35 @@ public final class RestClientImp implements RestClient {
 		return httpHandler;
 	}
 
-	private RestResponse composeReadRestResponseFromHttpHandler(HttpHandler httpHandler) {
+	private RestResponse handleResponseFromHttpHandler(HttpHandler httpHandler,
+			Supplier<RestResponse> methodToRetry) {
 		int responseCode = httpHandler.getResponseCode();
+		if (responseCode == UNAUTHORIZED) {
+			return renewAuthTokenAndrecallMethod(methodToRetry);
+		}
+		return composeRestResponse(httpHandler, responseCode);
+	}
+
+	private RestResponse composeRestResponse(HttpHandler httpHandler, int responseCode) {
 		if (responseCode == OK) {
 			return responseForOk(httpHandler, responseCode);
 		}
 		return responseForError(httpHandler, responseCode);
+	}
+
+	RestResponse renewAuthTokenAndrecallMethod(Supplier<RestResponse> methodToRetry) {
+		// SPIKE starts here: Add TimeOut
+		// Object lock = new Object();
+		// synchronized (lock) {
+		// try {
+		// lock.wait(waitTimeMillis); // This is safe and won't throw
+		// } catch (InterruptedException e) {
+		// Thread.currentThread().interrupt(); // Restore the interrupted status
+		// }
+		// }
+		// SPIKE ends here
+		tokenClient.possiblyRenewAuthToken();
+		return methodToRetry.get();
 	}
 
 	private RestResponse responseForOk(HttpHandler httpHandler, int responseCode) {
@@ -93,7 +120,8 @@ public final class RestClientImp implements RestClient {
 	@Override
 	public RestResponse createRecordFromJson(String recordType, String json) {
 		HttpHandler httpHandler = createHttpHandlerForCreate(recordType, json);
-		return composeCreateRestResponseFromHttpHandler(httpHandler);
+		return composeCreateRestResponseFromHttpHandler(httpHandler,
+				() -> createRecordFromJson(recordType, json));
 	}
 
 	private HttpHandler createHttpHandlerForCreate(String recordType, String json) {
@@ -101,8 +129,12 @@ public final class RestClientImp implements RestClient {
 		return setUpHttpHandlerForPost(json, url);
 	}
 
-	private RestResponse composeCreateRestResponseFromHttpHandler(HttpHandler httpHandler) {
+	private RestResponse composeCreateRestResponseFromHttpHandler(HttpHandler httpHandler,
+			Supplier<RestResponse> methodToRetry) {
 		int responseCode = httpHandler.getResponseCode();
+		if (responseCode == UNAUTHORIZED) {
+			return renewAuthTokenAndrecallMethod(methodToRetry);
+		}
 		if (responseCode == CREATED) {
 			return createResponseContainingCreatedId(httpHandler, responseCode);
 		}
@@ -134,7 +166,8 @@ public final class RestClientImp implements RestClient {
 	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
 		HttpHandler httpHandler = createHttpHandlerForUpdate(recordType, recordId, json);
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler,
+				() -> updateRecordFromJson(recordType, recordId, json));
 	}
 
 	private HttpHandler createHttpHandlerForUpdate(String recordType, String recordId,
@@ -147,7 +180,7 @@ public final class RestClientImp implements RestClient {
 	public RestResponse deleteRecord(String recordType, String recordId) {
 		HttpHandler httpHandler = createHttpHandlerForDelete(recordType, recordId);
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler, () -> deleteRecord(recordType, recordId));
 	}
 
 	private HttpHandler createHttpHandlerForDelete(String recordType, String recordId) {
@@ -160,22 +193,23 @@ public final class RestClientImp implements RestClient {
 	@Override
 	public RestResponse readRecordListAsJson(String recordType) {
 		String url = baseUrlRecord + recordType;
-		return readRecordListUsingUrl(url);
+		return readRecordListUsingUrl(url, recordType);
 
 	}
 
-	private RestResponse readRecordListUsingUrl(String url) {
+	private RestResponse readRecordListUsingUrl(String url, String recordType) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler, () -> readRecordListAsJson(recordType));
 	}
 
 	@Override
 	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
 		HttpHandler httpHandler = createHttpHandlerForIncomingLinks(recordType, recordId);
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler,
+				() -> readIncomingLinksAsJson(recordType, recordId));
 	}
 
 	private HttpHandler createHttpHandlerForIncomingLinks(String recordType, String recordId) {
@@ -189,7 +223,7 @@ public final class RestClientImp implements RestClient {
 	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter) {
 		String url = baseUrlRecord + recordType + "?filter="
 				+ URLEncoder.encode(filter, StandardCharsets.UTF_8);
-		return readRecordListUsingUrl(url);
+		return readRecordListUsingUrl(url, recordType);
 	}
 
 	@Override
@@ -197,12 +231,14 @@ public final class RestClientImp implements RestClient {
 		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType,
 				indexSettingsAsJson);
 
-		return composeCreateRestResponseFromHttpHandler(httpHandler);
+		return composeCreateRestResponseFromHttpHandler(httpHandler,
+				() -> batchIndexWithFilterAsJson(recordType, indexSettingsAsJson));
 	}
 
 	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType,
 			String indexSettingsAsJson) {
 		String url = baseUrlRecord + "index/" + recordType;
+
 		return setUpHttpHandlerForPost(indexSettingsAsJson, url);
 	}
 
@@ -228,7 +264,8 @@ public final class RestClientImp implements RestClient {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler,
+				() -> searchRecordWithSearchCriteriaAsJson(searchId, json));
 	}
 
 	private String setUrlForSearch(String searchId, String json) {
@@ -241,7 +278,7 @@ public final class RestClientImp implements RestClient {
 		String url = baseUrlRecord + "workOrder";
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		setHttpHandlerValidateWorkOrder(httpHandler, json);
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandler(httpHandler, () -> validateRecordAsJson(json));
 	}
 
 	protected void setHttpHandlerValidateWorkOrder(HttpHandler httpHandler, String json) {

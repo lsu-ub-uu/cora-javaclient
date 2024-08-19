@@ -36,4 +36,9 @@ public class TokenClientSpy implements TokenClient {
 		return (String) MCR.addCallAndReturnFromMRV();
 	}
 
+	@Override
+	public void possiblyRenewAuthToken() {
+		MCR.addCall();
+	}
+
 }
