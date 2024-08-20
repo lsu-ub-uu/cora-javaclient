@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
@@ -30,8 +31,9 @@ import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class RestClientImp implements RestClient {
-	private static final int CREATED = 201;
 	private static final int OK = 200;
+	private static final int CREATED = 201;
+	private static final int UNAUTHORIZED = 401;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final String ACCEPT = "Accept";
 	private HttpHandlerFactory httpHandlerFactory;
@@ -53,72 +55,16 @@ public final class RestClientImp implements RestClient {
 	}
 
 	@Override
-	public RestResponse readRecordAsJson(String recordType, String recordId) {
-		HttpHandler httpHandler = createUpHttpHandlerForRead(recordType, recordId);
-
-		return composeReadRestResponseFromHttpHandler(httpHandler);
-	}
-
-	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
-		String url = baseUrlRecord + recordType + "/" + recordId;
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
-		return httpHandler;
-	}
-
-	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
-		HttpHandler httpHandler = httpHandlerFactory.factor(url);
-		httpHandler.setRequestProperty("authToken", tokenClient.getAuthToken());
-		return httpHandler;
-	}
-
-	private RestResponse composeReadRestResponseFromHttpHandler(HttpHandler httpHandler) {
-		int responseCode = httpHandler.getResponseCode();
-		if (responseCode == OK) {
-			return responseForOk(httpHandler, responseCode);
-		}
-		return responseForError(httpHandler, responseCode);
-	}
-
-	private RestResponse responseForOk(HttpHandler httpHandler, int responseCode) {
-		return new RestResponse(responseCode, httpHandler.getResponseText(), Optional.empty(),
-				Optional.empty());
-	}
-
-	private RestResponse responseForError(HttpHandler httpHandler, int responseCode) {
-		return new RestResponse(responseCode, httpHandler.getErrorText(), Optional.empty(),
-				Optional.empty());
-	}
-
-	@Override
 	public RestResponse createRecordFromJson(String recordType, String json) {
+		Supplier<RestResponse> methodToRetry = () -> createRecordFromJson(recordType, json);
+
 		HttpHandler httpHandler = createHttpHandlerForCreate(recordType, json);
-		return composeCreateRestResponseFromHttpHandler(httpHandler);
+		return handleCreateResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
 
 	private HttpHandler createHttpHandlerForCreate(String recordType, String json) {
 		String url = baseUrlRecord + recordType;
 		return setUpHttpHandlerForPost(json, url);
-	}
-
-	private RestResponse composeCreateRestResponseFromHttpHandler(HttpHandler httpHandler) {
-		int responseCode = httpHandler.getResponseCode();
-		if (responseCode == CREATED) {
-			return createResponseContainingCreatedId(httpHandler, responseCode);
-		}
-		return responseForError(httpHandler, responseCode);
-	}
-
-	private RestResponse createResponseContainingCreatedId(HttpHandler httpHandler,
-			int responseCode) {
-		String createdId = extractCreatedIdFromLocationHeader(
-				httpHandler.getHeaderField("Location"));
-		return new RestResponse(responseCode, httpHandler.getResponseText(), Optional.empty(),
-				Optional.of(createdId));
-	}
-
-	private String extractCreatedIdFromLocationHeader(String locationHeader) {
-		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
 	}
 
 	private HttpHandler setUpHttpHandlerForPost(String json, String url) {
@@ -130,11 +76,94 @@ public final class RestClientImp implements RestClient {
 		return httpHandler;
 	}
 
+	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
+		HttpHandler httpHandler = httpHandlerFactory.factor(url);
+		httpHandler.setRequestProperty("authToken", tokenClient.getAuthToken());
+		return httpHandler;
+	}
+
+	private RestResponse handleCreateResponseFromHttpHandlerUsingMethodToRetry(
+			HttpHandler httpHandler, Supplier<RestResponse> methodToRetry) {
+		if (responseIsCreated(httpHandler)) {
+			return composeResponseForCreated(httpHandler);
+		}
+		return handleErrorResponses(httpHandler, methodToRetry);
+	}
+
+	private boolean responseIsCreated(HttpHandler httpHandler) {
+		return httpHandler.getResponseCode() == CREATED;
+	}
+
+	private RestResponse composeResponseForCreated(HttpHandler httpHandler) {
+		String createdId = extractCreatedIdFromLocationHeader(
+				httpHandler.getHeaderField("Location"));
+		return new RestResponse(httpHandler.getResponseCode(), httpHandler.getResponseText(),
+				Optional.empty(), Optional.of(createdId));
+	}
+
+	private String extractCreatedIdFromLocationHeader(String locationHeader) {
+		return locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
+	}
+
+	private RestResponse handleErrorResponses(HttpHandler httpHandler,
+			Supplier<RestResponse> methodToRetry) {
+		if (responseIsUnauthorized(httpHandler)) {
+			return requestNewAuthTokenAndRetryToCallMethod(methodToRetry);
+		}
+		return composeResponseForAnyOtherError(httpHandler);
+	}
+
+	private boolean responseIsUnauthorized(HttpHandler httpHandler) {
+		return httpHandler.getResponseCode() == UNAUTHORIZED;
+	}
+
+	RestResponse requestNewAuthTokenAndRetryToCallMethod(Supplier<RestResponse> methodToRetry) {
+		tokenClient.requestNewAuthToken();
+		return methodToRetry.get();
+	}
+
+	private RestResponse composeResponseForAnyOtherError(HttpHandler httpHandler) {
+		return new RestResponse(httpHandler.getResponseCode(), httpHandler.getErrorText(),
+				Optional.empty(), Optional.empty());
+	}
+
+	@Override
+	public RestResponse readRecordAsJson(String recordType, String recordId) {
+		HttpHandler httpHandler = createUpHttpHandlerForRead(recordType, recordId);
+		Supplier<RestResponse> methodToRetry = () -> readRecordAsJson(recordType, recordId);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
+	}
+
+	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
+		String url = baseUrlRecord + recordType + "/" + recordId;
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+		return httpHandler;
+	}
+
+	private RestResponse handleResponseFromHttpHandlerUsingMethodToRetry(HttpHandler httpHandler,
+			Supplier<RestResponse> methodToRetry) {
+		if (responseIsOk(httpHandler)) {
+			return composeResponseForOk(httpHandler);
+		}
+		return handleErrorResponses(httpHandler, methodToRetry);
+	}
+
+	private boolean responseIsOk(HttpHandler httpHandler) {
+		return httpHandler.getResponseCode() == OK;
+	}
+
+	private RestResponse composeResponseForOk(HttpHandler httpHandler) {
+		return new RestResponse(httpHandler.getResponseCode(), httpHandler.getResponseText(),
+				Optional.empty(), Optional.empty());
+	}
+
 	@Override
 	public RestResponse updateRecordFromJson(String recordType, String recordId, String json) {
 		HttpHandler httpHandler = createHttpHandlerForUpdate(recordType, recordId, json);
-
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		Supplier<RestResponse> methodToRetry = () -> updateRecordFromJson(recordType, recordId,
+				json);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
 
 	private HttpHandler createHttpHandlerForUpdate(String recordType, String recordId,
@@ -146,8 +175,8 @@ public final class RestClientImp implements RestClient {
 	@Override
 	public RestResponse deleteRecord(String recordType, String recordId) {
 		HttpHandler httpHandler = createHttpHandlerForDelete(recordType, recordId);
-
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		Supplier<RestResponse> methodToRetry = () -> deleteRecord(recordType, recordId);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
 
 	private HttpHandler createHttpHandlerForDelete(String recordType, String recordId) {
@@ -160,22 +189,22 @@ public final class RestClientImp implements RestClient {
 	@Override
 	public RestResponse readRecordListAsJson(String recordType) {
 		String url = baseUrlRecord + recordType;
-		return readRecordListUsingUrl(url);
-
+		return readRecordListUsingUrl(url, recordType);
 	}
 
-	private RestResponse readRecordListUsingUrl(String url) {
+	private RestResponse readRecordListUsingUrl(String url, String recordType) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
-
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		Supplier<RestResponse> methodToRetry = () -> readRecordListAsJson(recordType);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
 
 	@Override
 	public RestResponse readIncomingLinksAsJson(String recordType, String recordId) {
 		HttpHandler httpHandler = createHttpHandlerForIncomingLinks(recordType, recordId);
 
-		return composeReadRestResponseFromHttpHandler(httpHandler);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler,
+				() -> readIncomingLinksAsJson(recordType, recordId));
 	}
 
 	private HttpHandler createHttpHandlerForIncomingLinks(String recordType, String recordId) {
@@ -189,21 +218,84 @@ public final class RestClientImp implements RestClient {
 	public RestResponse readRecordListWithFilterAsJson(String recordType, String filter) {
 		String url = baseUrlRecord + recordType + "?filter="
 				+ URLEncoder.encode(filter, StandardCharsets.UTF_8);
-		return readRecordListUsingUrl(url);
+		return readRecordListUsingUrl(url, recordType);
 	}
 
 	@Override
 	public RestResponse batchIndexWithFilterAsJson(String recordType, String indexSettingsAsJson) {
 		HttpHandler httpHandler = createHttpHandlerForIndexBatchJob(recordType,
 				indexSettingsAsJson);
-
-		return composeCreateRestResponseFromHttpHandler(httpHandler);
+		Supplier<RestResponse> methodToRetry = () -> batchIndexWithFilterAsJson(recordType,
+				indexSettingsAsJson);
+		return handleCreateResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
 
 	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType,
 			String indexSettingsAsJson) {
 		String url = baseUrlRecord + "index/" + recordType;
 		return setUpHttpHandlerForPost(indexSettingsAsJson, url);
+	}
+
+	@Override
+	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
+		HttpHandler httpHandler = createHttpHandlerForSearch(searchId, json);
+		Supplier<RestResponse> methodToRetry = () -> searchRecordWithSearchCriteriaAsJson(searchId,
+				json);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
+	}
+
+	private HttpHandler createHttpHandlerForSearch(String searchId, String json) {
+		String url = baseUrlRecord + "searchResult/" + searchId + "?searchData="
+				+ URLEncoder.encode(json, StandardCharsets.UTF_8);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+		return httpHandler;
+	}
+
+	@Override
+	public RestResponse validateRecordAsJson(String json) {
+		HttpHandler httpHandler = createHttpHandlerForValidate(json);
+		Supplier<RestResponse> methodToRetry = () -> validateRecordAsJson(json);
+		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
+	}
+
+	private HttpHandler createHttpHandlerForValidate(String json) {
+		String url = baseUrlRecord + "workOrder";
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.workorder+json");
+		httpHandler.setOutput(json);
+		return httpHandler;
+	}
+
+	@Override
+	public RestResponse download(String type, String id, String representation) {
+		HttpHandler httpHandler = createHttpHandlerForDownload(type, id, representation);
+		Supplier<RestResponse> methodToRetry = () -> download(type, id, representation);
+		return handlDownloadResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
+	}
+
+	private HttpHandler createHttpHandlerForDownload(String type, String id,
+			String representation) {
+		String url = baseUrl + "record/" + type + "/" + id + "/" + representation;
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestMethod("GET");
+		return httpHandler;
+	}
+
+	private RestResponse handlDownloadResponseFromHttpHandlerUsingMethodToRetry(
+			HttpHandler httpHandler, Supplier<RestResponse> methodToRetry) {
+		if (responseIsOk(httpHandler)) {
+			return composeDownloadResponseForOk(httpHandler);
+		}
+		return handleErrorResponses(httpHandler, methodToRetry);
+	}
+
+	private RestResponse composeDownloadResponseForOk(HttpHandler httpHandler) {
+		InputStream responseBinary = httpHandler.getResponseBinary();
+		return new RestResponse(httpHandler.getResponseCode(), "", Optional.of(responseBinary),
+				Optional.empty());
 	}
 
 	public String onlyForTestGetBaseUrl() {
@@ -216,54 +308,5 @@ public final class RestClientImp implements RestClient {
 
 	public TokenClient onlyForTestGetTokenClient() {
 		return tokenClient;
-	}
-
-	@Override
-	public RestResponse searchRecordWithSearchCriteriaAsJson(String searchId, String json) {
-		return searchRecord(searchId, json);
-	}
-
-	private RestResponse searchRecord(String searchId, String json) {
-		String url = setUrlForSearch(searchId, json);
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestMethod("GET");
-
-		return composeReadRestResponseFromHttpHandler(httpHandler);
-	}
-
-	private String setUrlForSearch(String searchId, String json) {
-		return baseUrlRecord + "searchResult/" + searchId + "?searchData="
-				+ URLEncoder.encode(json, StandardCharsets.UTF_8);
-	}
-
-	@Override
-	public RestResponse validateRecordAsJson(String json) {
-		String url = baseUrlRecord + "workOrder";
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		setHttpHandlerValidateWorkOrder(httpHandler, json);
-		return composeReadRestResponseFromHttpHandler(httpHandler);
-	}
-
-	protected void setHttpHandlerValidateWorkOrder(HttpHandler httpHandler, String json) {
-		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty("Accept", APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.workorder+json");
-		httpHandler.setOutput(json);
-	}
-
-	@Override
-	public RestResponse download(String type, String id, String representation) {
-		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(
-				baseUrl + "record/" + type + "/" + id + "/" + representation);
-		httpHandler.setRequestMethod("GET");
-
-		int responseCode = httpHandler.getResponseCode();
-		if (responseCode == 200) {
-			InputStream responseBinary = httpHandler.getResponseBinary();
-			return new RestResponse(responseCode, "", Optional.of(responseBinary),
-					Optional.empty());
-		}
-		String errorMessage = httpHandler.getErrorText();
-		return new RestResponse(responseCode, errorMessage, Optional.empty(), Optional.empty());
 	}
 }

@@ -54,8 +54,8 @@ public class DataClientTest {
 	private RestClientSpy restClient;
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
-	private static final RestResponse CREATED_RESPONSE = new RestResponse(201, "", Optional.empty(),
-			Optional.of("someNewId"));;
+	private static final RestResponse CREATED_RESPONSE = new RestResponse(201, "Some response text",
+			Optional.empty(), Optional.of("someNewId"));;
 	private static final RestResponse INTERNAL_ERROR_RESPONSE = new RestResponse(500,
 			"ErrorMessageFromRest", Optional.empty(), Optional.empty());
 	private ClientDataRecordGroupSpy dataRecordGroup;
@@ -65,6 +65,17 @@ public class DataClientTest {
 
 	@BeforeMethod
 	public void beforeMethod() {
+		setUpDataToJsonConverter();
+		setUpJsonToDataConverter();
+		setUpConverterToReturnDataRecord();
+
+		restClient = new RestClientSpy();
+		dataClient = new DataClientImp(restClient);
+
+		dataRecordGroup = new ClientDataRecordGroupSpy();
+	}
+
+	private void setUpDataToJsonConverter() {
 		dataToJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
 		ClientDataToJsonConverterProvider
 				.setDataToJsonConverterFactoryCreator(dataToJsonFactoryCreator);
@@ -73,14 +84,16 @@ public class DataClientTest {
 		dataToJsonFactoryCreator.MRV.setDefaultReturnValuesSupplier("createFactory",
 				() -> dataToJsonConverterFactoryFromProvider);
 
+		ClientDataToJsonConverterSpy dataToJsonConverter = new ClientDataToJsonConverterSpy();
+		dataToJsonConverter.MRV.setDefaultReturnValuesSupplier("toJson", () -> "converted json");
+
+		dataToJsonConverterFactoryFromProvider.MRV.setDefaultReturnValuesSupplier(
+				"factorUsingConvertible", () -> dataToJsonConverter);
+	}
+
+	private void setUpJsonToDataConverter() {
 		jsonToDataFactory = new JsonToClientDataConverterFactorySpy();
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataFactory);
-		setUpConverterToReturnDataRecord();
-
-		restClient = new RestClientSpy();
-		dataClient = new DataClientImp(restClient);
-
-		dataRecordGroup = new ClientDataRecordGroupSpy();
 	}
 
 	@Test

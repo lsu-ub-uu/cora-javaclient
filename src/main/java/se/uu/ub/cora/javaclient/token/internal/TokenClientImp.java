@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2024 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -80,6 +80,19 @@ public final class TokenClientImp implements TokenClient {
 		authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
 	}
 
+	@Override
+	public void requestNewAuthToken() {
+		if (appTokenDoNotExist()) {
+			throw DataClientException.withMessage(
+					"Could not request a new authToken due to being initialized without appToken.");
+		}
+		fetchAuthTokenFromServer();
+	}
+
+	private boolean appTokenDoNotExist() {
+		return appToken == null;
+	}
+
 	private HttpHandler createHttpHandler(String userId) {
 		return httpHandlerFactory.factor(appTokenVerifierUrl + userId);
 	}
@@ -93,7 +106,8 @@ public final class TokenClientImp implements TokenClient {
 		if (CREATED == httpHandler.getResponseCode()) {
 			return getAuthToken(httpHandler);
 		}
-		throw DataClientException.withMessage("Could not create authToken. Response code: " + httpHandler.getResponseCode());
+		throw DataClientException.withMessage(
+				"Could not create authToken. Response code: " + httpHandler.getResponseCode());
 	}
 
 	private String getAuthToken(HttpHandler httpHandler) {
@@ -117,4 +131,5 @@ public final class TokenClientImp implements TokenClient {
 	public AuthTokenCredentials onlyForTestGetAuthTokenCredentials() {
 		return authTokenCredentials;
 	}
+
 }
