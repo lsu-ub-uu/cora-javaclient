@@ -81,10 +81,10 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	@Override
-	public void possiblyRenewAuthToken() {
+	public void requestNewAuthToken() {
 		if (appTokenDoNotExist()) {
-			throw DataClientException
-					.withMessage("Could not renew authToken due to missing appToken.");
+			throw DataClientException.withMessage(
+					"Could not request a new authToken due to being initialized without appToken.");
 		}
 		fetchAuthTokenFromServer();
 	}

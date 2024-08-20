@@ -37,11 +37,12 @@ public interface TokenClient {
 	String getAuthToken();
 
 	/**
-	 * renewAuthToken force to get a new authToken whenever the token client has been set up with an
-	 * appToken.
+	 * renewAuthToken request a new authToken if the token client has been set up with an appToken,
+	 * otherwise is an error thrown.
 	 * 
 	 * @throws DataClientException
-	 *             is thrown if fetching the authToken from server fails
+	 *             is thrown if the initialized without an appToken or fetching the authToken from
+	 *             server fails
 	 */
-	void possiblyRenewAuthToken();
+	void requestNewAuthToken();
 }

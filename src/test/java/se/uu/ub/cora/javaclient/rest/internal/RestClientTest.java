@@ -26,6 +26,7 @@ import static org.testng.Assert.assertTrue;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -78,19 +79,20 @@ public class RestClientTest {
 		String batchIndexUrl = baseUrl + "record/index/recordTypeToIndex";
 		String downloadUrl = baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID + "/"
 				+ SOME_REPRESENTATION;
+		String searchUrl = "http://localhost:8080/therest/rest/record/searchResult/someSearchId?searchData=%7B%7D";
 
+		setReturnValuesForHttpHandler(readUrl);
+		setReturnValuesForHttpHandler(readListUrl);
+		setReturnValuesForHttpHandler(workOrderUrl);
+		setReturnValuesForHttpHandler(incommingLinksUrl);
+		setReturnValuesForHttpHandler(batchIndexUrl);
+		setReturnValuesForHttpHandler(downloadUrl);
+		setReturnValuesForHttpHandler(searchUrl);
+	}
+
+	private void setReturnValuesForHttpHandler(String url) {
 		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), readUrl);
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), readListUrl);
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), workOrderUrl);
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), incommingLinksUrl);
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), batchIndexUrl);
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), downloadUrl);
+				List.of(httpHandlerSpy_first, httpHandlerSpy_second), url);
 	}
 
 	@Test
@@ -175,8 +177,7 @@ public class RestClientTest {
 		String encodedJson = URLEncoder.encode(FILTER, StandardCharsets.UTF_8);
 		String readListWithFilterUrl = "http://localhost:8080/therest/rest/record/someType?filter="
 				+ encodedJson;
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), readListWithFilterUrl);
+		setReturnValuesForHttpHandler(readListWithFilterUrl);
 		return readListWithFilterUrl;
 	}
 
@@ -436,8 +437,7 @@ public class RestClientTest {
 		String encodedSearchData = URLEncoder.encode(json, StandardCharsets.UTF_8);
 		String searchUrl = baseUrl + "record/searchResult/" + searchId + "?searchData="
 				+ encodedSearchData;
-		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy_first, httpHandlerSpy_second), searchUrl);
+		setReturnValuesForHttpHandler(searchUrl);
 		return searchUrl;
 	}
 
@@ -503,31 +503,33 @@ public class RestClientTest {
 	}
 
 	@Test
-	public void testRenewAuthTokenIfUnauthorized_AllMethodsThatUsesIt() throws Exception {
-		testRenewAuthTokenIsCalledByMethod(
+	public void testRequestNewAuthTokenIfUnauthorized_AllMethodsThatUsesIt() throws Exception {
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.createRecordFromJson(SOME_TYPE, JSON_RECORD));
-		testRenewAuthTokenIsCalledByMethod(() -> restClient.readRecordAsJson(SOME_TYPE, SOME_ID));
-		testRenewAuthTokenIsCalledByMethod(() -> restClient.readRecordListAsJson(SOME_TYPE));
-		testRenewAuthTokenIsCalledByMethod(
+		testRequestNewAuthTokenIsCalledByMethod(
+				() -> restClient.readRecordAsJson(SOME_TYPE, SOME_ID));
+		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.readRecordListAsJson(SOME_TYPE));
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.searchRecordWithSearchCriteriaAsJson("someSearchId", "{}"));
-		testRenewAuthTokenIsCalledByMethod(
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.updateRecordFromJson(SOME_TYPE, SOME_ID, JSON_RECORD));
-		testRenewAuthTokenIsCalledByMethod(() -> restClient.validateRecordAsJson(JSON_RECORD));
-		testRenewAuthTokenIsCalledByMethod(() -> restClient.deleteRecord(SOME_TYPE, SOME_ID));
-		testRenewAuthTokenIsCalledByMethod(
+		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.validateRecordAsJson(JSON_RECORD));
+		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.deleteRecord(SOME_TYPE, SOME_ID));
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION));
-		testRenewAuthTokenIsCalledByMethod(
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER));
-		testRenewAuthTokenIsCalledByMethod(
+		testRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.readIncomingLinksAsJson(SOME_TYPE, SOME_ID));
 	}
 
-	private void testRenewAuthTokenIsCalledByMethod(Runnable method) {
+	private void testRequestNewAuthTokenIsCalledByMethod(Supplier<RestResponse> method) {
 		setUnauthorizedToFirstHttpHandler();
 
-		method.run();
+		RestResponse restResponse = method.get();
 
-		assertRenewAuthTokenWhenUnauthorized();
+		assertRequestNewAuthTokenWhenUnauthorized(restResponse);
+		setUp();
 	}
 
 	private void setUnauthorizedToFirstHttpHandler() {
@@ -536,12 +538,10 @@ public class RestClientTest {
 		httpHandlerSpy_first.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 401);
 	}
 
-	private void assertRenewAuthTokenWhenUnauthorized() {
-		/**
-		 * TODO: 1- assert for wait 1000
-		 */
-		tokenClient.MCR.assertMethodWasCalled("possiblyRenewAuthToken");
+	private void assertRequestNewAuthTokenWhenUnauthorized(RestResponse restResponse) {
+		tokenClient.MCR.assertMethodWasCalled("requestNewAuthToken");
 		httpHandlerSpy_second.MCR.assertMethodWasCalled("getResponseCode");
+		assertEquals(restResponse.responseCode(), 200);
 	}
 
 }

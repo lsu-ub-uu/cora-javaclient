@@ -84,7 +84,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException createErrorUsingRecordTypeAndMessage(String recordType,
 			String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_CREATE, recordType, message));
+		return DataClientException
+				.withMessage(MessageFormat.format(ERROR_MESSAGE_CREATE, recordType, message));
 	}
 
 	private void rethrowIfClientException(Exception e) {
@@ -133,7 +134,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException readErrorUsingRecordTypeAndMessage(String recordType,
 			String recordId, String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_READ, recordType, recordId, message));
+		return DataClientException.withMessage(
+				MessageFormat.format(ERROR_MESSAGE_READ, recordType, recordId, message));
 	}
 
 	@Override
@@ -160,7 +162,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException readListErrorUsingRecordTypeAndMessage(String recordType,
 			String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_READ_LIST, recordType, message));
+		return DataClientException
+				.withMessage(MessageFormat.format(ERROR_MESSAGE_READ_LIST, recordType, message));
 	}
 
 	@Override
@@ -176,7 +179,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException createErrorMessageForUpdate(String recordType, String recordId,
 			String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
+		return DataClientException.withMessage(
+				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
 	private ClientDataRecord tryToUpdate(String recordType, String recordId,
@@ -207,7 +211,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException createErrorMessageForDelete(String recordType, String recordId,
 			String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_DELETE, recordType, recordId, message));
+		return DataClientException.withMessage(
+				MessageFormat.format(ERROR_MESSAGE_DELETE, recordType, recordId, message));
 	}
 
 	@Override
@@ -236,8 +241,8 @@ public class DataClientImp implements DataClient {
 
 	private DataClientException createErrorMessageForIncommingLinks(String recordType,
 			String recordId, String message) {
-		return DataClientException.withMessage(MessageFormat.format(ERROR_MESSAGE_READ_INCOMMING_LINKS,
-				recordType, recordId, message));
+		return DataClientException.withMessage(MessageFormat
+				.format(ERROR_MESSAGE_READ_INCOMMING_LINKS, recordType, recordId, message));
 	}
 
 	public RestClient onlyForTestGetRestClient() {

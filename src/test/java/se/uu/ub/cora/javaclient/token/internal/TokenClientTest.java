@@ -50,10 +50,6 @@ public class TokenClientTest {
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
 		httpHandlerSpy = new HttpHandlerSpy();
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
-		// httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
-		// () -> "{\"children\":[{\"name\":\"id\",\"value\":\"" + EXAMPLE_AUTHTOKEN_FIRST
-		// + "\"}"
-		// + ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}");
 
 		String authToken_first = "{\"children\":[{\"name\":\"id\",\"value\":\""
 				+ EXAMPLE_AUTHTOKEN_FIRST + "\"}"
@@ -143,24 +139,25 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testRenewAuthToken_withAppTokenSetUp() throws Exception {
+	public void testRequestNewAuthToken_withAppTokenSetUp() throws Exception {
 		createClientUsingApptoken();
 
 		String authToken = tokenClient.getAuthToken();
 		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
 
-		tokenClient.possiblyRenewAuthToken();
+		tokenClient.requestNewAuthToken();
 		authToken = tokenClient.getAuthToken();
 		assertEquals(authToken, EXAMPLE_AUTHTOKEN_SECOND);
 	}
 
-	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = "Could not renew authToken due to missing appToken.")
-	public void testRenewAuthToken_withAuthTokenSetUp() throws Exception {
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not request a new authToken due to being initialized without appToken.")
+	public void testRequestNewAuthToken_withAuthTokenSetUp() throws Exception {
 		createClientUsingAuthToken();
 
 		String authToken = tokenClient.getAuthToken();
 		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
 
-		tokenClient.possiblyRenewAuthToken();
+		tokenClient.requestNewAuthToken();
 	}
 }

@@ -48,7 +48,8 @@ public class RestClientSpy implements RestClient {
 	}
 
 	private RestResponse createRestResponse() {
-		return new RestResponse(200, "", Optional.empty(), Optional.empty());
+		return new RestResponse(200, "Some response text from spy", Optional.empty(),
+				Optional.empty());
 	}
 
 	@Override
