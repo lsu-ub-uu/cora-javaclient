@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.javaclient.token.TokenClient;
@@ -108,13 +109,22 @@ public final class RestClientImp implements RestClient {
 	private RestResponse handleErrorResponses(HttpHandler httpHandler,
 			Supplier<RestResponse> methodToRetry) {
 		if (responseIsUnauthorized(httpHandler)) {
-			return requestNewAuthTokenAndRetryToCallMethod(methodToRetry);
+			return tryRequestNewAuthTokenAndRetryToCallMethod(httpHandler, methodToRetry);
 		}
 		return composeResponseForAnyOtherError(httpHandler);
 	}
 
 	private boolean responseIsUnauthorized(HttpHandler httpHandler) {
 		return httpHandler.getResponseCode() == UNAUTHORIZED;
+	}
+
+	private RestResponse tryRequestNewAuthTokenAndRetryToCallMethod(HttpHandler httpHandler,
+			Supplier<RestResponse> methodToRetry) {
+		try {
+			return requestNewAuthTokenAndRetryToCallMethod(methodToRetry);
+		} catch (DataClientException e) {
+			return composeResponseForAnyOtherError(httpHandler);
+		}
 	}
 
 	RestResponse requestNewAuthTokenAndRetryToCallMethod(Supplier<RestResponse> methodToRetry) {

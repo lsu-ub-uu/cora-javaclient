@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
 import se.uu.ub.cora.javaclient.TokenClientSpy;
+import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
@@ -62,7 +63,7 @@ public class RestClientTest {
 		httpHandlerSpy_first = new HttpHandlerSpy();
 		httpHandlerSpy_second = new HttpHandlerSpy();
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
-		setUpHttpHandler();
+		setUpHttpHandlerFactory();
 
 		tokenClient = new TokenClientSpy();
 		tokenClient.MRV.setDefaultReturnValuesSupplier("getAuthToken", () -> "someToken");
@@ -70,7 +71,7 @@ public class RestClientTest {
 				httpHandlerFactorySpy, baseUrl, tokenClient);
 	}
 
-	private void setUpHttpHandler() {
+	private void setUpHttpHandlerFactory() {
 		String readUrl = baseUrl + "record/" + SOME_TYPE + "/" + SOME_ID;
 		String readListUrl = baseUrl + "record/" + SOME_TYPE;
 		String workOrderUrl = baseUrl + "record/workOrder";
@@ -504,26 +505,29 @@ public class RestClientTest {
 
 	@Test
 	public void testRequestNewAuthTokenIfUnauthorized_AllMethodsThatUsesIt() throws Exception {
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.createRecordFromJson(SOME_TYPE, JSON_RECORD));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.readRecordAsJson(SOME_TYPE, SOME_ID));
-		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.readRecordListAsJson(SOME_TYPE));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
+				() -> restClient.readRecordListAsJson(SOME_TYPE));
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.searchRecordWithSearchCriteriaAsJson("someSearchId", "{}"));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.updateRecordFromJson(SOME_TYPE, SOME_ID, JSON_RECORD));
-		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.validateRecordAsJson(JSON_RECORD));
-		testRequestNewAuthTokenIsCalledByMethod(() -> restClient.deleteRecord(SOME_TYPE, SOME_ID));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
+				() -> restClient.validateRecordAsJson(JSON_RECORD));
+		genericTestRequestNewAuthTokenIsCalledByMethod(
+				() -> restClient.deleteRecord(SOME_TYPE, SOME_ID));
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER));
-		testRequestNewAuthTokenIsCalledByMethod(
+		genericTestRequestNewAuthTokenIsCalledByMethod(
 				() -> restClient.readIncomingLinksAsJson(SOME_TYPE, SOME_ID));
 	}
 
-	private void testRequestNewAuthTokenIsCalledByMethod(Supplier<RestResponse> method) {
+	private void genericTestRequestNewAuthTokenIsCalledByMethod(Supplier<RestResponse> method) {
 		setUnauthorizedToFirstHttpHandler();
 
 		RestResponse restResponse = method.get();
@@ -540,8 +544,53 @@ public class RestClientTest {
 
 	private void assertRequestNewAuthTokenWhenUnauthorized(RestResponse restResponse) {
 		tokenClient.MCR.assertMethodWasCalled("requestNewAuthToken");
+		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 2);
 		httpHandlerSpy_second.MCR.assertMethodWasCalled("getResponseCode");
 		assertEquals(restResponse.responseCode(), 200);
+	}
+
+	@Test
+	public void testRequestNewAuthToken_whenTokenClientInitializeWithAUthToken() throws Exception {
+
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.createRecordFromJson(SOME_TYPE, JSON_RECORD));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.readRecordAsJson(SOME_TYPE, SOME_ID));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.readRecordListAsJson(SOME_TYPE));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.searchRecordWithSearchCriteriaAsJson("someSearchId", "{}"));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.updateRecordFromJson(SOME_TYPE, SOME_ID, JSON_RECORD));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.validateRecordAsJson(JSON_RECORD));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.deleteRecord(SOME_TYPE, SOME_ID));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.download(SOME_TYPE, SOME_ID, SOME_REPRESENTATION));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.batchIndexWithFilterAsJson("recordTypeToIndex", FILTER));
+		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+				() -> restClient.readIncomingLinksAsJson(SOME_TYPE, SOME_ID));
+	}
+
+	private void genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
+			Supplier<RestResponse> method) {
+		setUnauthorizedToFirstHttpHandler();
+		tokenClient.MRV.setAlwaysThrowException("requestNewAuthToken",
+				DataClientException.withMessage("spy message"));
+
+		RestResponse restResponse = method.get();
+
+		assertUnauthorizedAsResponseWhenInitilaizedWithAuthToken(restResponse);
+		setUp();
+	}
+
+	private void assertUnauthorizedAsResponseWhenInitilaizedWithAuthToken(
+			RestResponse restResponse) {
+		tokenClient.MCR.assertMethodWasCalled("requestNewAuthToken");
+		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 1);
+		assertEquals(restResponse.responseCode(), 401);
 	}
 
 }
