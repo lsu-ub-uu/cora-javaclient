@@ -112,9 +112,11 @@ public class RestClientTest {
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/someId");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.record+json");
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
 	@Test
@@ -140,9 +142,11 @@ public class RestClientTest {
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.recordList+json");
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
 	@Test
@@ -169,9 +173,11 @@ public class RestClientTest {
 
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, readListWithFilterUrl);
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.recordList+json");
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
 	private String setUpHttpHandlerForReadListWithFilterUrl() {
@@ -308,9 +314,11 @@ public class RestClientTest {
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				"http://localhost:8080/therest/rest/record/someType/" + SOME_ID + "/incomingLinks");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
-		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
-		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 1);
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.recordList+json");
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
 	@Test
@@ -415,8 +423,11 @@ public class RestClientTest {
 		String jsonEncoded = URLEncoder.encode(json, StandardCharsets.UTF_8.name());
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0,
 				baseUrl + "record/searchResult/" + searchId + "?searchData=" + jsonEncoded);
-		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
+		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.recordList+json");
+		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
 		assertResponseOK(response);
 	}
@@ -551,7 +562,6 @@ public class RestClientTest {
 
 	@Test
 	public void testRequestNewAuthToken_whenTokenClientInitializeWithAUthToken() throws Exception {
-
 		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(
 				() -> restClient.createRecordFromJson(SOME_TYPE, JSON_RECORD));
 		genericTestRequestNewAuthTokenThrowExceptionIsCalledByMethod(

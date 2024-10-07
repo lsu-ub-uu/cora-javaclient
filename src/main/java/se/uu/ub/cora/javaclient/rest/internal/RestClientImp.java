@@ -36,6 +36,7 @@ public final class RestClientImp implements RestClient {
 	private static final int CREATED = 201;
 	private static final int UNAUTHORIZED = 401;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
+	private static final String APPLICATION_UUB_RECORD_LIST_JSON = "application/vnd.uub.recordList+json";
 	private static final String ACCEPT = "Accept";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl;
@@ -147,6 +148,7 @@ public final class RestClientImp implements RestClient {
 	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
 		String url = baseUrlRecord + recordType + "/" + recordId;
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
 		httpHandler.setRequestMethod("GET");
 		return httpHandler;
 	}
@@ -205,6 +207,9 @@ public final class RestClientImp implements RestClient {
 	private RestResponse readRecordListUsingUrl(String url, String recordType) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
+		// TODO: this should be a method with url as this is called from
+		// readRecordListWithFilterAsJson aswell
 		Supplier<RestResponse> methodToRetry = () -> readRecordListAsJson(recordType);
 		return handleResponseFromHttpHandlerUsingMethodToRetry(httpHandler, methodToRetry);
 	}
@@ -221,6 +226,7 @@ public final class RestClientImp implements RestClient {
 		String url = baseUrlRecord + recordType + "/" + recordId + "/incomingLinks";
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
 		return httpHandler;
 	}
 
@@ -259,6 +265,7 @@ public final class RestClientImp implements RestClient {
 				+ URLEncoder.encode(json, StandardCharsets.UTF_8);
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
 		return httpHandler;
 	}
 

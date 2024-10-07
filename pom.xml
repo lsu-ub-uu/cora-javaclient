@@ -32,7 +32,7 @@
 
 	<properties>
 		<httphandler.version>2.16.0</httphandler.version>
-		<httphandler-spies.version>1.6.0</httphandler-spies.version>
+		<httphandler-spies.version>1.7-SNAPSHOT</httphandler-spies.version>
 		<clientdata.version>6.5.0</clientdata.version>
 		<clientdata-spies.version>1.6.0</clientdata-spies.version>
 		<basicclientdata.version>1.5.0</basicclientdata.version>
