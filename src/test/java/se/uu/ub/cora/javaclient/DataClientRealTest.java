@@ -20,15 +20,15 @@ package se.uu.ub.cora.javaclient;
 
 public class DataClientRealTest {
 
-	// private String apptokenUrl = "https://cora.epc.ub.uu.se/systemone/login/rest/";
-	// private String baseUrl = "https://cora.epc.ub.uu.se/systemone/rest/";
+	// private String apptokenUrl = "https://localhost:38380/systemone/login/rest/";
+	// private String baseUrl = "https://localhost:8080/systemone/rest/";
 	// private DataClientFactoryImp dataClientFactory;
 	//
 	// @BeforeMethod
 	// private void beforeMethod() {
 	// dataClientFactory = new DataClientFactoryImp();
 	// }
-
+	//
 	// @Test(enabled = false)
 	// public void testRead() throws Exception {
 	// DataClient dataClient = dataClientFactory

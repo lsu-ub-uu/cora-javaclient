@@ -40,16 +40,16 @@ public class JavaClientFactoryTest {
 	private JavaClientFactory factory;
 	private String baseUrl = "someBaseUrl";
 	private String authToken = "someAuthToken";
-	private String appTokenUrl = "someAptokenUrl";
-	private String userId = "someUserId";
+	private String loginUrl = "someAptokenUrl";
+	private String loginId = "someLoginId";
 	private String appToken = "someAppToken";
 	private JavaClientAppTokenCredentials javaClientAppTokenCredentials = new JavaClientAppTokenCredentials(
-			baseUrl, appTokenUrl, userId, appToken);
+			baseUrl, loginUrl, loginId, appToken);
 	private JavaClientAuthTokenCredentials javaClientAuthTokenCredentials = new JavaClientAuthTokenCredentials(
-			baseUrl, appTokenUrl, authToken);
-	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, userId,
+			baseUrl, loginUrl, authToken);
+	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(loginUrl, loginId,
 			appToken);
-	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(appTokenUrl,
+	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(loginUrl,
 			authToken);
 
 	@BeforeMethod
@@ -88,7 +88,7 @@ public class JavaClientFactoryTest {
 		AuthTokenCredentials authTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
 
-		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
+		assertEquals(authTokenCredentials.loginUrl(), loginUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
 	}
 
@@ -194,8 +194,8 @@ public class JavaClientFactoryTest {
 
 		AppTokenCredentials appTokenCredentials = tokenClient.onlyForTestGetAppTokenCredentials();
 
-		assertEquals(appTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
-		assertEquals(appTokenCredentials.userId(), userId);
+		assertEquals(appTokenCredentials.loginUrl(), loginUrl);
+		assertEquals(appTokenCredentials.loginId(), loginId);
 		assertEquals(appTokenCredentials.appToken(), appToken);
 	}
 
@@ -223,7 +223,7 @@ public class JavaClientFactoryTest {
 		AuthTokenCredentials authTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
 
-		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenUrl);
+		assertEquals(authTokenCredentials.loginUrl(), loginUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
 	}
 }

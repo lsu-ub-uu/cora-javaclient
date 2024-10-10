@@ -32,8 +32,8 @@ public class TokenClientFactoryImp implements TokenClientFactory {
 	}
 
 	@Override
-	public TokenClient factorUsingUserIdAndAppToken(String userId, String appToken) {
-		AppTokenCredentials credentials = new AppTokenCredentials(appTokenVerifierUrl, userId,
+	public TokenClient factorUsingLoginIdAndAppToken(String loginId, String appToken) {
+		AppTokenCredentials credentials = new AppTokenCredentials(appTokenVerifierUrl, loginId,
 				appToken);
 		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(createHttpHandler(), credentials);
 	}

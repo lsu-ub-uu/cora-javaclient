@@ -19,21 +19,21 @@
 package se.uu.ub.cora.javaclient.token;
 
 /**
- * TokenClientFactory creates TokenClients from either the combination of userId and appToken or a
+ * TokenClientFactory creates TokenClients from either the combination of loginId and appToken or a
  * valid authToken.
  */
 public interface TokenClientFactory {
 	/**
-	 * factorUsingUserIdAndAppToken creates a new {@link TokenClient} for the given userId and
+	 * factorUsingLoginIdAndAppToken creates a new {@link TokenClient} for the given loginId and
 	 * appToken.
 	 * 
-	 * @param userId
-	 *            String with a valid userId
+	 * @param loginId
+	 *            String with a valid loginId
 	 * @param appToken
 	 *            A String with a valid appToken
 	 * @return A newly created TokenClient
 	 */
-	TokenClient factorUsingUserIdAndAppToken(String userId, String appToken);
+	TokenClient factorUsingLoginIdAndAppToken(String loginId, String appToken);
 
 	/**
 	 * factorUsingAuthToken creates a new {@link TokenClient} for the given authToken.

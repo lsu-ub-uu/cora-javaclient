@@ -39,7 +39,7 @@ import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientProviderTest {
 
-	private static final String SOME_USER_ID = "someUserId";
+	private static final String SOME_USER_ID = "someLoginId";
 	private static final String SOME_APP_TOKEN = "someAppToken";
 	private static final String SOME_AUTH_TOKEN = "someAuthToken";
 	private static final String SOME_APP_TOKEN_VERIFIER_URL = "someAppTokenVerifierUrl";
@@ -104,7 +104,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken()
+	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppToken()
 			throws Exception {
 		RestClientImp restClient = (RestClientImp) JavaClientProvider
 				.createRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
@@ -112,7 +112,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppTokenPassedParameteres()
+	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres()
 			throws Exception {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
@@ -152,7 +152,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppToken()
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndloginIdAndAppToken()
 			throws Exception {
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
 				.createDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
@@ -161,7 +161,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndUserIdAndAppTokenPassedParameteres()
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres()
 			throws Exception {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 

@@ -33,19 +33,19 @@ import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 public class TokenClientFactoryTest {
 
 	private TokenClientFactory factory;
-	private String appTokenVerifierUrl = "someBaseUrl/";
+	private String loginUrl = "someBaseUrl/";
 	private TokenClientImp tokenClient;
-	private String userId = "someUserId";
+	private String loginId = "someLoginId";
 	private String appToken = "someAppToken";
 	private String authToken = "someAuthToken";
 
 	@BeforeMethod
 	public void beforeMethod() {
-		factory = new TokenClientFactoryImp(appTokenVerifierUrl);
+		factory = new TokenClientFactoryImp(loginUrl);
 	}
 
-	private void factorUsingAppToken(String userId, String appToken) {
-		tokenClient = (TokenClientImp) factory.factorUsingUserIdAndAppToken(userId, appToken);
+	private void factorUsingAppToken(String loginId, String appToken) {
+		tokenClient = (TokenClientImp) factory.factorUsingLoginIdAndAppToken(loginId, appToken);
 	}
 
 	private void factorUsingAuthToken(String authToken) {
@@ -54,21 +54,21 @@ public class TokenClientFactoryTest {
 
 	@Test
 	public void testFactorAppToken() throws Exception {
-		factorUsingAppToken(userId, appToken);
+		factorUsingAppToken(loginId, appToken);
 
 		assertTrue(tokenClient instanceof TokenClientImp);
 	}
 
 	@Test
 	public void testFactorAppTokenAddedDependenciesIsOk() throws Exception {
-		factorUsingAppToken(userId, appToken);
+		factorUsingAppToken(loginId, appToken);
 
 		HttpHandlerFactory handlerFactory = tokenClient.onlyForTestGetHttpHandlerFactory();
 		assertTrue(handlerFactory instanceof HttpHandlerFactoryImp);
 
 		AppTokenCredentials appTokenCredentials = tokenClient.onlyForTestGetAppTokenCredentials();
-		assertEquals(appTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
-		assertEquals(appTokenCredentials.userId(), userId);
+		assertEquals(appTokenCredentials.loginUrl(), loginUrl);
+		assertEquals(appTokenCredentials.loginId(), loginId);
 		assertEquals(appTokenCredentials.appToken(), appToken);
 	}
 
@@ -88,13 +88,13 @@ public class TokenClientFactoryTest {
 
 		AuthTokenCredentials authTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
-		assertEquals(authTokenCredentials.appTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(authTokenCredentials.loginUrl(), loginUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
 	}
 
 	@Test
 	public void testOnlyForTest() throws Exception {
 		TokenClientFactoryImp factoryImp = (TokenClientFactoryImp) factory;
-		assertEquals(factoryImp.onlyForTestGetAppTokenVerifierUrl(), appTokenVerifierUrl);
+		assertEquals(factoryImp.onlyForTestGetAppTokenVerifierUrl(), loginUrl);
 	}
 }
