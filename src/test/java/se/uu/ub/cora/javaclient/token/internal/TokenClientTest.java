@@ -39,7 +39,7 @@ public class TokenClientTest {
 	HttpHandlerFactorySpy httpHandlerFactorySpy;
 	HttpHandlerSpy httpHandlerSpy;
 	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(
-			"http://localhost:8080/login/rest/", "someUserId",
+			"http://localhost:8080/login/rest/", "someLoginId",
 			"02a89fd5-c768-4209-9ecc-d80bd793b01e");
 	private TokenClient tokenClient;
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
@@ -51,10 +51,10 @@ public class TokenClientTest {
 		httpHandlerSpy = new HttpHandlerSpy();
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
 
-		String authToken_first = "{\"children\":[{\"name\":\"id\",\"value\":\""
+		String authToken_first = "{\"children\":[{\"name\":\"token\",\"value\":\""
 				+ EXAMPLE_AUTHTOKEN_FIRST + "\"}"
 				+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
-		String authToken_second = "{\"children\":[{\"name\":\"id\",\"value\":\""
+		String authToken_second = "{\"children\":[{\"name\":\"token\",\"value\":\""
 				+ EXAMPLE_AUTHTOKEN_SECOND + "\"}"
 				+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
 
@@ -79,21 +79,26 @@ public class TokenClientTest {
 		createClientUsingApptoken();
 		tokenClient.getAuthToken();
 
-		String expectedUrl = "http://localhost:8080/login/rest/apptoken/someUserId";
+		String expectedUrl = "http://localhost:8080/login/rest/apptoken";
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, expectedUrl);
 
 		HttpHandlerSpy httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
 				.getReturnValue("factor", 0);
 		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "Content-Type",
+				"application/vnd.uub.login");
 		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestMethod", 1);
 
-		httpHandlerSpy.MCR.assertParameters("setOutput", 0, appTokenCredentials.appToken());
+		httpHandlerSpy.MCR.assertParameters("setOutput", 0,
+				appTokenCredentials.loginId() + "\n" + appTokenCredentials.appToken());
 	}
 
 	@Test
 	public void testGetAuthToken() throws Exception {
 		createClientUsingApptoken();
+
 		String authToken = tokenClient.getAuthToken();
+
 		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
 	}
 

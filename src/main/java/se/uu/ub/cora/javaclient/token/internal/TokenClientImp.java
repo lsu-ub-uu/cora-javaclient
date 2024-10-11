@@ -27,12 +27,13 @@ import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class TokenClientImp implements TokenClient {
 
-	private static final String CORA_REST_APPTOKEN_ENDPOINT = "apptoken/";
+	private static final String CORA_REST_APPTOKEN_ENDPOINT = "apptoken";
 	private static final int CREATED = 201;
-	private static final int DISTANCE_TO_START_OF_TOKEN = 21;
+	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
+	private static final String NEW_LINE = "\n";
 	private HttpHandlerFactory httpHandlerFactory;
-	private String appTokenVerifierUrl;
-	private String userId;
+	private String loginUrl;
+	private String loginId;
 	private String appToken;
 	private String authToken;
 	private AppTokenCredentials appTokenCredentials;
@@ -51,8 +52,8 @@ public final class TokenClientImp implements TokenClient {
 	public TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.appTokenCredentials = credentials;
-		this.appTokenVerifierUrl = credentials.appTokenVerifierUrl() + CORA_REST_APPTOKEN_ENDPOINT;
-		this.userId = credentials.userId();
+		this.loginUrl = credentials.loginUrl() + CORA_REST_APPTOKEN_ENDPOINT;
+		this.loginId = credentials.loginId();
 		this.appToken = credentials.appToken();
 	}
 
@@ -75,8 +76,8 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	private void fetchAuthTokenFromServer() {
-		HttpHandler httpHandler = createHttpHandler(userId);
-		createAuthTokenUsingHttpHandler(appToken, httpHandler);
+		HttpHandler httpHandler = createHttpHandler();
+		createAuthTokenUsingHttpHandler(loginId, appToken, httpHandler);
 		authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
 	}
 
@@ -93,13 +94,15 @@ public final class TokenClientImp implements TokenClient {
 		return appToken == null;
 	}
 
-	private HttpHandler createHttpHandler(String userId) {
-		return httpHandlerFactory.factor(appTokenVerifierUrl + userId);
+	private HttpHandler createHttpHandler() {
+		return httpHandlerFactory.factor(loginUrl);
 	}
 
-	private void createAuthTokenUsingHttpHandler(String appToken, HttpHandler httpHandler) {
+	private void createAuthTokenUsingHttpHandler(String loginId, String appToken,
+			HttpHandler httpHandler) {
 		httpHandler.setRequestMethod("POST");
-		httpHandler.setOutput(appToken);
+		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.login");
+		httpHandler.setOutput(loginId + NEW_LINE + appToken);
 	}
 
 	private String possiblyGetAuthTokenFromAnswer(HttpHandler httpHandler) {
@@ -116,7 +119,7 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	private String extractCreatedTokenFromResponseText(String responseText) {
-		int idIndex = responseText.lastIndexOf("\"name\":\"id\"") + DISTANCE_TO_START_OF_TOKEN;
+		int idIndex = responseText.lastIndexOf("\"name\":\"token\"") + DISTANCE_TO_START_OF_TOKEN;
 		return responseText.substring(idIndex, responseText.indexOf('"', idIndex));
 	}
 

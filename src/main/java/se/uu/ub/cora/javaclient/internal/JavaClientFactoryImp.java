@@ -39,7 +39,8 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForAuthToken(
-				javaClientAuthTokenCredentials.appTokenUrl(), javaClientAuthTokenCredentials.authToken());
+				javaClientAuthTokenCredentials.appTokenUrl(),
+				javaClientAuthTokenCredentials.authToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
@@ -57,18 +58,18 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	@Override
 	public RestClient factorRestClientUsingJavaClientAppTokenCredentials(
 			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
-		TokenClient tokenClient = createTokenClientForUserIdAndAppToken(
-				javaClientAppTokenCredentials.appTokenUrl(), javaClientAppTokenCredentials.userId(),
-				javaClientAppTokenCredentials.appToken());
+		TokenClient tokenClient = createTokenClientForLoginIdAndAppToken(
+				javaClientAppTokenCredentials.appTokenUrl(),
+				javaClientAppTokenCredentials.loginId(), javaClientAppTokenCredentials.appToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
 				javaClientAppTokenCredentials.baseUrl(), tokenClient);
 	}
 
-	private TokenClient createTokenClientForUserIdAndAppToken(String appTokenUrl, String userId,
+	private TokenClient createTokenClientForLoginIdAndAppToken(String appTokenUrl, String loginId,
 			String appToken) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, userId,
+		AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, loginId,
 				appToken);
 		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
 				appTokenCredentials);

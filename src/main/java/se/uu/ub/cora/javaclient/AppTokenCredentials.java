@@ -18,5 +18,5 @@
  */
 package se.uu.ub.cora.javaclient;
 
-public record AppTokenCredentials(String appTokenVerifierUrl, String userId, String appToken) {
+public record AppTokenCredentials(String loginUrl, String loginId, String appToken) {
 }
