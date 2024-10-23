@@ -19,9 +19,9 @@
 package se.uu.ub.cora.javaclient.data.internal;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.Optional;
 
@@ -171,7 +171,7 @@ public class DataClientTest {
 				() -> INTERNAL_ERROR_RESPONSE);
 		try {
 			dataClient.create(RECORD_TYPE, dataRecordGroup);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
 					+ ". Returned error was: " + INTERNAL_ERROR_RESPONSE.responseText());
@@ -186,7 +186,7 @@ public class DataClientTest {
 		try {
 			dataClient.create(RECORD_TYPE, dataRecordGroup);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
@@ -205,16 +205,12 @@ public class DataClientTest {
 		try {
 			dataClient.create(RECORD_TYPE, dataRecordGroup);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not create record of type: " + RECORD_TYPE
 					+ ". Returned error was: someErrorConversionToData");
 		}
-	}
-
-	private void ensureItFails() {
-		assertFalse(true);
 	}
 
 	@Test
@@ -233,7 +229,7 @@ public class DataClientTest {
 				() -> INTERNAL_ERROR_RESPONSE);
 		try {
 			dataClient.read(RECORD_TYPE, RECORD_ID);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertEquals(e.getMessage(),
 					"Could not read record of type: " + RECORD_TYPE + " and id: " + RECORD_ID
@@ -249,7 +245,7 @@ public class DataClientTest {
 		try {
 			dataClient.read(RECORD_TYPE, RECORD_ID);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not read record of type: " + RECORD_TYPE
@@ -283,7 +279,7 @@ public class DataClientTest {
 
 		try {
 			dataClient.readList(RECORD_TYPE);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertEquals(e.getMessage(), "Could not list records of type: " + RECORD_TYPE
 					+ ". Returned error was: " + INTERNAL_ERROR_RESPONSE.responseText());
@@ -300,7 +296,7 @@ public class DataClientTest {
 		try {
 			dataClient.readList(RECORD_TYPE);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not list records of type: " + RECORD_TYPE
@@ -328,9 +324,11 @@ public class DataClientTest {
 
 		try {
 			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
-			assertEquals(e.getMessage(),
+			DataClientException dataClientException = (DataClientException) e;
+			assertEquals(dataClientException.getResponseCode().get(), 500);
+			assertEquals(dataClientException.getMessage(),
 					"Could not update record of type: " + RECORD_TYPE + " and id: " + RECORD_ID
 							+ ". Returned error was: " + INTERNAL_ERROR_RESPONSE.responseText());
 		}
@@ -343,7 +341,7 @@ public class DataClientTest {
 
 		try {
 			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
@@ -357,7 +355,7 @@ public class DataClientTest {
 				new RuntimeException("someErrorConversionToData"));
 		try {
 			dataClient.update(RECORD_TYPE, RECORD_ID, dataRecordGroup);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not update record of type: " + RECORD_TYPE
@@ -383,7 +381,7 @@ public class DataClientTest {
 
 		try {
 			dataClient.delete(RECORD_TYPE, RECORD_ID);
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertEquals(e.getMessage(),
 					"Could not delete record of type: " + RECORD_TYPE + " and id: " + RECORD_ID
@@ -413,7 +411,7 @@ public class DataClientTest {
 		try {
 			dataClient.readIncomingLinks(RECORD_TYPE, RECORD_ID);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertEquals(e.getMessage(),
 					"Could not read incomming links for type: " + RECORD_TYPE + " and id: "
@@ -432,7 +430,7 @@ public class DataClientTest {
 		try {
 			dataClient.readIncomingLinks(RECORD_TYPE, RECORD_ID);
 
-			ensureItFails();
+			fail("Should throw Exception");
 		} catch (Exception e) {
 			assertTrue(e instanceof DataClientException);
 			assertEquals(e.getMessage(), "Could not read incomming links for type: " + RECORD_TYPE

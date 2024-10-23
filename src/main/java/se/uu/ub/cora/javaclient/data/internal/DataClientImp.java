@@ -183,6 +183,13 @@ public class DataClientImp implements DataClient {
 				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
+	private DataClientException createErrorMessageForUpdateWithResponseCode(String recordType, String recordId,
+			RestResponse response) {
+		return DataClientException.withMessageAndResponseCode(MessageFormat
+				.format(ERROR_MESSAGE_UPDATE, recordType, recordId, response.responseText()),
+				response.responseCode());
+	}
+
 	private ClientDataRecord tryToUpdate(String recordType, String recordId,
 			ClientDataRecordGroup dataRecordGroup) {
 		String json = convertToJson(dataRecordGroup);
@@ -193,7 +200,7 @@ public class DataClientImp implements DataClient {
 
 	private void throwErrorIfNotUpdate(String recordType, String recordId, RestResponse response) {
 		if (response.responseCode() != RESPONSE_CODE_OK) {
-			throw createErrorMessageForUpdate(recordType, recordId, response.responseText());
+			throw createErrorMessageForUpdateWithResponseCode(recordType, recordId, response);
 		}
 	}
 
