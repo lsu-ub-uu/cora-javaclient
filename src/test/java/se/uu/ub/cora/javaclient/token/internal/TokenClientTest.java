@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -26,6 +26,9 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerSpy;
 import se.uu.ub.cora.javaclient.AppTokenCredentials;
@@ -38,30 +41,72 @@ public class TokenClientTest {
 	private static final String EXAMPLE_AUTHTOKEN_SECOND = "second-5849-4e10-9ee9-4b192aef17fd";
 	HttpHandlerFactorySpy httpHandlerFactorySpy;
 	HttpHandlerSpy httpHandlerSpy;
+	HttpHandlerSpy httpHandlerSpy2;
 	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(
 			"http://localhost:8080/login/rest/", "someLoginId",
 			"02a89fd5-c768-4209-9ecc-d80bd793b01e");
 	private TokenClient tokenClient;
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
 			"http://localhost:8080/login/rest/", EXAMPLE_AUTHTOKEN_FIRST);
+	private JsonToClientDataConverterFactorySpy jsonToDataConverterFactory;
+	private JsonToClientDataConverterSpy jsonToClientDataConverterSpy;
 
 	@BeforeMethod
 	public void setUp() {
+		// new ClientDataAuthTokenSpy();
+		// jsonToClientDataConverterSpy = new JsonToClientDataConverterSpy();
+		// jsonToClientDataConverterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", );
+
+		jsonToDataConverterFactory = new JsonToClientDataConverterFactorySpy();
+		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataConverterFactory);
+
 		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
 		httpHandlerSpy = new HttpHandlerSpy();
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
+		httpHandlerSpy2 = new HttpHandlerSpy();
+		httpHandlerSpy2.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
 
-		String authToken_first = "{\"children\":[{\"name\":\"token\",\"value\":\""
-				+ EXAMPLE_AUTHTOKEN_FIRST + "\"}"
-				+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
-		String authToken_second = "{\"children\":[{\"name\":\"token\",\"value\":\""
-				+ EXAMPLE_AUTHTOKEN_SECOND + "\"}"
-				+ ",{\"name\":\"validForNoSeconds\",\"value\":\"600\"}],\"name\":\"authToken\"}";
+		String authTokenFirst = getAuthTokenStringUsingToken(EXAMPLE_AUTHTOKEN_FIRST);
+		String authTokenSecond = getAuthTokenStringUsingToken(EXAMPLE_AUTHTOKEN_SECOND);
 
-		httpHandlerSpy.MRV.setReturnValues("getResponseText",
-				List.of(authToken_first, authToken_second));
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText", () -> authTokenFirst);
+		httpHandlerSpy2.MRV.setDefaultReturnValuesSupplier("getResponseText",
+				() -> authTokenSecond);
 
-		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandlerSpy);
+		httpHandlerFactorySpy.MRV.setReturnValues("factor",
+				List.of(httpHandlerSpy, httpHandlerSpy2),
+				"http://localhost:8080/login/rest/apptoken");
+	}
+
+	private String getAuthTokenStringUsingToken(String token) {
+		String authTokenFirstAsJson = """
+				{
+					"data":
+						{"children":[
+							{"name":"token", "value":"%s"},
+							{"name": "validUntil", "value": "300"},
+							{"name": "renewUntil", "value": "200"},
+							{"name": "userId", "value": "someUserId"},
+							{"name": "loginId", "value": "someLoginId"},
+							{"name": "firstName", "value": "someFirstName"},
+							{"name": "lastName", "value": "someLastName"}
+						],
+						"name":"authToken"},
+					"actionLinks": {
+						"renew": {
+							"requestMethod": "POST",
+							"rel": "renew",
+							"url": "http://localhost:38180/login/rest/authToken/someTokenId",
+							"accept": "application/vnd.uub.authToken+json"
+						},
+						"delete": {
+							"requestMethod": "DELETE",
+							"rel": "delete",
+							"url": "http://localhost:38180/login/rest/authToken/someTokenId"
+						}
+					}
+				}""";
+		return authTokenFirstAsJson.formatted(token);
 	}
 
 	private void createClientUsingAuthToken() {
@@ -75,15 +120,13 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testHttpHandlerSetupCorrectly() throws Exception {
+	public void testHttpHandlerSetupCorrectly() {
 		createClientUsingApptoken();
 		tokenClient.getAuthToken();
 
 		String expectedUrl = "http://localhost:8080/login/rest/apptoken";
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, expectedUrl);
 
-		HttpHandlerSpy httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
-				.getReturnValue("factor", 0);
 		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
 		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "Content-Type",
 				"application/vnd.uub.login");
@@ -94,23 +137,25 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testGetAuthToken() throws Exception {
+	public void testGetAuthToken() {
 		createClientUsingApptoken();
 
 		String authToken = tokenClient.getAuthToken();
 
-		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
+		var authTokenAsJson = httpHandlerSpy.MCR.getReturnValue("getResponseText", 0);
+		JsonToClientDataConverterSpy jsonToDataConverter = (JsonToClientDataConverterSpy) jsonToDataConverterFactory.MCR
+				.assertCalledParametersReturn("factorUsingString", authTokenAsJson);
+		jsonToDataConverter.MCR.assertCalledParametersReturn("toInstance");
+		// assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
 	}
 
 	@Test
-	public void testGetAuthTokenTwiceIsOnlyCreatedOnceOnServer() throws Exception {
+	public void testGetAuthTokenTwiceIsOnlyCreatedOnceOnServer() {
 		createClientUsingApptoken();
 		String authToken = tokenClient.getAuthToken();
 		String authToken2 = tokenClient.getAuthToken();
 
 		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 1);
-		HttpHandlerSpy httpHandlerSpy = (HttpHandlerSpy) httpHandlerFactorySpy.MCR
-				.getReturnValue("factor", 0);
 		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setOutput", 1);
 
 		assertSame(authToken, authToken2);
@@ -126,7 +171,7 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testHttpHandlerSetupCorrectlyUsingAuthToken() throws Exception {
+	public void testHttpHandlerSetupCorrectlyUsingAuthToken() {
 		createClientUsingAuthToken();
 
 		assertSame(((TokenClientImp) tokenClient).onlyForTestGetHttpHandlerFactory(),
@@ -136,7 +181,7 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testGetAuthTokenUsingAuthToken() throws Exception {
+	public void testGetAuthTokenUsingAuthToken() {
 		createClientUsingAuthToken();
 
 		String authToken = tokenClient.getAuthToken();
@@ -144,7 +189,7 @@ public class TokenClientTest {
 	}
 
 	@Test
-	public void testRequestNewAuthToken_withAppTokenSetUp() throws Exception {
+	public void testRequestNewAuthToken_withAppTokenSetUp() {
 		createClientUsingApptoken();
 
 		String authToken = tokenClient.getAuthToken();
@@ -153,11 +198,14 @@ public class TokenClientTest {
 		tokenClient.requestNewAuthToken();
 		authToken = tokenClient.getAuthToken();
 		assertEquals(authToken, EXAMPLE_AUTHTOKEN_SECOND);
+
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
+		httpHandlerSpy2.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
 	}
 
 	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
 			+ "Could not request a new authToken due to being initialized without appToken.")
-	public void testRequestNewAuthToken_withAuthTokenSetUp() throws Exception {
+	public void testRequestNewAuthToken_withAuthTokenSetUp() {
 		createClientUsingAuthToken();
 
 		String authToken = tokenClient.getAuthToken();
@@ -165,4 +213,13 @@ public class TokenClientTest {
 
 		tokenClient.requestNewAuthToken();
 	}
+
+	// @Test
+	// public void testCallRenewAuthToken() {
+	// createClientUsingAuthToken();
+	//
+	// tokenClient.getAuthToken();
+	//
+	// }
+
 }

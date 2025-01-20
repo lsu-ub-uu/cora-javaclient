@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2024 Uppsala University Library
+ * Copyright 2018, 2024, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,6 +18,9 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
+import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.javaclient.AppTokenCredentials;
@@ -49,7 +52,7 @@ public final class TokenClientImp implements TokenClient {
 		return new TokenClientImp(httpHandlerFactory, credentials);
 	}
 
-	public TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.appTokenCredentials = credentials;
 		this.loginUrl = credentials.loginUrl() + CORA_REST_APPTOKEN_ENDPOINT;
@@ -57,7 +60,7 @@ public final class TokenClientImp implements TokenClient {
 		this.appToken = credentials.appToken();
 	}
 
-	public TokenClientImp(HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.authTokenCredentials = credentials;
 		this.authToken = credentials.authToken();
@@ -66,7 +69,7 @@ public final class TokenClientImp implements TokenClient {
 	@Override
 	public String getAuthToken() {
 		if (authTokenNeedsToBeFetched()) {
-			fetchAuthTokenFromServer();
+			logInWithAppToken();
 		}
 		return authToken;
 	}
@@ -75,7 +78,8 @@ public final class TokenClientImp implements TokenClient {
 		return null == authToken;
 	}
 
-	private void fetchAuthTokenFromServer() {
+	private void logInWithAppToken() {
+		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
 		HttpHandler httpHandler = createHttpHandler();
 		createAuthTokenUsingHttpHandler(loginId, appToken, httpHandler);
 		authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
@@ -83,11 +87,13 @@ public final class TokenClientImp implements TokenClient {
 
 	@Override
 	public void requestNewAuthToken() {
+		// TODO: stop running wait to renew if one exists.
+		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
 		if (appTokenDoNotExist()) {
 			throw DataClientException.withMessage(
 					"Could not request a new authToken due to being initialized without appToken.");
 		}
-		fetchAuthTokenFromServer();
+		logInWithAppToken();
 	}
 
 	private boolean appTokenDoNotExist() {
@@ -107,20 +113,27 @@ public final class TokenClientImp implements TokenClient {
 
 	private String possiblyGetAuthTokenFromAnswer(HttpHandler httpHandler) {
 		if (CREATED == httpHandler.getResponseCode()) {
-			return getAuthToken(httpHandler);
+			return readAuthTokenfromAnswer(httpHandler);
 		}
 		throw DataClientException.withMessage(
 				"Could not create authToken. Response code: " + httpHandler.getResponseCode());
 	}
 
-	private String getAuthToken(HttpHandler httpHandler) {
+	private String readAuthTokenfromAnswer(HttpHandler httpHandler) {
 		String responseText = httpHandler.getResponseText();
 		return extractCreatedTokenFromResponseText(responseText);
 	}
 
 	private String extractCreatedTokenFromResponseText(String responseText) {
+		// spike
+		JsonToClientDataConverter converterUsingJsonString = JsonToClientDataConverterProvider
+				.getConverterUsingJsonString(responseText);
+		ClientDataRecord record = (ClientDataRecord) converterUsingJsonString.toInstance();
+		// end spike
+
 		int idIndex = responseText.lastIndexOf("\"name\":\"token\"") + DISTANCE_TO_START_OF_TOKEN;
 		return responseText.substring(idIndex, responseText.indexOf('"', idIndex));
+
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
@@ -134,5 +147,16 @@ public final class TokenClientImp implements TokenClient {
 	public AuthTokenCredentials onlyForTestGetAuthTokenCredentials() {
 		return authTokenCredentials;
 	}
+
+	// private void callSchedule() {
+	// ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+	//
+	// try (virtualThreadExecutor) {
+	// var taskResult = schedule(() ->
+	// System.out.println("Running on a scheduled virtual thread!"), 5, ChronoUnit.SECONDS,
+	// virtualThreadExecutor);
+	//
+	// }
+	// }
 
 }
