@@ -18,15 +18,17 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataAuthenticationSpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterSpy;
 import se.uu.ub.cora.httphandler.spies.HttpHandlerFactorySpy;
@@ -37,45 +39,85 @@ import se.uu.ub.cora.javaclient.data.DataClientException;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public class TokenClientTest {
-	private static final String EXAMPLE_AUTHTOKEN_FIRST = "first-5849-4e10-9ee9-4b192aef17fd";
-	private static final String EXAMPLE_AUTHTOKEN_SECOND = "second-5849-4e10-9ee9-4b192aef17fd";
+	private static final String AUTHTOKEN_RENEW_URL = "someAuthTokenRenewUrl";
+	private static final String LOGIN_URL = "http://localhost:8080/login/rest/";
+	private static final String CORA_REST_APPTOKEN_ENDPOINT = "apptoken";
+	private static final String TOKEN_ZERO = "zero-5849-4e10-9ee9-4b192aef17fd";
+	private static final String TOKEN_FIRST = "first-5849-4e10-9ee9-4b192aef17fd";
+	private static final String TOKEN_SECOND = "second-5849-4e10-9ee9-4b192aef17fd";
 	HttpHandlerFactorySpy httpHandlerFactorySpy;
 	HttpHandlerSpy httpHandlerSpy;
 	HttpHandlerSpy httpHandlerSpy2;
-	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(
-			"http://localhost:8080/login/rest/", "someLoginId",
-			"02a89fd5-c768-4209-9ecc-d80bd793b01e");
+	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(LOGIN_URL,
+			"someLoginId", "02a89fd5-c768-4209-9ecc-d80bd793b01e");
 	private TokenClient tokenClient;
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
-			"http://localhost:8080/login/rest/", EXAMPLE_AUTHTOKEN_FIRST);
+			AUTHTOKEN_RENEW_URL, TOKEN_ZERO);
 	private JsonToClientDataConverterFactorySpy jsonToDataConverterFactory;
-	private JsonToClientDataConverterSpy jsonToClientDataConverterSpy;
+
+	private JsonToClientDataConverterSpy jsonToClientDataConverterSpyFirst;
+	private ClientDataAuthenticationSpy clientDataAuthenticationSpyFirst;
+	private String authenticationResponseFirst;
+
+	private JsonToClientDataConverterSpy jsonToClientDataConverterSpySecond;
+	private ClientDataAuthenticationSpy clientDataAuthenticationSpySecond;
+	private String authenticationResponseSecond;
 
 	@BeforeMethod
 	public void setUp() {
-		// new ClientDataAuthTokenSpy();
-		// jsonToClientDataConverterSpy = new JsonToClientDataConverterSpy();
-		// jsonToClientDataConverterSpy.MRV.setDefaultReturnValuesSupplier("toInstance", );
+		setUpConverterFactoryWithTwoAuthenticationSpies();
+		setupHttphandlerFactoryWithTwoHttpHandlerSpies();
+	}
+
+	private void setUpConverterFactoryWithTwoAuthenticationSpies() {
+		clientDataAuthenticationSpyFirst = new ClientDataAuthenticationSpy();
+		jsonToClientDataConverterSpyFirst = new JsonToClientDataConverterSpy();
+		jsonToClientDataConverterSpyFirst.MRV.setDefaultReturnValuesSupplier("toInstance",
+				() -> clientDataAuthenticationSpyFirst);
+
+		clientDataAuthenticationSpySecond = new ClientDataAuthenticationSpy();
+		jsonToClientDataConverterSpySecond = new JsonToClientDataConverterSpy();
+		jsonToClientDataConverterSpySecond.MRV.setDefaultReturnValuesSupplier("toInstance",
+				() -> clientDataAuthenticationSpySecond);
 
 		jsonToDataConverterFactory = new JsonToClientDataConverterFactorySpy();
+		List<JsonToClientDataConverterSpy> list = List.of(jsonToClientDataConverterSpyFirst,
+				jsonToClientDataConverterSpySecond);
+		jsonToDataConverterFactory.MRV.setDefaultReturnValuesSupplier("factorUsingString",
+				new ListSupplier<JsonToClientDataConverterSpy>(list));
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataConverterFactory);
+	}
 
-		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
+	class ListSupplier<T> implements Supplier<T> {
+		private Iterator<T> iterator;
+
+		public ListSupplier(List<T> list) {
+			iterator = list.iterator();
+		}
+
+		@Override
+		public T get() {
+			return iterator.next();
+		}
+	}
+
+	private void setupHttphandlerFactoryWithTwoHttpHandlerSpies() {
 		httpHandlerSpy = new HttpHandlerSpy();
 		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
+		authenticationResponseFirst = getAuthTokenStringUsingToken(TOKEN_FIRST);
+		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText",
+				() -> authenticationResponseFirst);
+
 		httpHandlerSpy2 = new HttpHandlerSpy();
 		httpHandlerSpy2.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 201);
-
-		String authTokenFirst = getAuthTokenStringUsingToken(EXAMPLE_AUTHTOKEN_FIRST);
-		String authTokenSecond = getAuthTokenStringUsingToken(EXAMPLE_AUTHTOKEN_SECOND);
-
-		httpHandlerSpy.MRV.setDefaultReturnValuesSupplier("getResponseText", () -> authTokenFirst);
+		authenticationResponseSecond = getAuthTokenStringUsingToken(TOKEN_SECOND);
 		httpHandlerSpy2.MRV.setDefaultReturnValuesSupplier("getResponseText",
-				() -> authTokenSecond);
+				() -> authenticationResponseSecond);
 
+		httpHandlerFactorySpy = new HttpHandlerFactorySpy();
 		httpHandlerFactorySpy.MRV.setReturnValues("factor",
-				List.of(httpHandlerSpy, httpHandlerSpy2),
-				"http://localhost:8080/login/rest/apptoken");
+				List.of(httpHandlerSpy, httpHandlerSpy2), LOGIN_URL + CORA_REST_APPTOKEN_ENDPOINT);
+
 	}
 
 	private String getAuthTokenStringUsingToken(String token) {
@@ -128,25 +170,37 @@ public class TokenClientTest {
 		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, expectedUrl);
 
 		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestMethod", 1);
+
 		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "Content-Type",
 				"application/vnd.uub.login");
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestMethod", 1);
+		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
+				"application/vnd.uub.authentication+json");
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 
 		httpHandlerSpy.MCR.assertParameters("setOutput", 0,
 				appTokenCredentials.loginId() + "\n" + appTokenCredentials.appToken());
 	}
 
 	@Test
-	public void testGetAuthToken() {
+	public void testStartedWithAuthTokenRenewsTokenToTakeControllOverRenew() {
 		createClientUsingApptoken();
 
 		String authToken = tokenClient.getAuthToken();
 
-		var authTokenAsJson = httpHandlerSpy.MCR.getReturnValue("getResponseText", 0);
+		ClientDataAuthenticationSpy authenticationSpy = assertReadAnswerAndConvertToClientDataAuthentication(
+				httpHandlerSpy);
+		authenticationSpy.MCR.assertReturn("getToken", 0, authToken);
+	}
+
+	private ClientDataAuthenticationSpy assertReadAnswerAndConvertToClientDataAuthentication(
+			HttpHandlerSpy httpHandler) {
+		var authTokenAsJson = httpHandler.MCR.getReturnValue("getResponseText", 0);
 		JsonToClientDataConverterSpy jsonToDataConverter = (JsonToClientDataConverterSpy) jsonToDataConverterFactory.MCR
 				.assertCalledParametersReturn("factorUsingString", authTokenAsJson);
-		jsonToDataConverter.MCR.assertCalledParametersReturn("toInstance");
-		// assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
+		ClientDataAuthenticationSpy authenticationSpy = (ClientDataAuthenticationSpy) jsonToDataConverter.MCR
+				.assertCalledParametersReturn("toInstance");
+		return authenticationSpy;
 	}
 
 	@Test
@@ -176,31 +230,57 @@ public class TokenClientTest {
 
 		assertSame(((TokenClientImp) tokenClient).onlyForTestGetHttpHandlerFactory(),
 				httpHandlerFactorySpy);
-		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 0);
-
 	}
 
 	@Test
-	public void testGetAuthTokenUsingAuthToken() {
+	public void testStartTokenClientWithAuthToke() {
+		HttpHandlerSpy httpHandler = setupHttpHandlerFactoryWithOneHandlerAndOk();
 		createClientUsingAuthToken();
 
+		assertRenewAuthTokenRequest(httpHandler);
+		ClientDataAuthenticationSpy authenticationSpy = assertReadAnswerAndConvertToClientDataAuthentication(
+				httpHandler);
+
 		String authToken = tokenClient.getAuthToken();
-		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
+
+		authenticationSpy.MCR.assertReturn("getToken", 0, authToken);
 	}
 
-	@Test
-	public void testRequestNewAuthToken_withAppTokenSetUp() {
-		createClientUsingApptoken();
+	private HttpHandlerSpy setupHttpHandlerFactoryWithOneHandlerAndOk() {
+		HttpHandlerSpy httpHandler = new HttpHandlerSpy();
+		httpHandler.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 200);
+		String authenticationResponseFirst = getAuthTokenStringUsingToken(TOKEN_FIRST);
+		httpHandler.MRV.setDefaultReturnValuesSupplier("getResponseText",
+				() -> authenticationResponseFirst);
+		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandler);
+		return httpHandler;
+	}
 
-		String authToken = tokenClient.getAuthToken();
-		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
+	private void assertRenewAuthTokenRequest(HttpHandlerSpy httpHandlerSpy) {
+		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 1);
+		httpHandlerFactorySpy.MCR.assertParameters("factor", 0, AUTHTOKEN_RENEW_URL);
+		httpHandlerSpy.MCR.assertParameters("setRequestMethod", 0, "POST");
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestMethod", 1);
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "authToken",
+				authTokenCredentials.authToken());
+		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "Accept",
+				"application/vnd.uub.authentication+json");
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
+	}
 
-		tokenClient.requestNewAuthToken();
-		authToken = tokenClient.getAuthToken();
-		assertEquals(authToken, EXAMPLE_AUTHTOKEN_SECOND);
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not renew authToken due to error. Response code: 500")
+	public void testStartTokenClientWithAuthTokenErrorWhileRenewNewAuthToken() throws Exception {
+		setupHttpHandlerFactoryWithOneHandlerAndNotOk();
 
-		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
-		httpHandlerSpy2.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
+		createClientUsingAuthToken();
+	}
+
+	private HttpHandlerSpy setupHttpHandlerFactoryWithOneHandlerAndNotOk() {
+		HttpHandlerSpy httpHandler = new HttpHandlerSpy();
+		httpHandler.MRV.setDefaultReturnValuesSupplier("getResponseCode", () -> 500);
+		httpHandlerFactorySpy.MRV.setDefaultReturnValuesSupplier("factor", () -> httpHandler);
+		return httpHandler;
 	}
 
 	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
@@ -208,18 +288,32 @@ public class TokenClientTest {
 	public void testRequestNewAuthToken_withAuthTokenSetUp() {
 		createClientUsingAuthToken();
 
-		String authToken = tokenClient.getAuthToken();
-		assertEquals(authToken, EXAMPLE_AUTHTOKEN_FIRST);
+		tokenClient.getAuthToken();
 
 		tokenClient.requestNewAuthToken();
 	}
 
-	// @Test
-	// public void testCallRenewAuthToken() {
-	// createClientUsingAuthToken();
-	//
-	// tokenClient.getAuthToken();
-	//
-	// }
+	@Test
+	public void testRequestNewAuthToken_withAppTokenSetUp() {
+		createClientUsingApptoken();
+
+		String authToken = tokenClient.getAuthToken();
+		clientDataAuthenticationSpyFirst.MCR.assertReturn("getToken", 0, authToken);
+
+		tokenClient.requestNewAuthToken();
+
+		String authTokenSecond = tokenClient.getAuthToken();
+		clientDataAuthenticationSpySecond.MCR.assertReturn("getToken", 0, authTokenSecond);
+
+		httpHandlerFactorySpy.MCR.assertNumberOfCallsToMethod("factor", 2);
+		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
+		httpHandlerSpy2.MCR.assertNumberOfCallsToMethod("getResponseCode", 1);
+
+		jsonToDataConverterFactory.MCR.assertParameters("factorUsingString", 0,
+				authenticationResponseFirst);
+		jsonToDataConverterFactory.MCR.assertParameters("factorUsingString", 1,
+				authenticationResponseSecond);
+
+	}
 
 }

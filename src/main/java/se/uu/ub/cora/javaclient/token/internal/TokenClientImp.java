@@ -18,7 +18,7 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.ClientDataAuthentication;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
 import se.uu.ub.cora.httphandler.HttpHandler;
@@ -30,9 +30,9 @@ import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class TokenClientImp implements TokenClient {
 
+	private static final int OK = 200;
 	private static final String CORA_REST_APPTOKEN_ENDPOINT = "apptoken";
 	private static final int CREATED = 201;
-	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private static final String NEW_LINE = "\n";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String loginUrl;
@@ -47,11 +47,6 @@ public final class TokenClientImp implements TokenClient {
 		return new TokenClientImp(httpHandlerFactory, credentials);
 	}
 
-	public static TokenClient usingHttpHandlerFactoryAndAuthToken(
-			HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
-		return new TokenClientImp(httpHandlerFactory, credentials);
-	}
-
 	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.appTokenCredentials = credentials;
@@ -60,10 +55,39 @@ public final class TokenClientImp implements TokenClient {
 		this.appToken = credentials.appToken();
 	}
 
+	public static TokenClient usingHttpHandlerFactoryAndAuthToken(
+			HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
+		return new TokenClientImp(httpHandlerFactory, credentials);
+	}
+
 	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.authTokenCredentials = credentials;
 		this.authToken = credentials.authToken();
+		renewAuthTokenToGetTakeControllOverRenew(credentials);
+	}
+
+	private void renewAuthTokenToGetTakeControllOverRenew(AuthTokenCredentials credentials) {
+		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
+		authToken = possiblyGetAuthTokenFromRenewAnswer(httpHandler);
+	}
+
+	private HttpHandler createHttpHandlerForInitialRenewOfProvidedAuthToken(
+			AuthTokenCredentials credentials) {
+		HttpHandler httpHandler = httpHandlerFactory.factor(credentials.authTokenRenewUrl());
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
+		httpHandler.setRequestProperty("authToken", credentials.authToken());
+		return httpHandler;
+	}
+
+	private String possiblyGetAuthTokenFromRenewAnswer(HttpHandler httpHandler) {
+		if (OK == httpHandler.getResponseCode()) {
+			return readAuthTokenfromAnswer(httpHandler);
+		}
+		throw DataClientException
+				.withMessage("Could not renew authToken due to error. Response code: "
+						+ httpHandler.getResponseCode());
 	}
 
 	@Override
@@ -80,9 +104,8 @@ public final class TokenClientImp implements TokenClient {
 
 	private void logInWithAppToken() {
 		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
-		HttpHandler httpHandler = createHttpHandler();
-		createAuthTokenUsingHttpHandler(loginId, appToken, httpHandler);
-		authToken = possiblyGetAuthTokenFromAnswer(httpHandler);
+		HttpHandler httpHandler = callLoginUsingLoginIdAndAppToken(loginId, appToken);
+		authToken = possiblyGetAuthTokenFromCreateAnswer(httpHandler);
 	}
 
 	@Override
@@ -104,14 +127,16 @@ public final class TokenClientImp implements TokenClient {
 		return httpHandlerFactory.factor(loginUrl);
 	}
 
-	private void createAuthTokenUsingHttpHandler(String loginId, String appToken,
-			HttpHandler httpHandler) {
+	private HttpHandler callLoginUsingLoginIdAndAppToken(String loginId, String appToken) {
+		HttpHandler httpHandler = createHttpHandler();
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.login");
+		httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
 		httpHandler.setOutput(loginId + NEW_LINE + appToken);
+		return httpHandler;
 	}
 
-	private String possiblyGetAuthTokenFromAnswer(HttpHandler httpHandler) {
+	private String possiblyGetAuthTokenFromCreateAnswer(HttpHandler httpHandler) {
 		if (CREATED == httpHandler.getResponseCode()) {
 			return readAuthTokenfromAnswer(httpHandler);
 		}
@@ -125,15 +150,12 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	private String extractCreatedTokenFromResponseText(String responseText) {
-		// spike
 		JsonToClientDataConverter converterUsingJsonString = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(responseText);
-		ClientDataRecord record = (ClientDataRecord) converterUsingJsonString.toInstance();
-		// end spike
+		ClientDataAuthentication authentication = (ClientDataAuthentication) converterUsingJsonString
+				.toInstance();
 
-		int idIndex = responseText.lastIndexOf("\"name\":\"token\"") + DISTANCE_TO_START_OF_TOKEN;
-		return responseText.substring(idIndex, responseText.indexOf('"', idIndex));
-
+		return authentication.getToken();
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {

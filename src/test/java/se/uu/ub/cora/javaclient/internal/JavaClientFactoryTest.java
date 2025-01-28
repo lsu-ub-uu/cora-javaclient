@@ -88,7 +88,7 @@ public class JavaClientFactoryTest {
 		AuthTokenCredentials authTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
 
-		assertEquals(authTokenCredentials.loginUrl(), loginUrl);
+		assertEquals(authTokenCredentials.authTokenRenewUrl(), loginUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
 	}
 
@@ -223,7 +223,7 @@ public class JavaClientFactoryTest {
 		AuthTokenCredentials authTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
 
-		assertEquals(authTokenCredentials.loginUrl(), loginUrl);
+		assertEquals(authTokenCredentials.authTokenRenewUrl(), loginUrl);
 		assertEquals(authTokenCredentials.authToken(), authToken);
 	}
 }

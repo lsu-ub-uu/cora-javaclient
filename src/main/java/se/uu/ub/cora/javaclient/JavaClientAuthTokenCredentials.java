@@ -18,6 +18,6 @@
  */
 package se.uu.ub.cora.javaclient;
 
-public record JavaClientAuthTokenCredentials(String baseUrl, String appTokenUrl, String authToken) {
+public record JavaClientAuthTokenCredentials(String baseUrl, String loginUrl, String authToken) {
 
 }

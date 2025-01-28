@@ -39,7 +39,7 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForAuthToken(
-				javaClientAuthTokenCredentials.appTokenUrl(),
+				javaClientAuthTokenCredentials.loginUrl(),
 				javaClientAuthTokenCredentials.authToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
@@ -59,7 +59,7 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	public RestClient factorRestClientUsingJavaClientAppTokenCredentials(
 			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForLoginIdAndAppToken(
-				javaClientAppTokenCredentials.appTokenUrl(),
+				javaClientAppTokenCredentials.loginUrl(),
 				javaClientAppTokenCredentials.loginId(), javaClientAppTokenCredentials.appToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
