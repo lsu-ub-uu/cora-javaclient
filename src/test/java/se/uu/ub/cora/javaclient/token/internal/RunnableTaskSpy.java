@@ -18,8 +18,20 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-	void scheduleMethodWithDelayInMillis(Runnable method, long delay10ms);
+public class RunnableTaskSpy implements Runnable {
 
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
+
+	public RunnableTaskSpy() {
+		MCR.useMRV(MRV);
+	}
+
+	@Override
+	public void run() {
+		MCR.addCall();
+	}
 }

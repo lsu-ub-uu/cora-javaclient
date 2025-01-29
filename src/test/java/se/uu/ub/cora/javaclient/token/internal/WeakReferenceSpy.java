@@ -18,8 +18,27 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+import java.lang.ref.WeakReference;
 
-	void scheduleMethodWithDelayInMillis(Runnable method, long delay10ms);
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
+public class WeakReferenceSpy<T> extends WeakReference<T> {
+
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
+
+	public WeakReferenceSpy() {
+		super((T) spyClass.class);
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("get", RunnableTaskSpy::new);
+	}
+
+	@Override
+	public T get() {
+		return (T) MCR.addCallAndReturnFromMRV();
+	}
+
+	class spyClass {
+	}
 }

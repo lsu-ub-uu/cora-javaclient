@@ -38,9 +38,9 @@ import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 public class JavaClientFactoryTest {
 
 	private JavaClientFactory factory;
-	private String baseUrl = "someBaseUrl";
+	private String baseUrl = "https://someBaseUrl";
 	private String authToken = "someAuthToken";
-	private String loginUrl = "someAptokenUrl";
+	private String loginUrl = "https://someAptokenUrl";
 	private String loginId = "someLoginId";
 	private String appToken = "someAppToken";
 	private JavaClientAppTokenCredentials javaClientAppTokenCredentials = new JavaClientAppTokenCredentials(

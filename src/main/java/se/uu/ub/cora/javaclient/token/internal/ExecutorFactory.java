@@ -18,8 +18,16 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
-	void scheduleMethodWithDelayInMillis(Runnable method, long delay10ms);
+public interface ExecutorFactory {
+
+	public ExecutorService createVirtualThreadPerTaskExecutor();
+
+	public ScheduledExecutorService createSingleThreadScheduledExecutor();
+
+	public WeakReference<Runnable> createWeakReferenceFromRunnable(Runnable task);
 
 }
