@@ -48,6 +48,11 @@ public class JavaClientProvider {
 	/**
 	 * createRestClientUsingJavaClientAuthTokenCredentials creates a {@link RestClient} from a
 	 * {@link JavaClientAuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the restClient after first interaction with the server (such as
+	 * reading updating or creating a record), make sure that interaction is done before the
+	 * authToken has expired.
 	 * 
 	 * @param authTokenCredentials
 	 *            A {@link JavaClientAuthTokenCredentials} to use for setting up the created client
@@ -78,6 +83,11 @@ public class JavaClientProvider {
 	/**
 	 * createDataClientUsingJavaClientAuthTokenCredentials creates a {@link DataClient} from a
 	 * {@link JavaClientAuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the dataClient after first interaction with the server (such as
+	 * reading updating or creating a record), make sure that interaction is done before the
+	 * authToken has expired.
 	 * 
 	 * @param authTokenCredentials
 	 *            A {@link JavaClientAuthTokenCredentials} to use for setting up the created client
@@ -93,6 +103,7 @@ public class JavaClientProvider {
 	/**
 	 * createDataClientUsingJavaClientAppTokenCredentials creates a {@link DataClient} from a
 	 * {@link JavaClientAppTokenCredentials}
+	 * 
 	 * 
 	 * @param appTokenCredentials
 	 *            A {@link JavaClientAppTokenCredentials} to use for setting up the created client
@@ -130,6 +141,11 @@ public class JavaClientProvider {
 	/**
 	 * createTokenClientUsingAuthTokenCredentials creates a {@link TokenClient} from a
 	 * {@link AuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the tokenClient after first call to the
+	 * {@link TokenClient#getAuthToken()} method. Make sure that interaction is done before the
+	 * authToken has expired.
 	 * 
 	 * @param authTokenCredentials
 	 *            A {@link AuthTokenCredentials} to use for setting up the created client

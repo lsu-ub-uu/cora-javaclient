@@ -18,16 +18,11 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+public class SchedulerFactoryImp implements SchedulerFactory {
 
-	/**
-	 * Schedules the execution of a {@link Runnable} after a specified delay in milliseconds.
-	 * 
-	 * @param task
-	 *            the {@link Runnable} to be executed
-	 * @param delay
-	 *            the delay in milliseconds before the task is executed
-	 */
-	void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis);
-
+	@Override
+	public Scheduler factor() {
+		ExecutorFactory ef = new ExecutorFactoryImp();
+		return SchedulerImp.usingExecutorFactory(ef);
+	}
 }

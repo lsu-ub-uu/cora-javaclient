@@ -35,7 +35,7 @@ public class SchedulerImp implements Scheduler {
 	}
 
 	@Override
-	public void scheduleMethodWithDelayInMillis(Runnable task, long delayInMillis) {
+	public void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis) {
 		WeakReference<Runnable> weakReferenceTask = executorFactory
 				.createWeakReferenceFromRunnable(task);
 		ExecutorService virtualThreadExecutor = executorFactory

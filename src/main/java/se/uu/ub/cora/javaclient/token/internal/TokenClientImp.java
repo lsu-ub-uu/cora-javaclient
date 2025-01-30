@@ -18,6 +18,10 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
+import java.util.Optional;
+
+import se.uu.ub.cora.clientdata.ClientAction;
+import se.uu.ub.cora.clientdata.ClientActionLink;
 import se.uu.ub.cora.clientdata.ClientDataAuthentication;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverter;
 import se.uu.ub.cora.clientdata.converter.JsonToClientDataConverterProvider;
@@ -38,38 +42,38 @@ public final class TokenClientImp implements TokenClient {
 	private String loginUrl;
 	private String loginId;
 	private String appToken;
-	private String authToken;
 	private AppTokenCredentials appTokenCredentials;
 	private AuthTokenCredentials authTokenCredentials;
+	private ClientDataAuthentication authentication;
+	private SchedulerFactory schedulerFactory;
 
-	public static TokenClientImp usingHttpHandlerFactoryAndAppToken(
-			HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
-		return new TokenClientImp(httpHandlerFactory, credentials);
+	public static TokenClientImp usingHttpHandlerFactoryAndSchedulerFactoryAndAppToken(
+			HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+			AppTokenCredentials credentials) {
+		return new TokenClientImp(httpHandlerFactory, schedulerFactory, credentials);
 	}
 
-	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AppTokenCredentials credentials) {
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+			AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
+		this.schedulerFactory = schedulerFactory;
 		this.appTokenCredentials = credentials;
 		this.loginUrl = credentials.loginUrl() + CORA_REST_APPTOKEN_ENDPOINT;
 		this.loginId = credentials.loginId();
 		this.appToken = credentials.appToken();
 	}
 
-	public static TokenClient usingHttpHandlerFactoryAndAuthToken(
-			HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
-		return new TokenClientImp(httpHandlerFactory, credentials);
+	public static TokenClient usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
+			HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+			AuthTokenCredentials credentials) {
+		return new TokenClientImp(httpHandlerFactory, schedulerFactory, credentials);
 	}
 
-	TokenClientImp(HttpHandlerFactory httpHandlerFactory, AuthTokenCredentials credentials) {
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+			AuthTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
+		this.schedulerFactory = schedulerFactory;
 		this.authTokenCredentials = credentials;
-		this.authToken = credentials.authToken();
-		// renewAuthTokenToGetTakeControllOverRenew(credentials);
-	}
-
-	private void renewAuthTokenToGetTakeControllOverRenew(AuthTokenCredentials credentials) {
-		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
-		authToken = possiblyGetAuthTokenFromRenewAnswer(httpHandler);
 	}
 
 	private HttpHandler createHttpHandlerForInitialRenewOfProvidedAuthToken(
@@ -81,7 +85,7 @@ public final class TokenClientImp implements TokenClient {
 		return httpHandler;
 	}
 
-	private String possiblyGetAuthTokenFromRenewAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication possiblyGetAuthTokenFromRenewAnswer(HttpHandler httpHandler) {
 		if (OK == httpHandler.getResponseCode()) {
 			return readAuthTokenfromAnswer(httpHandler);
 		}
@@ -93,19 +97,82 @@ public final class TokenClientImp implements TokenClient {
 	@Override
 	public String getAuthToken() {
 		if (authTokenNeedsToBeFetched()) {
-			logInWithAppToken();
+			loginOrRenew();
+			scheduleRenew();
 		}
-		return authToken;
+		return authentication.getToken();
+	}
+
+	private void scheduleRenew() {
+		Scheduler scheduler = schedulerFactory.factor();
+		long delay = calculateDelay();
+		scheduler.scheduleTaskWithDelayInMillis(renewToken(), delay);
+	}
+
+	Runnable renewToken() {
+		return () -> {
+			Optional<ClientActionLink> actionLink = authentication
+					.getActionLink(ClientAction.RENEW);
+			if (actionLink.isPresent()) {
+				ClientActionLink renewAction = actionLink.get();
+				HttpHandler httpHandler = httpHandlerFactory.factor(renewAction.getURL());
+				// httpHandler.setRequestMethod(renewAction.getRequestMethod());
+				httpHandler.setRequestMethod("akjadjfla ");
+				// // httpHandler.setRequestProperty("Accept",
+				// "application/vnd.uub.authentication+json");
+				// // httpHandler.setRequestProperty("authToken", credentials.authToken());
+			}
+		};
+		// return new Runnable() {
+		// @Override
+		// public void run() {
+		// // Simulate token renewal logic
+		// System.out.println("IMHERE");
+		// HttpHandler httpHandler = httpHandlerFactory.factor(null);
+		// }
+	};
+
+	// return () -> {
+	// // renewAuthTokenToTakeControllOverRenew();
+	// // httpHandler.setRequestMethod("POST");
+	// // httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
+	// // httpHandler.setRequestProperty("authToken", credentials.authToken());
+	// // return httpHandler;
+	// };
+
+	private long calculateDelay() {
+		String validUntil = authentication.getValidUntil();
+		long validUntilLong = Long.parseLong(validUntil);
+		long now = System.currentTimeMillis();
+		int margin = 10000;
+		return validUntilLong - now - margin;
+	}
+
+	private void loginOrRenew() {
+		if (startedWithAppToken()) {
+			logInWithAppToken();
+		} else {
+			renewAuthTokenToTakeControllOverRenew(authTokenCredentials);
+		}
+	}
+
+	private boolean startedWithAppToken() {
+		return null != appToken;
+	}
+
+	public void renewAuthTokenToTakeControllOverRenew(AuthTokenCredentials credentials) {
+		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
+		authentication = possiblyGetAuthTokenFromRenewAnswer(httpHandler);
 	}
 
 	private boolean authTokenNeedsToBeFetched() {
-		return null == authToken;
+		return null == authentication;
 	}
 
 	private void logInWithAppToken() {
 		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
 		HttpHandler httpHandler = callLoginUsingLoginIdAndAppToken(loginId, appToken);
-		authToken = possiblyGetAuthTokenFromCreateAnswer(httpHandler);
+		authentication = possiblyGetAuthTokenFromCreateAnswer(httpHandler);
 	}
 
 	@Override
@@ -136,7 +203,7 @@ public final class TokenClientImp implements TokenClient {
 		return httpHandler;
 	}
 
-	private String possiblyGetAuthTokenFromCreateAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication possiblyGetAuthTokenFromCreateAnswer(HttpHandler httpHandler) {
 		if (CREATED == httpHandler.getResponseCode()) {
 			return readAuthTokenfromAnswer(httpHandler);
 		}
@@ -144,18 +211,15 @@ public final class TokenClientImp implements TokenClient {
 				"Could not create authToken. Response code: " + httpHandler.getResponseCode());
 	}
 
-	private String readAuthTokenfromAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication readAuthTokenfromAnswer(HttpHandler httpHandler) {
 		String responseText = httpHandler.getResponseText();
 		return extractCreatedTokenFromResponseText(responseText);
 	}
 
-	private String extractCreatedTokenFromResponseText(String responseText) {
+	private ClientDataAuthentication extractCreatedTokenFromResponseText(String responseText) {
 		JsonToClientDataConverter converterUsingJsonString = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(responseText);
-		ClientDataAuthentication authentication = (ClientDataAuthentication) converterUsingJsonString
-				.toInstance();
-
-		return authentication.getToken();
+		return (ClientDataAuthentication) converterUsingJsonString.toInstance();
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {

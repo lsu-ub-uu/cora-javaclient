@@ -18,16 +18,21 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
+import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-	/**
-	 * Schedules the execution of a {@link Runnable} after a specified delay in milliseconds.
-	 * 
-	 * @param task
-	 *            the {@link Runnable} to be executed
-	 * @param delay
-	 *            the delay in milliseconds before the task is executed
-	 */
-	void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis);
+public class SchedulerSpy implements Scheduler {
 
+	public MethodCallRecorder MCR = new MethodCallRecorder();
+	public MethodReturnValues MRV = new MethodReturnValues();
+
+	public SchedulerSpy() {
+		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("factor", SchedulerSpy::new);
+	}
+
+	@Override
+	public void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis) {
+		MCR.addCall("task", task, "delayInMillis", delayInMillis);
+	}
 }

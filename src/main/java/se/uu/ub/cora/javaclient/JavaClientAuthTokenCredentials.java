@@ -18,6 +18,15 @@
  */
 package se.uu.ub.cora.javaclient;
 
-public record JavaClientAuthTokenCredentials(String baseUrl, String loginUrl, String authToken) {
+/**
+ * @param baseUrl
+ *            The url to the REST endpoint
+ * @param renewAuthTokenUrl
+ *            The complete url for the actionLink renew, including tokenId.
+ * @param authToken
+ *            The token from a valid authenication.
+ */
+public record JavaClientAuthTokenCredentials(String baseUrl, String renewAuthTokenUrl,
+		String authToken) {
 
 }

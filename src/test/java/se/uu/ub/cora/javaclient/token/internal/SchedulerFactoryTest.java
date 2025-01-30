@@ -18,16 +18,18 @@
  */
 package se.uu.ub.cora.javaclient.token.internal;
 
-public interface Scheduler {
+import static org.testng.Assert.assertTrue;
 
-	/**
-	 * Schedules the execution of a {@link Runnable} after a specified delay in milliseconds.
-	 * 
-	 * @param task
-	 *            the {@link Runnable} to be executed
-	 * @param delay
-	 *            the delay in milliseconds before the task is executed
-	 */
-	void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis);
+import org.testng.annotations.Test;
 
+public class SchedulerFactoryTest {
+	@Test
+	public void testFactor() {
+		SchedulerFactory factory = new SchedulerFactoryImp();
+		Scheduler scheduler = factory.factor();
+
+		assertTrue(scheduler instanceof SchedulerImp);
+		var executorFactory = ((SchedulerImp) scheduler).onlyForTestGetExecutorFactory();
+		assertTrue(executorFactory instanceof ExecutorFactoryImp);
+	}
 }

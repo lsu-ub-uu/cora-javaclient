@@ -58,7 +58,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testVirtualThreadExecutorCreatedAndSubmitCalledWithRunnable() {
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 
 		var scheduleCode = getSchedulerCodeFromScheduler();
 
@@ -74,7 +74,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testVirtualThreadExecutorShutdownIsCalled() {
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 
 		ExecutorServiceSpy virtualExecutorSpy = (ExecutorServiceSpy) executorFactorySpy.MCR
 				.assertCalledParametersReturn("createVirtualThreadPerTaskExecutor");
@@ -90,7 +90,7 @@ public class SchedulerTest {
 
 		try {
 
-			scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+			scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -102,7 +102,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testSingleScheduleExecutor() {
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
@@ -116,7 +116,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testSingleScheduleExecutorShutdownIsCalled() {
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
@@ -132,7 +132,7 @@ public class SchedulerTest {
 		executorFactorySpy.MRV.setDefaultReturnValuesSupplier("createSingleThreadScheduledExecutor",
 				() -> executorServiceSpy);
 
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		try {
 			scheduleCode.run();
@@ -147,7 +147,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testRunWeakReferenceTask() {
-		scheduler.scheduleMethodWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
@@ -175,26 +175,13 @@ public class SchedulerTest {
 		int delayInMillis = 40;
 		TestClass testClass = new TestClass();
 
-		scheduler.scheduleMethodWithDelayInMillis(() -> testClass.methodToBeScheduled(),
+		scheduler.scheduleTaskWithDelayInMillis(() -> testClass.methodToBeScheduled(),
 				delayInMillis);
 
 		testClass.MCR.assertMethodNotCalled("methodToBeScheduled");
 		Thread.sleep(80);
 		testClass.MCR.assertMethodWasCalled("methodToBeScheduled");
 	}
-
-	// @Test
-	// public void testCallScheduleInterrumped() throws Exception {
-	// int delayInMillis = 40;
-	// TestClass testClass = new TestClass();
-	//
-	// scheduler.scheduleMethodWithDelayInMillis(() -> testClass.methodToBeScheduled(),
-	// delayInMillis);
-	//
-	// testClass.MCR.assertMethodNotCalled("methodToBeScheduled");
-	// Thread.sleep(80);
-	// testClass.MCR.assertMethodWasCalled("methodToBeScheduled");
-	// }
 
 	class TestClass {
 
@@ -240,7 +227,7 @@ public class SchedulerTest {
 		Scheduler scheduler = SchedulerImp.usingExecutorFactory(executorFactorySpy);
 
 		public void runSchedule() {
-			scheduler.scheduleMethodWithDelayInMillis(() -> methodToBeScheduled(), twoSecondsDelay);
+			scheduler.scheduleTaskWithDelayInMillis(() -> methodToBeScheduled(), twoSecondsDelay);
 			// scheduler.strongScheduleMethodWithDelay(() -> methodToBeScheduledStrong(),
 			// twoSecondsDelay);
 		}

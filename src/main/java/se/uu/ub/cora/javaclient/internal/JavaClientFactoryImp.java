@@ -39,7 +39,7 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForAuthToken(
-				javaClientAuthTokenCredentials.loginUrl(),
+				javaClientAuthTokenCredentials.renewAuthTokenUrl(),
 				javaClientAuthTokenCredentials.authToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
