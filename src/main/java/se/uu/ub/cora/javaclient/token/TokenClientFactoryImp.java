@@ -35,16 +35,18 @@ public class TokenClientFactoryImp implements TokenClientFactory {
 	public TokenClient factorUsingLoginIdAndAppToken(String loginId, String appToken) {
 		AppTokenCredentials credentials = new AppTokenCredentials(appTokenVerifierUrl, loginId,
 				appToken);
-		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(createHttpHandler(), credentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(createHttpHandlerFactory(),
+				credentials);
 	}
 
 	@Override
 	public TokenClient factorUsingAuthToken(String authToken) {
 		AuthTokenCredentials credentials = new AuthTokenCredentials(appTokenVerifierUrl, authToken);
-		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(createHttpHandler(), credentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(createHttpHandlerFactory(),
+				credentials);
 	}
 
-	private HttpHandlerFactoryImp createHttpHandler() {
+	private HttpHandlerFactoryImp createHttpHandlerFactory() {
 		return new HttpHandlerFactoryImp();
 	}
 

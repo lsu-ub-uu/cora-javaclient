@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ExecutorFactoryImp implements ExecutorFactory {
-
 	@Override
 	public ExecutorService createVirtualThreadPerTaskExecutor() {
 		return Executors.newVirtualThreadPerTaskExecutor();
@@ -34,7 +33,6 @@ public class ExecutorFactoryImp implements ExecutorFactory {
 
 	@Override
 	public ScheduledExecutorService createSingleThreadScheduledExecutor() {
-		// TODO Auto-generated method stub
 		// Executors.newScheduledThreadPool(2);
 		return Executors.newSingleThreadScheduledExecutor();
 	}
@@ -43,5 +41,4 @@ public class ExecutorFactoryImp implements ExecutorFactory {
 	public WeakReference<Runnable> createWeakReferenceFromRunnable(Runnable task) {
 		return new WeakReference<>(task);
 	}
-
 }

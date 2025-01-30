@@ -29,6 +29,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
+import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
+import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.javaclient.data.DataClientSpy;
 import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.doubles.JavaClientFactorySpy;
@@ -53,10 +58,30 @@ public class JavaClientProviderTest {
 			SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
 			SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
+	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
+	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
+	private ClientDataToJsonConverterFactorySpy dataToJsonConverterFactoryFromProvider;
 
 	@BeforeMethod
 	private void beforeMethod() {
+		setUpDataToJsonConverter();
 		javaClientFactory = new JavaClientFactorySpy();
+	}
+
+	private void setUpDataToJsonConverter() {
+		dataToJsonFactoryCreator = new ClientDataToJsonConverterFactoryCreatorSpy();
+		ClientDataToJsonConverterProvider
+				.setDataToJsonConverterFactoryCreator(dataToJsonFactoryCreator);
+
+		dataToJsonConverterFactoryFromProvider = new ClientDataToJsonConverterFactorySpy();
+		dataToJsonFactoryCreator.MRV.setDefaultReturnValuesSupplier("createFactory",
+				() -> dataToJsonConverterFactoryFromProvider);
+
+		ClientDataToJsonConverterSpy dataToJsonConverter = new ClientDataToJsonConverterSpy();
+		dataToJsonConverter.MRV.setDefaultReturnValuesSupplier("toJson", () -> "converted json");
+
+		dataToJsonConverterFactoryFromProvider.MRV.setDefaultReturnValuesSupplier(
+				"factorUsingConvertible", () -> dataToJsonConverter);
 	}
 
 	@AfterMethod

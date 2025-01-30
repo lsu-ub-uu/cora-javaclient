@@ -64,7 +64,7 @@ public final class TokenClientImp implements TokenClient {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.authTokenCredentials = credentials;
 		this.authToken = credentials.authToken();
-		renewAuthTokenToGetTakeControllOverRenew(credentials);
+		// renewAuthTokenToGetTakeControllOverRenew(credentials);
 	}
 
 	private void renewAuthTokenToGetTakeControllOverRenew(AuthTokenCredentials credentials) {

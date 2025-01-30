@@ -53,14 +53,14 @@ public class TokenClientFactoryTest {
 	}
 
 	@Test
-	public void testFactorAppToken() throws Exception {
+	public void testFactorAppToken() {
 		factorUsingAppToken(loginId, appToken);
 
 		assertTrue(tokenClient instanceof TokenClientImp);
 	}
 
 	@Test
-	public void testFactorAppTokenAddedDependenciesIsOk() throws Exception {
+	public void testFactorAppTokenAddedDependenciesIsOk() {
 		factorUsingAppToken(loginId, appToken);
 
 		HttpHandlerFactory handlerFactory = tokenClient.onlyForTestGetHttpHandlerFactory();
@@ -73,14 +73,14 @@ public class TokenClientFactoryTest {
 	}
 
 	@Test
-	public void testFactorAuthToken() throws Exception {
+	public void testFactorAuthToken() {
 		factorUsingAuthToken(authToken);
 
 		assertTrue(tokenClient instanceof TokenClientImp);
 	}
 
 	@Test
-	public void testFactorAuthTokenAddedDependenciesIsOk() throws Exception {
+	public void testFactorAuthTokenAddedDependenciesIsOk() {
 		factorUsingAuthToken(authToken);
 
 		HttpHandlerFactory handlerFactory = tokenClient.onlyForTestGetHttpHandlerFactory();
@@ -93,7 +93,7 @@ public class TokenClientFactoryTest {
 	}
 
 	@Test
-	public void testOnlyForTest() throws Exception {
+	public void testOnlyForTest() {
 		TokenClientFactoryImp factoryImp = (TokenClientFactoryImp) factory;
 		assertEquals(factoryImp.onlyForTestGetAppTokenVerifierUrl(), loginUrl);
 	}
