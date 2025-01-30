@@ -76,6 +76,36 @@ public final class TokenClientImp implements TokenClient {
 		this.authTokenCredentials = credentials;
 	}
 
+	@Override
+	public String getAuthToken() {
+		if (authenticationNeedsToBeFetched()) {
+			authentication = loginUsingAppTokenOrRenewProvidedAuthToken();
+			scheduleRenewOfAuthentication();
+		}
+		return authentication.getToken();
+	}
+
+	private boolean authenticationNeedsToBeFetched() {
+		return null == authentication;
+	}
+
+	private ClientDataAuthentication loginUsingAppTokenOrRenewProvidedAuthToken() {
+		if (startedWithAppToken()) {
+			return logInWithAppToken();
+		}
+		return renewAuthTokenToTakeControllOverRenew(authTokenCredentials);
+	}
+
+	private boolean startedWithAppToken() {
+		return null != appToken;
+	}
+
+	public ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
+			AuthTokenCredentials credentials) {
+		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
+		return renewAndPossiblyGetAuthentication(httpHandler);
+	}
+
 	private HttpHandler createHttpHandlerForInitialRenewOfProvidedAuthToken(
 			AuthTokenCredentials credentials) {
 		HttpHandler httpHandler = httpHandlerFactory.factor(credentials.authTokenRenewUrl());
@@ -85,108 +115,33 @@ public final class TokenClientImp implements TokenClient {
 		return httpHandler;
 	}
 
-	private ClientDataAuthentication possiblyGetAuthTokenFromRenewAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication renewAndPossiblyGetAuthentication(HttpHandler httpHandler) {
 		if (OK == httpHandler.getResponseCode()) {
-			return readAuthTokenfromAnswer(httpHandler);
+			return getAuthenticationFromAnswer(httpHandler);
 		}
 		throw DataClientException
 				.withMessage("Could not renew authToken due to error. Response code: "
 						+ httpHandler.getResponseCode());
 	}
 
-	@Override
-	public String getAuthToken() {
-		if (authTokenNeedsToBeFetched()) {
-			loginOrRenew();
-			scheduleRenew();
-		}
-		return authentication.getToken();
-	}
-
-	private void scheduleRenew() {
-		Scheduler scheduler = schedulerFactory.factor();
-		long delay = calculateDelay();
-		scheduler.scheduleTaskWithDelayInMillis(renewToken(), delay);
-	}
-
-	Runnable renewToken() {
-		return () -> {
-			Optional<ClientActionLink> actionLink = authentication
-					.getActionLink(ClientAction.RENEW);
-			if (actionLink.isPresent()) {
-				ClientActionLink renewAction = actionLink.get();
-				HttpHandler httpHandler = httpHandlerFactory.factor(renewAction.getURL());
-				// httpHandler.setRequestMethod(renewAction.getRequestMethod());
-				httpHandler.setRequestMethod("akjadjfla ");
-				// // httpHandler.setRequestProperty("Accept",
-				// "application/vnd.uub.authentication+json");
-				// // httpHandler.setRequestProperty("authToken", credentials.authToken());
-			}
-		};
-		// return new Runnable() {
-		// @Override
-		// public void run() {
-		// // Simulate token renewal logic
-		// System.out.println("IMHERE");
-		// HttpHandler httpHandler = httpHandlerFactory.factor(null);
-		// }
-	};
-
-	// return () -> {
-	// // renewAuthTokenToTakeControllOverRenew();
-	// // httpHandler.setRequestMethod("POST");
-	// // httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
-	// // httpHandler.setRequestProperty("authToken", credentials.authToken());
-	// // return httpHandler;
-	// };
-
-	private long calculateDelay() {
-		String validUntil = authentication.getValidUntil();
-		long validUntilLong = Long.parseLong(validUntil);
-		long now = System.currentTimeMillis();
-		int margin = 10000;
-		return validUntilLong - now - margin;
-	}
-
-	private void loginOrRenew() {
-		if (startedWithAppToken()) {
-			logInWithAppToken();
-		} else {
-			renewAuthTokenToTakeControllOverRenew(authTokenCredentials);
-		}
-	}
-
-	private boolean startedWithAppToken() {
-		return null != appToken;
-	}
-
-	public void renewAuthTokenToTakeControllOverRenew(AuthTokenCredentials credentials) {
-		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
-		authentication = possiblyGetAuthTokenFromRenewAnswer(httpHandler);
-	}
-
-	private boolean authTokenNeedsToBeFetched() {
-		return null == authentication;
-	}
-
-	private void logInWithAppToken() {
+	private ClientDataAuthentication logInWithAppToken() {
 		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
 		HttpHandler httpHandler = callLoginUsingLoginIdAndAppToken(loginId, appToken);
-		authentication = possiblyGetAuthTokenFromCreateAnswer(httpHandler);
+		return possiblyGetAuthenticationFromLoginAnswer(httpHandler);
 	}
 
 	@Override
 	public void requestNewAuthToken() {
 		// TODO: stop running wait to renew if one exists.
 		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
-		if (appTokenDoNotExist()) {
+		if (appTokenDoesNotExist()) {
 			throw DataClientException.withMessage(
 					"Could not request a new authToken due to being initialized without appToken.");
 		}
-		logInWithAppToken();
+		authentication = logInWithAppToken();
 	}
 
-	private boolean appTokenDoNotExist() {
+	private boolean appTokenDoesNotExist() {
 		return appToken == null;
 	}
 
@@ -203,23 +158,56 @@ public final class TokenClientImp implements TokenClient {
 		return httpHandler;
 	}
 
-	private ClientDataAuthentication possiblyGetAuthTokenFromCreateAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication possiblyGetAuthenticationFromLoginAnswer(
+			HttpHandler httpHandler) {
 		if (CREATED == httpHandler.getResponseCode()) {
-			return readAuthTokenfromAnswer(httpHandler);
+			return getAuthenticationFromAnswer(httpHandler);
 		}
 		throw DataClientException.withMessage(
 				"Could not create authToken. Response code: " + httpHandler.getResponseCode());
 	}
 
-	private ClientDataAuthentication readAuthTokenfromAnswer(HttpHandler httpHandler) {
+	private ClientDataAuthentication getAuthenticationFromAnswer(HttpHandler httpHandler) {
 		String responseText = httpHandler.getResponseText();
-		return extractCreatedTokenFromResponseText(responseText);
+		return convertResponseTextToAuthentication(responseText);
 	}
 
-	private ClientDataAuthentication extractCreatedTokenFromResponseText(String responseText) {
+	private ClientDataAuthentication convertResponseTextToAuthentication(String responseText) {
 		JsonToClientDataConverter converterUsingJsonString = JsonToClientDataConverterProvider
 				.getConverterUsingJsonString(responseText);
 		return (ClientDataAuthentication) converterUsingJsonString.toInstance();
+	}
+
+	private void scheduleRenewOfAuthentication() {
+		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
+		// TODO: isPresent is not tested, should throw error or log in again if we have an
+		// apptoken
+		if (actionLink.isPresent()) {
+			ClientActionLink renewAction = actionLink.get();
+			Scheduler scheduler = schedulerFactory.factor();
+			long delay = calculateDelay();
+			scheduler.scheduleTaskWithDelayInMillis(renewToken(renewAction), delay);
+		}
+	}
+
+	private Runnable renewToken(ClientActionLink renewAction) {
+		return () -> {
+			HttpHandler httpHandler = httpHandlerFactory.factor(renewAction.getURL());
+			httpHandler.setRequestMethod(renewAction.getRequestMethod());
+			httpHandler.setRequestProperty("Accept", renewAction.getAccept());
+			httpHandler.setRequestProperty("authToken", authentication.getToken());
+			authentication = renewAndPossiblyGetAuthentication(httpHandler);
+			// TODO: next scheduling of renew is not tested
+			// scheduleRenewOfAuthentication();
+		};
+	}
+
+	private long calculateDelay() {
+		String validUntil = authentication.getValidUntil();
+		long validUntilLong = Long.parseLong(validUntil);
+		long now = System.currentTimeMillis();
+		int margin = 10000;
+		return validUntilLong - now - margin;
 	}
 
 	public HttpHandlerFactory onlyForTestGetHttpHandlerFactory() {
@@ -233,16 +221,4 @@ public final class TokenClientImp implements TokenClient {
 	public AuthTokenCredentials onlyForTestGetAuthTokenCredentials() {
 		return authTokenCredentials;
 	}
-
-	// private void callSchedule() {
-	// ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
-	//
-	// try (virtualThreadExecutor) {
-	// var taskResult = schedule(() ->
-	// System.out.println("Running on a scheduled virtual thread!"), 5, ChronoUnit.SECONDS,
-	// virtualThreadExecutor);
-	//
-	// }
-	// }
-
 }
