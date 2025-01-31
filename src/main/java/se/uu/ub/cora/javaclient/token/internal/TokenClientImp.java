@@ -101,7 +101,7 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	record HttpHandlerSpec(String url, String method, String accept, String authToken) {
-	};
+	}
 
 	public ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
 			AuthTokenCredentials credentials) {
@@ -189,8 +189,6 @@ public final class TokenClientImp implements TokenClient {
 		if (renewActionLink.isPresent()) {
 			startScheduleUsingActionLink(renewActionLink.get());
 		} else {
-			// TODO: isPresent is not tested, should throw error or log in again if we have an
-			// apptoken
 			// OBS: This branch SHOULD NOT happen in this case. Something is very wrong if Renew
 			// actionLink is missing on this stage.
 			throw DataClientException.withMessage(
@@ -245,7 +243,6 @@ public final class TokenClientImp implements TokenClient {
 		return authTokenCredentials;
 	}
 
-	// TODO SPIKE
 	public SchedulerFactory onlyForTestGetSchedulerFactory() {
 		return schedulerFactory;
 	}
