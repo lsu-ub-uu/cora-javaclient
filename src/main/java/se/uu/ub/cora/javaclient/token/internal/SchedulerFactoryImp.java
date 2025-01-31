@@ -22,7 +22,7 @@ public class SchedulerFactoryImp implements SchedulerFactory {
 
 	@Override
 	public Scheduler factor() {
-		ExecutorFactory ef = new ExecutorFactoryImp();
-		return SchedulerImp.usingExecutorFactory(ef);
+		ExecutorFactory executorFactory = new ExecutorFactoryImp();
+		return SchedulerImp.usingExecutorFactory(executorFactory);
 	}
 }

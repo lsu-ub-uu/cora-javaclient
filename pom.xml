@@ -35,6 +35,7 @@
 		<httphandler-spies.version>1.7.0</httphandler-spies.version>
 		<clientdata.version>6.6-SNAPSHOT</clientdata.version>
 		<clientdata-spies.version>1.7-SNAPSHOT</clientdata-spies.version>
+		<basicclientdata.version>1.6-SNAPSHOT</basicclientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 	</properties>
@@ -76,6 +77,12 @@
 			<artifactId>clientdata</artifactId>
 			<version>${clientdata.version}</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>basicclientdata</artifactId>
+			<version>${basicclientdata.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.ws.rs</groupId>

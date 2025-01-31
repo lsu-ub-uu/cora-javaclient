@@ -83,6 +83,8 @@ public class TokenClientTest {
 				() -> Optional.of(renewActionFirst), ClientAction.RENEW);
 		clientDataAuthenticationSpyFirst.MRV.setDefaultReturnValuesSupplier("getValidUntil",
 				() -> generateValidUntil());
+		clientDataAuthenticationSpyFirst.MRV.setDefaultReturnValuesSupplier("getRenewUntil",
+				() -> generateRenewUntil());
 		clientDataAuthenticationSpyFirst.MRV.setDefaultReturnValuesSupplier("getToken",
 				() -> TOKEN_FIRST);
 
@@ -97,6 +99,8 @@ public class TokenClientTest {
 				() -> Optional.of(renewActionSecond), ClientAction.RENEW);
 		clientDataAuthenticationSpySecond.MRV.setDefaultReturnValuesSupplier("getValidUntil",
 				() -> generateValidUntil());
+		clientDataAuthenticationSpySecond.MRV.setDefaultReturnValuesSupplier("getRenewUntil",
+				() -> generateRenewUntil());
 		jsonToClientDataConverterSpySecond = new JsonToClientDataConverterSpy();
 		jsonToClientDataConverterSpySecond.MRV.setDefaultReturnValuesSupplier("toInstance",
 				() -> clientDataAuthenticationSpySecond);
@@ -122,6 +126,10 @@ public class TokenClientTest {
 
 	private String generateValidUntil() {
 		return String.valueOf(System.currentTimeMillis() + 50000);
+	}
+
+	private String generateRenewUntil() {
+		return String.valueOf(System.currentTimeMillis() + 200000);
 	}
 
 	private void setupHttphandlerFactoryWithTwoHttpHandlerSpies() {
@@ -316,6 +324,18 @@ public class TokenClientTest {
 		return httpHandler;
 	}
 
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "AuthToken could not be renew due to missing actionLink on previous call.")
+	public void testSchedulerRenewCannotFindRenewActionInAuthentication() throws Exception {
+		clientDataAuthenticationSpyFirst.MRV.setSpecificReturnValuesSupplier("getActionLink",
+				() -> Optional.empty(), ClientAction.RENEW);
+
+		createClientUsingAuthToken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+	}
+
 	@Test
 	public void testScheduleRenewAuthTokenForAuthTokenCredentials() {
 		createClientUsingAuthToken();
@@ -339,6 +359,26 @@ public class TokenClientTest {
 		int minExpectedDelay = 49500 - margin;
 		assertTrue(delay <= maxExpectedDelay);
 		assertTrue(delay > minExpectedDelay);
+	}
+
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "The authToken renewal could not be scheduled because it has reached the permitted "
+			+ "renewal limit. The current token will remain active for a while but will "
+			+ "eventually become unauthorized. Please re-login to continue using this client.")
+	public void testDoNotScheduleRenewAuthIfTimeToRenewHasPassedRenewUntil() throws Exception {
+		setRenewUntilToBeBeforeTimeToRenew();
+		createClientUsingAuthToken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+	}
+
+	private void setRenewUntilToBeBeforeTimeToRenew() {
+		int ensureRenewUntilIsBeforeTimeToRenew = 30000;
+		String renewUntil = String
+				.valueOf(System.currentTimeMillis() + ensureRenewUntilIsBeforeTimeToRenew);
+		clientDataAuthenticationSpyFirst.MRV.setDefaultReturnValuesSupplier("getRenewUntil",
+				() -> renewUntil);
 	}
 
 	@Test
@@ -367,6 +407,41 @@ public class TokenClientTest {
 				hhs2);
 		authenticationSpy.MCR.assertReturn("getToken", 0, authToken);
 		// TODO: test scheduling of next renew
+	}
+
+	@Test
+	public void testSceduledNewRenewAuthTokenAfterFirstRenewAuthTokenIsOK() {
+		HttpHandlerSpy hhs1 = createHttpHandlerSpyForResponse(200, TOKEN_FIRST);
+		HttpHandlerSpy hhs2 = createHttpHandlerSpyForResponse(200, TOKEN_SECOND);
+		httpHandlerFactory.MRV.setDefaultReturnValuesSupplier("factor",
+				ListSupplier.of(hhs1, hhs2));
+
+		createClientUsingAuthToken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+		runScheduledTaskNumber(0);
+
+		schedulerFactory.MCR.assertNumberOfCallsToMethod("factor", 2);
+		SchedulerSpy scheduler = (SchedulerSpy) schedulerFactory.MCR.getReturnValue("factor", 1);
+		scheduler.MCR.assertMethodWasCalled("scheduleTaskWithDelayInMillis");
+	}
+
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not renew authToken due to error. Response code: 500")
+	public void testTrySceduledNewRenewAuthTokenAfterFirstRenewAuthTokenIsNotOK() {
+		HttpHandlerSpy hhs1 = createHttpHandlerSpyForResponse(200, TOKEN_FIRST);
+		HttpHandlerSpy hhs2 = createHttpHandlerSpyForResponse(500, TOKEN_SECOND);
+		httpHandlerFactory.MRV.setDefaultReturnValuesSupplier("factor",
+				ListSupplier.of(hhs1, hhs2));
+
+		createClientUsingAuthToken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+		runScheduledTaskNumber(0);
+
+		schedulerFactory.MCR.assertNumberOfCallsToMethod("factor", 1);
 	}
 
 	private void runScheduledTaskNumber(int callNumber) {

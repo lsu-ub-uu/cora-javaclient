@@ -100,22 +100,27 @@ public final class TokenClientImp implements TokenClient {
 		return null != appToken;
 	}
 
+	record HttpHandlerSpec(String url, String method, String accept, String authToken) {
+	};
+
 	public ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
 			AuthTokenCredentials credentials) {
-		HttpHandler httpHandler = createHttpHandlerForInitialRenewOfProvidedAuthToken(credentials);
-		return renewAndPossiblyGetAuthentication(httpHandler);
+		HttpHandlerSpec httpHandlerSpec = new HttpHandlerSpec(credentials.authTokenRenewUrl(),
+				"POST", "application/vnd.uub.authentication+json", credentials.authToken());
+		HttpHandler httpHandler = createHttpHandlerRequestUsingSpec(httpHandlerSpec);
+		return possiblyGetAuthenticationFromRenewAuthTokenAnswer(httpHandler);
 	}
 
-	private HttpHandler createHttpHandlerForInitialRenewOfProvidedAuthToken(
-			AuthTokenCredentials credentials) {
-		HttpHandler httpHandler = httpHandlerFactory.factor(credentials.authTokenRenewUrl());
-		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
-		httpHandler.setRequestProperty("authToken", credentials.authToken());
+	private HttpHandler createHttpHandlerRequestUsingSpec(HttpHandlerSpec httpHandlerSpec) {
+		HttpHandler httpHandler = httpHandlerFactory.factor(httpHandlerSpec.url());
+		httpHandler.setRequestMethod(httpHandlerSpec.method());
+		httpHandler.setRequestProperty("Accept", httpHandlerSpec.accept());
+		httpHandler.setRequestProperty("authToken", httpHandlerSpec.authToken);
 		return httpHandler;
 	}
 
-	private ClientDataAuthentication renewAndPossiblyGetAuthentication(HttpHandler httpHandler) {
+	private ClientDataAuthentication possiblyGetAuthenticationFromRenewAuthTokenAnswer(
+			HttpHandler httpHandler) {
 		if (OK == httpHandler.getResponseCode()) {
 			return getAuthenticationFromAnswer(httpHandler);
 		}
@@ -179,30 +184,48 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	private void scheduleRenewOfAuthentication() {
-		Optional<ClientActionLink> actionLink = authentication.getActionLink(ClientAction.RENEW);
-		// TODO: isPresent is not tested, should throw error or log in again if we have an
-		// apptoken
-		if (actionLink.isPresent()) {
-			ClientActionLink renewAction = actionLink.get();
-			Scheduler scheduler = schedulerFactory.factor();
-			long delay = calculateDelay();
-			scheduler.scheduleTaskWithDelayInMillis(renewToken(renewAction), delay);
+		Optional<ClientActionLink> renewActionLink = authentication
+				.getActionLink(ClientAction.RENEW);
+		if (renewActionLink.isPresent()) {
+			startScheduleUsingActionLink(renewActionLink.get());
+		} else {
+			// TODO: isPresent is not tested, should throw error or log in again if we have an
+			// apptoken
+			// OBS: This branch SHOULD NOT happen in this case. Something is very wrong if Renew
+			// actionLink is missing on this stage.
+			throw DataClientException.withMessage(
+					"AuthToken could not be renew due to missing actionLink on previous call.");
 		}
+	}
+
+	private void startScheduleUsingActionLink(ClientActionLink actionLink) {
+		ClientActionLink renewAction = actionLink;
+		Scheduler scheduler = schedulerFactory.factor();
+		long delayToRenew = calculateDelayToRenew();
+		long timeNow = System.currentTimeMillis();
+		long renewUntilLong = Long.parseLong(authentication.getRenewUntil());
+		if (timeNow + delayToRenew > renewUntilLong) {
+			throw DataClientException.withMessage(
+					"The authToken renewal could not be scheduled because it has reached the "
+							+ "permitted renewal limit. The current token will remain "
+							+ "active for a while but will eventually become unauthorized. "
+							+ "Please re-login to continue using this client.");
+		}
+		scheduler.scheduleTaskWithDelayInMillis(renewToken(renewAction), delayToRenew);
 	}
 
 	private Runnable renewToken(ClientActionLink renewAction) {
 		return () -> {
-			HttpHandler httpHandler = httpHandlerFactory.factor(renewAction.getURL());
-			httpHandler.setRequestMethod(renewAction.getRequestMethod());
-			httpHandler.setRequestProperty("Accept", renewAction.getAccept());
-			httpHandler.setRequestProperty("authToken", authentication.getToken());
-			authentication = renewAndPossiblyGetAuthentication(httpHandler);
-			// TODO: next scheduling of renew is not tested
-			// scheduleRenewOfAuthentication();
+			HttpHandlerSpec httpHandlerSpec = new HttpHandlerSpec(renewAction.getURL(),
+					renewAction.getRequestMethod(), renewAction.getAccept(),
+					authentication.getToken());
+			HttpHandler httpHandler = createHttpHandlerRequestUsingSpec(httpHandlerSpec);
+			authentication = possiblyGetAuthenticationFromRenewAuthTokenAnswer(httpHandler);
+			scheduleRenewOfAuthentication();
 		};
 	}
 
-	private long calculateDelay() {
+	private long calculateDelayToRenew() {
 		String validUntil = authentication.getValidUntil();
 		long validUntilLong = Long.parseLong(validUntil);
 		long now = System.currentTimeMillis();
@@ -220,5 +243,10 @@ public final class TokenClientImp implements TokenClient {
 
 	public AuthTokenCredentials onlyForTestGetAuthTokenCredentials() {
 		return authTokenCredentials;
+	}
+
+	// TODO SPIKE
+	public SchedulerFactory onlyForTestGetSchedulerFactory() {
+		return schedulerFactory;
 	}
 }
