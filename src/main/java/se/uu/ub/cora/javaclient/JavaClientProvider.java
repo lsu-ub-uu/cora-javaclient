@@ -46,8 +46,56 @@ public class JavaClientProvider {
 	private static JavaClientFactory onlyForTestJavaClientFactory;
 
 	/**
+	 * createDataClientUsingJavaClientAuthTokenCredentials creates a {@link DataClient} from a
+	 * {@link JavaClientAuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the dataClient after first interaction with the server (such as
+	 * reading updating or creating a record), make sure that interaction is done before the
+	 * authToken has expired.
+	 * 
+	 * @param authTokenCredentials
+	 *            A {@link JavaClientAuthTokenCredentials} to use for setting up the created client
+	 * @return A {@link DataClient} set up with the information from the provided
+	 *         {@link JavaClientAuthTokenCredentials}
+	 */
+	public static DataClient createDataClientUsingJavaClientAuthTokenCredentials(
+			JavaClientAuthTokenCredentials authTokenCredentials) {
+		return getJavaClientFactory()
+				.factorDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
+	}
+
+	private static JavaClientFactory getJavaClientFactory() {
+		if (onlyForTestJavaClientFactory == null) {
+			return javaClientFactory;
+		}
+		return onlyForTestJavaClientFactory;
+	}
+
+	/**
+	 * createDataClientUsingJavaClientAppTokenCredentials creates a {@link DataClient} from a
+	 * {@link JavaClientAppTokenCredentials}
+	 * 
+	 * 
+	 * @param appTokenCredentials
+	 *            A {@link JavaClientAppTokenCredentials} to use for setting up the created client
+	 * @return A {@link DataClient} set up with the information from the provided
+	 *         {@link JavaClientAppTokenCredentials}
+	 */
+	public static DataClient createDataClientUsingJavaClientAppTokenCredentials(
+			JavaClientAppTokenCredentials appTokenCredentials) {
+		return getJavaClientFactory()
+				.factorDataClientUsingJavaClientAppTokenCredentials(appTokenCredentials);
+	}
+
+	/**
 	 * createRestClientUsingJavaClientAuthTokenCredentials creates a {@link RestClient} from a
 	 * {@link JavaClientAuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the restClient after first interaction with the server (such as
+	 * reading updating or creating a record), make sure that interaction is done before the
+	 * authToken has expired.
 	 * 
 	 * @param authTokenCredentials
 	 *            A {@link JavaClientAuthTokenCredentials} to use for setting up the created client
@@ -76,40 +124,23 @@ public class JavaClientProvider {
 	}
 
 	/**
-	 * createDataClientUsingJavaClientAuthTokenCredentials creates a {@link DataClient} from a
-	 * {@link JavaClientAuthTokenCredentials}
+	 * createTokenClientUsingAuthTokenCredentials creates a {@link TokenClient} from a
+	 * {@link AuthTokenCredentials}
+	 * <p>
+	 * The authToken that is part of the {@link JavaClientAuthTokenCredentials} will be
+	 * automatically renewed by the tokenClient after first call to the
+	 * {@link TokenClient#getAuthToken()} method. Make sure that interaction is done before the
+	 * authToken has expired.
 	 * 
 	 * @param authTokenCredentials
-	 *            A {@link JavaClientAuthTokenCredentials} to use for setting up the created client
-	 * @return A {@link DataClient} set up with the information from the provided
-	 *         {@link JavaClientAuthTokenCredentials}
+	 *            A {@link AuthTokenCredentials} to use for setting up the created client
+	 * @return A {@link TokenClient} set up with the information from the provided
+	 *         {@link AuthTokenCredentials}
 	 */
-	public static DataClient createDataClientUsingJavaClientAuthTokenCredentials(
-			JavaClientAuthTokenCredentials authTokenCredentials) {
+	public static TokenClient createTokenClientUsingAuthTokenCredentials(
+			AuthTokenCredentials authTokenCredentials) {
 		return getJavaClientFactory()
-				.factorDataClientUsingJavaClientAuthTokenCredentials(authTokenCredentials);
-	}
-
-	/**
-	 * createDataClientUsingJavaClientAppTokenCredentials creates a {@link DataClient} from a
-	 * {@link JavaClientAppTokenCredentials}
-	 * 
-	 * @param appTokenCredentials
-	 *            A {@link JavaClientAppTokenCredentials} to use for setting up the created client
-	 * @return A {@link DataClient} set up with the information from the provided
-	 *         {@link JavaClientAppTokenCredentials}
-	 */
-	public static DataClient createDataClientUsingJavaClientAppTokenCredentials(
-			JavaClientAppTokenCredentials appTokenCredentials) {
-		return getJavaClientFactory()
-				.factorDataClientUsingJavaClientAppTokenCredentials(appTokenCredentials);
-	}
-
-	private static JavaClientFactory getJavaClientFactory() {
-		if (onlyForTestJavaClientFactory == null) {
-			return javaClientFactory;
-		}
-		return onlyForTestJavaClientFactory;
+				.factorTokenClientUsingAuthTokenCredentials(authTokenCredentials);
 	}
 
 	/**
@@ -128,21 +159,6 @@ public class JavaClientProvider {
 	}
 
 	/**
-	 * createTokenClientUsingAuthTokenCredentials creates a {@link TokenClient} from a
-	 * {@link AuthTokenCredentials}
-	 * 
-	 * @param authTokenCredentials
-	 *            A {@link AuthTokenCredentials} to use for setting up the created client
-	 * @return A {@link TokenClient} set up with the information from the provided
-	 *         {@link AuthTokenCredentials}
-	 */
-	public static TokenClient createTokenClientUsingAuthTokenCredentials(
-			AuthTokenCredentials authTokenCredentials) {
-		return getJavaClientFactory()
-				.factorTokenClientUsingAuthTokenCredentials(authTokenCredentials);
-	}
-
-	/**
 	 * onlyForTestSetJavaClientFactory sets a JavaClientFactory that will be used to factor java
 	 * clients when other classes needs to create new instances. This possibility to set a
 	 * JavaClientFactory is provided to enable testing of client creation in other classes and is
@@ -155,5 +171,4 @@ public class JavaClientProvider {
 	public static void onlyForTestSetJavaClientFactory(JavaClientFactory javaClientFactory) {
 		JavaClientProvider.onlyForTestJavaClientFactory = javaClientFactory;
 	}
-
 }

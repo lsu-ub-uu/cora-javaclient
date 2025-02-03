@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Olov McKie
+ * Copyright 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,8 +16,18 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.token.internal;
 
-public record JavaClientAppTokenCredentials(String baseUrl, String loginUrl, String loginId,
-		String appToken) {
+public interface Scheduler {
+
+	/**
+	 * Schedules the execution of a {@link Runnable} after a specified delay in milliseconds.
+	 * 
+	 * @param task
+	 *            the {@link Runnable} to be executed
+	 * @param delay
+	 *            the delay in milliseconds before the task is executed
+	 */
+	void scheduleTaskWithDelayInMillis(Runnable task, long delayInMillis);
+
 }

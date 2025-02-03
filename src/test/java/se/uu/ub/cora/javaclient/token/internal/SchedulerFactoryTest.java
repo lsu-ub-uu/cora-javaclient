@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Olov McKie
+ * Copyright 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,8 +16,20 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.token.internal;
 
-public record JavaClientAppTokenCredentials(String baseUrl, String loginUrl, String loginId,
-		String appToken) {
+import static org.testng.Assert.assertTrue;
+
+import org.testng.annotations.Test;
+
+public class SchedulerFactoryTest {
+	@Test
+	public void testFactor() {
+		SchedulerFactory factory = new SchedulerFactoryImp();
+		Scheduler scheduler = factory.factor();
+
+		assertTrue(scheduler instanceof OneAtATimeScheduler);
+		var executorFactory = ((OneAtATimeScheduler) scheduler).onlyForTestGetExecutorFactory();
+		assertTrue(executorFactory instanceof ExecutorFactoryImp);
+	}
 }

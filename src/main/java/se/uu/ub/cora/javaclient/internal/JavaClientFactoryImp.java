@@ -31,6 +31,7 @@ import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
 import se.uu.ub.cora.javaclient.token.TokenClient;
+import se.uu.ub.cora.javaclient.token.internal.SchedulerFactoryImp;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientFactoryImp implements JavaClientFactory {
@@ -38,29 +39,29 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	@Override
 	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
-		TokenClient tokenClient = createTokenClientForAuthToken(
-				javaClientAuthTokenCredentials.appTokenUrl(),
-				javaClientAuthTokenCredentials.authToken());
+		TokenClient tokenClient = createTokenClientForAuthToken(javaClientAuthTokenCredentials);
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
 				javaClientAuthTokenCredentials.baseUrl(), tokenClient);
 	}
 
-	private TokenClient createTokenClientForAuthToken(String appTokenUrl, String authToken) {
+	private TokenClient createTokenClientForAuthToken(JavaClientAuthTokenCredentials credentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(appTokenUrl,
-				authToken);
-		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(httpHandlerFactory,
-				authTokenCredentials);
+		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
+		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
+				credentials.renewAuthTokenUrl(), credentials.authToken(),
+				credentials.tokenIsRenewable());
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(httpHandlerFactory,
+				schedulerFactory.factor(), authTokenCredentials);
 	}
 
 	@Override
 	public RestClient factorRestClientUsingJavaClientAppTokenCredentials(
 			JavaClientAppTokenCredentials javaClientAppTokenCredentials) {
 		TokenClient tokenClient = createTokenClientForLoginIdAndAppToken(
-				javaClientAppTokenCredentials.appTokenUrl(),
-				javaClientAppTokenCredentials.loginId(), javaClientAppTokenCredentials.appToken());
+				javaClientAppTokenCredentials.loginUrl(), javaClientAppTokenCredentials.loginId(),
+				javaClientAppTokenCredentials.appToken());
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
 				javaClientAppTokenCredentials.baseUrl(), tokenClient);
@@ -69,10 +70,11 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	private TokenClient createTokenClientForLoginIdAndAppToken(String appTokenUrl, String loginId,
 			String appToken) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
+		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
 		AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, loginId,
 				appToken);
-		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
-				appTokenCredentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAppToken(httpHandlerFactory,
+				schedulerFactory.factor(), appTokenCredentials);
 	}
 
 	@Override
@@ -95,15 +97,17 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	public TokenClient factorTokenClientUsingAppTokenCredentials(
 			AppTokenCredentials appTokenCredentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		return TokenClientImp.usingHttpHandlerFactoryAndAppToken(httpHandlerFactory,
-				appTokenCredentials);
+		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAppToken(httpHandlerFactory,
+				schedulerFactory.factor(), appTokenCredentials);
 	}
 
 	@Override
 	public TokenClient factorTokenClientUsingAuthTokenCredentials(
 			AuthTokenCredentials authTokenCredentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
-		return TokenClientImp.usingHttpHandlerFactoryAndAuthToken(httpHandlerFactory,
-				authTokenCredentials);
+		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(httpHandlerFactory,
+				schedulerFactory.factor(), authTokenCredentials);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Olov McKie
+ * Copyright 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -16,8 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.uu.ub.cora.javaclient;
+package se.uu.ub.cora.javaclient.token.internal;
 
-public record JavaClientAppTokenCredentials(String baseUrl, String loginUrl, String loginId,
-		String appToken) {
+public class SchedulerFactoryImp implements SchedulerFactory {
+
+	@Override
+	public Scheduler factor() {
+		ExecutorFactory executorFactory = new ExecutorFactoryImp();
+		return OneAtATimeScheduler.usingExecutorFactory(executorFactory);
+	}
 }
