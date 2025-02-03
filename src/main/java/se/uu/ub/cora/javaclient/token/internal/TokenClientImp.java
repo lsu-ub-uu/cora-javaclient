@@ -45,39 +45,40 @@ public final class TokenClientImp implements TokenClient {
 	private AppTokenCredentials appTokenCredentials;
 	private AuthTokenCredentials authTokenCredentials;
 	private ClientDataAuthentication authentication;
-	private SchedulerFactory schedulerFactory;
+	private Scheduler scheduler;
 
-	public static TokenClientImp usingHttpHandlerFactoryAndSchedulerFactoryAndAppToken(
-			HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+	public static TokenClientImp usingHttpHandlerFactoryAndSchedulerAndAppToken(
+			HttpHandlerFactory httpHandlerFactory, Scheduler scheduler,
 			AppTokenCredentials credentials) {
-		return new TokenClientImp(httpHandlerFactory, schedulerFactory, credentials);
+		return new TokenClientImp(httpHandlerFactory, scheduler, credentials);
 	}
 
-	TokenClientImp(HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, Scheduler scheduler,
 			AppTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
-		this.schedulerFactory = schedulerFactory;
+		this.scheduler = scheduler;
+
 		this.appTokenCredentials = credentials;
 		this.loginUrl = credentials.loginUrl() + CORA_REST_APPTOKEN_ENDPOINT;
 		this.loginId = credentials.loginId();
 		this.appToken = credentials.appToken();
 	}
 
-	public static TokenClient usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
-			HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+	public static TokenClient usingHttpHandlerFactoryAndSchedulerAndAuthToken(
+			HttpHandlerFactory httpHandlerFactory, Scheduler scheduler,
 			AuthTokenCredentials credentials) {
-		return new TokenClientImp(httpHandlerFactory, schedulerFactory, credentials);
+		return new TokenClientImp(httpHandlerFactory, scheduler, credentials);
 	}
 
-	TokenClientImp(HttpHandlerFactory httpHandlerFactory, SchedulerFactory schedulerFactory,
+	TokenClientImp(HttpHandlerFactory httpHandlerFactory, Scheduler scheduler,
 			AuthTokenCredentials credentials) {
 		this.httpHandlerFactory = httpHandlerFactory;
-		this.schedulerFactory = schedulerFactory;
+		this.scheduler = scheduler;
 		this.authTokenCredentials = credentials;
 	}
 
 	@Override
-	public String getAuthToken() {
+	public synchronized String getAuthToken() {
 		if (isStartedUsingAuthTokenButIsNotRenewable()) {
 			return authTokenCredentials.authToken();
 		}
@@ -110,7 +111,7 @@ public final class TokenClientImp implements TokenClient {
 	record HttpHandlerSpec(String url, String method, String accept, String authToken) {
 	}
 
-	public ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
+	private ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
 			AuthTokenCredentials credentials) {
 		HttpHandlerSpec httpHandlerSpec = new HttpHandlerSpec(credentials.authTokenRenewUrl(),
 				"POST", "application/vnd.uub.authentication+json", credentials.authToken());
@@ -137,15 +138,12 @@ public final class TokenClientImp implements TokenClient {
 	}
 
 	private ClientDataAuthentication logInWithAppToken() {
-		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
 		HttpHandler httpHandler = callLoginUsingLoginIdAndAppToken(loginId, appToken);
 		return possiblyGetAuthenticationFromLoginAnswer(httpHandler);
 	}
 
 	@Override
-	public void requestNewAuthToken() {
-		// TODO: stop running wait to renew if one exists.
-		// TODO: flagga för att förhindra mer än ett anrop efter en ny token samtidigt
+	public synchronized void requestNewAuthToken() {
 		if (appTokenDoesNotExist()) {
 			throw DataClientException.withMessage(
 					"Could not request a new authToken due to being initialized without appToken.");
@@ -205,7 +203,6 @@ public final class TokenClientImp implements TokenClient {
 
 	private void startScheduleUsingActionLink(ClientActionLink actionLink) {
 		ClientActionLink renewAction = actionLink;
-		Scheduler scheduler = schedulerFactory.factor();
 		long delayToRenew = calculateDelayToRenew();
 		long timeNow = System.currentTimeMillis();
 		long renewUntilLong = Long.parseLong(authentication.getRenewUntil());
@@ -250,7 +247,7 @@ public final class TokenClientImp implements TokenClient {
 		return authTokenCredentials;
 	}
 
-	public SchedulerFactory onlyForTestGetSchedulerFactory() {
-		return schedulerFactory;
+	public Scheduler onlyForTestGetScheduler() {
+		return scheduler;
 	}
 }

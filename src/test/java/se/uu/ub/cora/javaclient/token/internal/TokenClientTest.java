@@ -23,6 +23,8 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +69,7 @@ public class TokenClientTest {
 	private ClientDataAuthenticationSpy clientDataAuthenticationSpySecond;
 	private String authenticationResponseSecond;
 
-	private SchedulerFactorySpy schedulerFactory;
+	private SchedulerSpy scheduler;
 	private ClientActionLinkSpy renewActionFirst;
 	private ClientActionLinkSpy renewActionSecond;
 
@@ -113,7 +115,7 @@ public class TokenClientTest {
 						jsonToClientDataConverterSpySecond));
 		JsonToClientDataConverterProvider.setJsonToDataConverterFactory(jsonToDataConverterFactory);
 
-		schedulerFactory = new SchedulerFactorySpy();
+		scheduler = new SchedulerSpy();
 	}
 
 	private ClientActionLinkSpy createActionLinkSpyWithSuffix(String suffix) {
@@ -184,13 +186,25 @@ public class TokenClientTest {
 	}
 
 	private void createClientUsingAuthToken() {
-		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
-				httpHandlerFactory, schedulerFactory, authTokenCredentials);
+		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(
+				httpHandlerFactory, scheduler, authTokenCredentials);
 	}
 
 	private void createClientUsingApptoken() {
-		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAppToken(
-				httpHandlerFactory, schedulerFactory, appTokenCredentials);
+		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAppToken(
+				httpHandlerFactory, scheduler, appTokenCredentials);
+	}
+
+	@Test
+	public void testGetAuthTokenIsSynchronized() throws Exception {
+		Method getAuthToken = TokenClientImp.class.getMethod("getAuthToken");
+		assertTrue(Modifier.isSynchronized(getAuthToken.getModifiers()));
+	}
+
+	@Test
+	public void testRequestNewAuthTokenIsSynchronized() throws Exception {
+		Method requestNewAuthToken = TokenClientImp.class.getMethod("requestNewAuthToken");
+		assertTrue(Modifier.isSynchronized(requestNewAuthToken.getModifiers()));
 	}
 
 	@Test
@@ -303,8 +317,8 @@ public class TokenClientTest {
 
 	@Test
 	public void testStartTokenClientWithAuthTokenWithoutRenew() {
-		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
-				httpHandlerFactory, schedulerFactory, authTokenCredentialsWithoutRenew);
+		tokenClient = TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(
+				httpHandlerFactory, scheduler, authTokenCredentialsWithoutRenew);
 
 		String authToken = tokenClient.getAuthToken();
 
@@ -361,16 +375,14 @@ public class TokenClientTest {
 
 		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
 
-		SchedulerSpy scheduler = (SchedulerSpy) schedulerFactory.MCR
-				.assertCalledParametersReturn("factor");
-		assertDelayForRenewScheduler(scheduler);
+		assertDelayForRenewScheduler();
 
 		Runnable task = (Runnable) scheduler.MCR.getParameterForMethodAndCallNumberAndParameter(
 				"scheduleTaskWithDelayInMillis", 0, "task");
 		assertNotNull(task);
 	}
 
-	private void assertDelayForRenewScheduler(SchedulerSpy scheduler) {
+	private void assertDelayForRenewScheduler() {
 		Long delay = (Long) scheduler.MCR.getParameterForMethodAndCallNumberAndParameter(
 				"scheduleTaskWithDelayInMillis", 0, "delayInMillis");
 		int margin = 10000;
@@ -386,9 +398,7 @@ public class TokenClientTest {
 
 		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
 
-		SchedulerSpy scheduler = (SchedulerSpy) schedulerFactory.MCR
-				.assertCalledParametersReturn("factor");
-		assertDelayForRenewScheduler(scheduler);
+		assertDelayForRenewScheduler();
 
 		Runnable task = (Runnable) scheduler.MCR.getParameterForMethodAndCallNumberAndParameter(
 				"scheduleTaskWithDelayInMillis", 0, "task");
@@ -474,7 +484,6 @@ public class TokenClientTest {
 		// token after schedule is run
 		String authToken = tokenClient.getAuthToken();
 		ClientDataAuthenticationSpy authenticationSpy = assertResponseTwoCallsToConvertedToAuthentication();
-		System.out.println(authToken);
 		authenticationSpy.MCR.assertReturn("getToken", 0, authToken);
 	}
 
@@ -491,8 +500,20 @@ public class TokenClientTest {
 
 		runScheduledTaskNumber(0);
 
-		schedulerFactory.MCR.assertNumberOfCallsToMethod("factor", 2);
-		SchedulerSpy scheduler = (SchedulerSpy) schedulerFactory.MCR.getReturnValue("factor", 1);
+		scheduler.MCR.assertMethodWasCalled("scheduleTaskWithDelayInMillis");
+	}
+
+	@Test
+	public void testSceduledNewRenewAuthTokenAfterFirstRenewAuthTokenIsOK_withApptokenInit() {
+		HttpHandlerSpy hhs1 = createHttpHandlerSpyForResponse(200, TOKEN_FIRST);
+		httpHandlerFactory.MRV.setDefaultReturnValuesSupplier("factor", () -> hhs1);
+
+		createClientUsingApptoken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+		runScheduledTaskNumber(0);
+
 		scheduler.MCR.assertMethodWasCalled("scheduleTaskWithDelayInMillis");
 	}
 
@@ -509,8 +530,19 @@ public class TokenClientTest {
 		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
 
 		runScheduledTaskNumber(0);
+	}
 
-		schedulerFactory.MCR.assertNumberOfCallsToMethod("factor", 1);
+	@Test(expectedExceptions = DataClientException.class, expectedExceptionsMessageRegExp = ""
+			+ "Could not renew authToken due to error. Response code: 500")
+	public void testTrySceduledNewRenewAuthTokenAfterFirstRenewAuthTokenIsNotOK_withApptokenInit() {
+		HttpHandlerSpy hhs1 = createHttpHandlerSpyForResponse(500, TOKEN_FIRST);
+		httpHandlerFactory.MRV.setDefaultReturnValuesSupplier("factor", () -> hhs1);
+
+		createClientUsingApptoken();
+
+		triggerRenewOfInitialAuthTokenOnServerUsingGetAuthTokenMethod();
+
+		runScheduledTaskNumber(0);
 	}
 
 	private void runScheduledTaskNumber(int callNumber) {
@@ -519,8 +551,6 @@ public class TokenClientTest {
 	}
 
 	private Runnable getScheduledRenewTaskUsingCallNumber(int callNumber) {
-		SchedulerSpy scheduler = (SchedulerSpy) schedulerFactory.MCR.getReturnValue("factor",
-				callNumber);
 		return (Runnable) scheduler.MCR.getParameterForMethodAndCallNumberAndParameter(
 				"scheduleTaskWithDelayInMillis", callNumber, "task");
 	}
@@ -569,7 +599,7 @@ public class TokenClientTest {
 
 		TokenClientImp tokenClientImp = (TokenClientImp) tokenClient;
 		assertSame(tokenClientImp.onlyForTestGetHttpHandlerFactory(), httpHandlerFactory);
-		assertSame(tokenClientImp.onlyForTestGetSchedulerFactory(), schedulerFactory);
+		assertSame(tokenClientImp.onlyForTestGetScheduler(), scheduler);
 		assertSame(tokenClientImp.onlyForTestGetAuthTokenCredentials(), authTokenCredentials);
 	}
 
@@ -579,7 +609,7 @@ public class TokenClientTest {
 
 		TokenClientImp tokenClientImp = (TokenClientImp) tokenClient;
 		assertSame(tokenClientImp.onlyForTestGetHttpHandlerFactory(), httpHandlerFactory);
-		assertSame(tokenClientImp.onlyForTestGetSchedulerFactory(), schedulerFactory);
+		assertSame(tokenClientImp.onlyForTestGetScheduler(), scheduler);
 		assertSame(tokenClientImp.onlyForTestGetAppTokenCredentials(), appTokenCredentials);
 	}
 }

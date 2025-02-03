@@ -33,12 +33,14 @@ public class FutureSpy<V> implements Future<V> {
 
 	public FutureSpy() {
 		MCR.useMRV(MRV);
+		MRV.setDefaultReturnValuesSupplier("isDone", () -> false);
+		MRV.setDefaultReturnValuesSupplier("cancel", () -> false);
 	}
 
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
-		// TODO Auto-generated method stub
-		return false;
+		return (boolean) MCR.addCallAndReturnFromMRV("mayInterruptIfRunning",
+				mayInterruptIfRunning);
 	}
 
 	@Override
@@ -49,8 +51,7 @@ public class FutureSpy<V> implements Future<V> {
 
 	@Override
 	public boolean isDone() {
-		// TODO Auto-generated method stub
-		return false;
+		return (boolean) MCR.addCallAndReturnFromMRV();
 	}
 
 	@Override

@@ -52,8 +52,8 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
 				credentials.renewAuthTokenUrl(), credentials.authToken(),
 				credentials.tokenIsRenewable());
-		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
-				httpHandlerFactory, schedulerFactory, authTokenCredentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(httpHandlerFactory,
+				schedulerFactory.factor(), authTokenCredentials);
 	}
 
 	@Override
@@ -73,8 +73,8 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
 		AppTokenCredentials appTokenCredentials = new AppTokenCredentials(appTokenUrl, loginId,
 				appToken);
-		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAppToken(
-				httpHandlerFactory, schedulerFactory, appTokenCredentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAppToken(httpHandlerFactory,
+				schedulerFactory.factor(), appTokenCredentials);
 	}
 
 	@Override
@@ -98,8 +98,8 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 			AppTokenCredentials appTokenCredentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
-		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAppToken(
-				httpHandlerFactory, schedulerFactory, appTokenCredentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAppToken(httpHandlerFactory,
+				schedulerFactory.factor(), appTokenCredentials);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 			AuthTokenCredentials authTokenCredentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
-		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
-				httpHandlerFactory, schedulerFactory, authTokenCredentials);
+		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerAndAuthToken(httpHandlerFactory,
+				schedulerFactory.factor(), authTokenCredentials);
 	}
 }

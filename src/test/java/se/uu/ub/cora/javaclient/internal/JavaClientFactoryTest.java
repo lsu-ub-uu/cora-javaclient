@@ -34,7 +34,7 @@ import se.uu.ub.cora.javaclient.JavaClientAuthTokenCredentials;
 import se.uu.ub.cora.javaclient.JavaClientFactory;
 import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.rest.internal.RestClientImp;
-import se.uu.ub.cora.javaclient.token.internal.SchedulerFactoryImp;
+import se.uu.ub.cora.javaclient.token.internal.OneAtATimeScheduler;
 import se.uu.ub.cora.javaclient.token.internal.TokenClientImp;
 
 public class JavaClientFactoryTest {
@@ -91,7 +91,7 @@ public class JavaClientFactoryTest {
 
 	private void assertTokenClientCredentialsWithoutAuthTokenRenewable(TokenClientImp tokenClient) {
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
+		assertTrue(tokenClient.onlyForTestGetScheduler() instanceof OneAtATimeScheduler);
 
 		AuthTokenCredentials returnedAuthTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
@@ -116,7 +116,7 @@ public class JavaClientFactoryTest {
 
 	private void assertTokenClientCredentials(TokenClientImp tokenClient) {
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
+		assertTrue(tokenClient.onlyForTestGetScheduler() instanceof OneAtATimeScheduler);
 
 		AuthTokenCredentials returnedAuthTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
@@ -154,7 +154,7 @@ public class JavaClientFactoryTest {
 
 	private void assertTokenClientUsingAppTokenCredentials(TokenClientImp tokenClient) {
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
+		assertTrue(tokenClient.onlyForTestGetScheduler() instanceof OneAtATimeScheduler);
 
 		AppTokenCredentials returnedAppTokenCredentials = tokenClient
 				.onlyForTestGetAppTokenCredentials();

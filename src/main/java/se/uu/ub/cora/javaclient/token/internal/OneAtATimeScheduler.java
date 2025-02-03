@@ -20,17 +20,23 @@ package se.uu.ub.cora.javaclient.token.internal;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SchedulerImp implements Scheduler {
+/**
+ * OneAtATimeScheduler only schedules one task during the same time. When the next task is scheduled
+ * is the first task canceled if it has not already run, before the next one is scheduled.
+ */
+public class OneAtATimeScheduler implements Scheduler {
 	private ExecutorFactory executorFactory;
+	private Future<?> future;
 
-	public static SchedulerImp usingExecutorFactory(ExecutorFactory executorFactory) {
-		return new SchedulerImp(executorFactory);
+	public static OneAtATimeScheduler usingExecutorFactory(ExecutorFactory executorFactory) {
+		return new OneAtATimeScheduler(executorFactory);
 	}
 
-	private SchedulerImp(ExecutorFactory executorFactory) {
+	private OneAtATimeScheduler(ExecutorFactory executorFactory) {
 		this.executorFactory = executorFactory;
 	}
 
@@ -40,13 +46,14 @@ public class SchedulerImp implements Scheduler {
 				.createWeakReferenceFromRunnable(task);
 		ExecutorService virtualThreadExecutor = executorFactory
 				.createVirtualThreadPerTaskExecutor();
-
+		if (null != future) {
+			future.cancel(false);
+		}
 		try {
-			virtualThreadExecutor.submit(
+			future = virtualThreadExecutor.submit(
 					() -> scheduleTaskUsingSingleThreadSchedule(weakReferenceTask, delayInMillis));
 		} finally {
 			virtualThreadExecutor.shutdown();
-			// virtualThreadExecutor.close();
 		}
 	}
 

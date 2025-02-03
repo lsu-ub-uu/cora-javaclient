@@ -29,17 +29,19 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.testutils.mcr.MethodCallRecorder;
 import se.uu.ub.cora.testutils.mrv.MethodReturnValues;
 
-public class SchedulerTest {
+public class OneAtATimeSchedulerTest {
 	private static final long DELAY_10MS = 10;
 	ExecutorFactorySpy executorFactorySpy;
 	private Scheduler scheduler;
-	private RunnableTaskSpy task;
+	private RunnableTaskSpy task1;
+	private RunnableTaskSpy task2;
 
 	@BeforeMethod
 	private void beforeMethod() {
-		task = new RunnableTaskSpy();
+		task1 = new RunnableTaskSpy();
+		task2 = new RunnableTaskSpy();
 		executorFactorySpy = new ExecutorFactorySpy();
-		scheduler = SchedulerImp.usingExecutorFactory(executorFactorySpy);
+		scheduler = OneAtATimeScheduler.usingExecutorFactory(executorFactorySpy);
 	}
 
 	@Test
@@ -49,7 +51,8 @@ public class SchedulerTest {
 
 	@Test
 	public void testOnlyForTestGetExecutorFactory() {
-		SchedulerImp schedulerImp = SchedulerImp.usingExecutorFactory(executorFactorySpy);
+		OneAtATimeScheduler schedulerImp = OneAtATimeScheduler
+				.usingExecutorFactory(executorFactorySpy);
 
 		ExecutorFactory factory = schedulerImp.onlyForTestGetExecutorFactory();
 
@@ -58,7 +61,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testVirtualThreadExecutorCreatedAndSubmitCalledWithRunnable() {
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 
 		var scheduleCode = getSchedulerCodeFromScheduler();
 
@@ -74,7 +77,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testVirtualThreadExecutorShutdownIsCalled() {
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 
 		ExecutorServiceSpy virtualExecutorSpy = (ExecutorServiceSpy) executorFactorySpy.MCR
 				.assertCalledParametersReturn("createVirtualThreadPerTaskExecutor");
@@ -90,7 +93,7 @@ public class SchedulerTest {
 
 		try {
 
-			scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+			scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -102,7 +105,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testSingleScheduleExecutor() {
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
@@ -116,7 +119,7 @@ public class SchedulerTest {
 
 	@Test
 	public void testSingleScheduleExecutorShutdownIsCalled() {
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
@@ -132,7 +135,7 @@ public class SchedulerTest {
 		executorFactorySpy.MRV.setDefaultReturnValuesSupplier("createSingleThreadScheduledExecutor",
 				() -> executorServiceSpy);
 
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		try {
 			scheduleCode.run();
@@ -147,14 +150,14 @@ public class SchedulerTest {
 
 	@Test
 	public void testRunWeakReferenceTask() {
-		scheduler.scheduleTaskWithDelayInMillis(task, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
 		var scheduleCode = getSchedulerCodeFromScheduler();
 		scheduleCode.run();
 
 		var runnableSurroundingWeakReferenceForTask = getRunnableSurroundingWeakReference();
 
 		WeakReferenceSpy<?> weakReferenceSpy = (WeakReferenceSpy<?>) executorFactorySpy.MCR
-				.assertCalledParametersReturn("createWeakReferenceFromRunnable", task);
+				.assertCalledParametersReturn("createWeakReferenceFromRunnable", task1);
 
 		runnableSurroundingWeakReferenceForTask.run();
 
@@ -168,6 +171,27 @@ public class SchedulerTest {
 				.assertCalledParametersReturn("createSingleThreadScheduledExecutor");
 		return (Runnable) singleScheduleExecutorSpy.MCR
 				.getParameterForMethodAndCallNumberAndParameter("schedule", 0, "command");
+	}
+
+	@Test
+	public void testOnlyOneSchedulerAtATime_OneTask() {
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
+
+		ExecutorServiceSpy virtualExecutorSpy = (ExecutorServiceSpy) executorFactorySpy.MCR
+				.assertCalledParametersReturn("createVirtualThreadPerTaskExecutor");
+		FutureSpy<?> future = (FutureSpy<?>) virtualExecutorSpy.MCR.getReturnValue("submit", 0);
+		future.MCR.assertMethodNotCalled("cancel");
+	}
+
+	@Test
+	public void testOnlyOneSchedulerAtATime_twoTasks() {
+		scheduler.scheduleTaskWithDelayInMillis(task1, DELAY_10MS);
+		scheduler.scheduleTaskWithDelayInMillis(task2, DELAY_10MS);
+
+		ExecutorServiceSpy virtualExecutorSpy = (ExecutorServiceSpy) executorFactorySpy.MCR
+				.assertCalledParametersReturn("createVirtualThreadPerTaskExecutor");
+		FutureSpy<?> future = (FutureSpy<?>) virtualExecutorSpy.MCR.getReturnValue("submit", 0);
+		future.MCR.assertMethodWasCalled("cancel");
 	}
 
 	@Test(enabled = false)
@@ -198,23 +222,25 @@ public class SchedulerTest {
 	}
 
 	@Test(enabled = false)
+	// @Test
 	public void realTestToScheduler() throws Exception {
-		Scheduler scheduler = SchedulerImp.usingExecutorFactory(executorFactorySpy);
+		// ExecutorFactory executorFactory = new ExecutorFactoryImp();
+		// Scheduler scheduler = SchedulerImp.usingExecutorFactory(executorFactory);
 
 		TestClass2 testClass = new TestClass2();
 
-		int twoSecondsDelay = 2000;
+		// int twoSecondsDelay = 2000;
 		testClass.runSchedule();
 		testClass = null;
 		// System.gc();
 		// scheduler.scheduleMethodWithDelay(() -> methodToBeScheduled2(), twoSecondsDelay);
-		System.out.println("after schedule");
+		System.out.println("1. after schedule");
 		// scheduler.shutdown();
 		// scheduler = null;
 
-		System.out.println("before sleep");
+		System.out.println("2. before sleep");
 		Thread.sleep(4000);
-		System.out.println("after sleep");
+		System.out.println("4. after sleep");
 	}
 
 	public String methodToBeScheduled() {
@@ -223,8 +249,9 @@ public class SchedulerTest {
 	}
 
 	class TestClass2 {
-		int twoSecondsDelay = 2;
-		Scheduler scheduler = SchedulerImp.usingExecutorFactory(executorFactorySpy);
+		int twoSecondsDelay = 2000;
+		ExecutorFactory executorFactory = new ExecutorFactoryImp();
+		Scheduler scheduler = OneAtATimeScheduler.usingExecutorFactory(executorFactory);
 
 		public void runSchedule() {
 			scheduler.scheduleTaskWithDelayInMillis(() -> methodToBeScheduled(), twoSecondsDelay);
@@ -233,7 +260,7 @@ public class SchedulerTest {
 		}
 
 		private String methodToBeScheduled() {
-			System.out.println("Running on a weak scheduled virtual thread!");
+			System.out.println("3. Running on a weak scheduled virtual thread!");
 			return "Completed";
 		}
 

@@ -23,6 +23,6 @@ public class SchedulerFactoryImp implements SchedulerFactory {
 	@Override
 	public Scheduler factor() {
 		ExecutorFactory executorFactory = new ExecutorFactoryImp();
-		return SchedulerImp.usingExecutorFactory(executorFactory);
+		return OneAtATimeScheduler.usingExecutorFactory(executorFactory);
 	}
 }

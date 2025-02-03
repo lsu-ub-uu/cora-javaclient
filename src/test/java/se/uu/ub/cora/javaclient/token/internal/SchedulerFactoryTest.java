@@ -28,8 +28,8 @@ public class SchedulerFactoryTest {
 		SchedulerFactory factory = new SchedulerFactoryImp();
 		Scheduler scheduler = factory.factor();
 
-		assertTrue(scheduler instanceof SchedulerImp);
-		var executorFactory = ((SchedulerImp) scheduler).onlyForTestGetExecutorFactory();
+		assertTrue(scheduler instanceof OneAtATimeScheduler);
+		var executorFactory = ((OneAtATimeScheduler) scheduler).onlyForTestGetExecutorFactory();
 		assertTrue(executorFactory instanceof ExecutorFactoryImp);
 	}
 }
