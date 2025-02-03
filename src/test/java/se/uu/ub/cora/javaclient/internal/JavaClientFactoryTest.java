@@ -20,6 +20,7 @@
 package se.uu.ub.cora.javaclient.internal;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
@@ -43,15 +44,16 @@ public class JavaClientFactoryTest {
 	private String authToken = "someAuthToken";
 	private String loginUrl = "https://someAptokenUrl";
 	private String loginId = "someLoginId";
+	private static final String RENEW_URL = "someRenewUrl";
 	private String appToken = "someAppToken";
 	private JavaClientAppTokenCredentials javaClientAppTokenCredentials = new JavaClientAppTokenCredentials(
 			baseUrl, loginUrl, loginId, appToken);
 	private JavaClientAuthTokenCredentials javaClientAuthTokenCredentials = new JavaClientAuthTokenCredentials(
-			baseUrl, loginUrl, authToken);
+			baseUrl, RENEW_URL, authToken);
 	private AppTokenCredentials appTokenCredentials = new AppTokenCredentials(loginUrl, loginId,
 			appToken);
-	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(loginUrl,
-			authToken);
+	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(RENEW_URL,
+			authToken, true);
 
 	@BeforeMethod
 	public void beforeMethod() {
@@ -84,14 +86,44 @@ public class JavaClientFactoryTest {
 						javaClientAuthTokenCredentials);
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTokenClientCredentialsWithoutAuthTokenRenewable(tokenClient);
+	}
+
+	private void assertTokenClientCredentialsWithoutAuthTokenRenewable(TokenClientImp tokenClient) {
 		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
 		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
 
 		AuthTokenCredentials returnedAuthTokenCredentials = tokenClient
 				.onlyForTestGetAuthTokenCredentials();
 
-		assertEquals(returnedAuthTokenCredentials.authTokenRenewUrl(), loginUrl);
 		assertEquals(returnedAuthTokenCredentials.authToken(), authToken);
+		assertEquals(returnedAuthTokenCredentials.authTokenRenewUrl(), RENEW_URL);
+		assertFalse(returnedAuthTokenCredentials.tokenIsRenewable());
+	}
+
+	@Test
+	public void testFactorRestClientUsingAuthTokenWithRenew() {
+		JavaClientAuthTokenCredentials javaClientAthTokencCredentialsRenewable = new JavaClientAuthTokenCredentials(
+				baseUrl, RENEW_URL, authToken, true);
+
+		RestClientImp restClient = (RestClientImp) factory
+				.factorRestClientUsingJavaClientAuthTokenCredentials(
+						javaClientAthTokencCredentialsRenewable);
+
+		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTokenClientCredentials(tokenClient);
+	}
+
+	private void assertTokenClientCredentials(TokenClientImp tokenClient) {
+		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
+		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
+
+		AuthTokenCredentials returnedAuthTokenCredentials = tokenClient
+				.onlyForTestGetAuthTokenCredentials();
+
+		assertEquals(returnedAuthTokenCredentials.authTokenRenewUrl(), RENEW_URL);
+		assertEquals(returnedAuthTokenCredentials.authToken(), authToken);
+		assertTrue(returnedAuthTokenCredentials.tokenIsRenewable());
 	}
 
 	@Test
@@ -155,7 +187,7 @@ public class JavaClientFactoryTest {
 	}
 
 	@Test
-	public void testFactorTokenClientCreatedCorrectlyAndAddedToRestClient_dataClient() {
+	public void testFactorTokenClientWithoutAuthTokenRenewableCreatedCorrectlyAndAddedToRestClient_dataClient() {
 		DataClientImp dataClient = (DataClientImp) factory
 				.factorDataClientUsingJavaClientAuthTokenCredentials(
 						javaClientAuthTokenCredentials);
@@ -163,18 +195,21 @@ public class JavaClientFactoryTest {
 		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
 
 		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
-		assertTokenClientUsingAuthTokenCredentials(tokenClient);
+		assertTokenClientCredentialsWithoutAuthTokenRenewable(tokenClient);
 	}
 
-	private void assertTokenClientUsingAuthTokenCredentials(TokenClientImp tokenClient) {
-		assertTrue(tokenClient.onlyForTestGetHttpHandlerFactory() instanceof HttpHandlerFactoryImp);
-		assertTrue(tokenClient.onlyForTestGetSchedulerFactory() instanceof SchedulerFactoryImp);
+	@Test
+	public void testFactorTokenClientCreatedCorrectlyAndAddedToRestClient_dataClient() {
+		JavaClientAuthTokenCredentials authTokenCredentialsWithRenewableAuthToken = new JavaClientAuthTokenCredentials(
+				baseUrl, RENEW_URL, authToken, true);
 
-		AuthTokenCredentials returnedAuthTokenCredentials = tokenClient
-				.onlyForTestGetAuthTokenCredentials();
+		DataClientImp dataClient = (DataClientImp) factory
+				.factorDataClientUsingJavaClientAuthTokenCredentials(
+						authTokenCredentialsWithRenewableAuthToken);
 
-		assertEquals(returnedAuthTokenCredentials.authTokenRenewUrl(), loginUrl);
-		assertEquals(returnedAuthTokenCredentials.authToken(), authToken);
+		RestClientImp restClient = (RestClientImp) dataClient.onlyForTestGetRestClient();
+		TokenClientImp tokenClient = (TokenClientImp) restClient.onlyForTestGetTokenClient();
+		assertTokenClientCredentials(tokenClient);
 	}
 
 	@Test
@@ -225,7 +260,6 @@ public class JavaClientFactoryTest {
 		TokenClientImp tokenClient = (TokenClientImp) factory
 				.factorTokenClientUsingAuthTokenCredentials(authTokenCredentials);
 
-		assertTokenClientUsingAuthTokenCredentials(tokenClient);
+		assertTokenClientCredentials(tokenClient);
 	}
-
 }

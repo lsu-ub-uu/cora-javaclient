@@ -78,11 +78,18 @@ public final class TokenClientImp implements TokenClient {
 
 	@Override
 	public String getAuthToken() {
+		if (isStartedUsingAuthTokenButIsNotRenewable()) {
+			return authTokenCredentials.authToken();
+		}
 		if (authenticationNeedsToBeFetched()) {
 			authentication = loginUsingAppTokenOrRenewProvidedAuthToken();
 			scheduleRenewOfAuthentication();
 		}
 		return authentication.getToken();
+	}
+
+	private boolean isStartedUsingAuthTokenButIsNotRenewable() {
+		return null != authTokenCredentials && !authTokenCredentials.tokenIsRenewable();
 	}
 
 	private boolean authenticationNeedsToBeFetched() {

@@ -19,14 +19,44 @@
 package se.uu.ub.cora.javaclient;
 
 /**
+ * JavaClientAuthTokenCredentials contains information needed to start a JavaClient using a
+ * currently valid auth token. This implies that JavaClient will keep the authToken renewed, until
+ * authToken "renewUntil" is reached.
+ * <p>
+ * When using this constructor SHOULD tokenIsRenewable be set to true and the renewAuthTokenUrl
+ * contain the entire renew url, including the tokenId returned when the token was created.
+ * 
  * @param baseUrl
  *            The url to the REST endpoint
  * @param renewAuthTokenUrl
  *            The complete url for the actionLink renew, including tokenId.
  * @param authToken
  *            The token from a valid authenication.
+ * @param tokenIsRenewable
+ *            a boolean if the token is renewable or not, if the renewAuthTokenUrl contains needed
+ *            tokenId
  */
 public record JavaClientAuthTokenCredentials(String baseUrl, String renewAuthTokenUrl,
-		String authToken) {
+		String authToken, boolean tokenIsRenewable) {
 
+	/**
+	 * JavaClientAuthTokenCredentials contains information needed to start a JavaClient using a
+	 * currently valid auth token.
+	 * <p>
+	 * This constructor will set tokenIsRenewable to false leading to the client getting
+	 * unauthorized as soon as the token runs out, usually a few minutes.
+	 * 
+	 * @param baseUrl
+	 *            The url to the REST endpoint
+	 * @param renewAuthTokenUrl
+	 *            Value for this parameter is not used, but only here to avoid breaking the api.
+	 * @param authToken
+	 *            The token from a valid authenication.
+	 * @deprecated Depricated, use the constructor with tokenIsRenewable instead
+	 */
+	@Deprecated
+	public JavaClientAuthTokenCredentials(String baseUrl, String renewAuthTokenUrl,
+			String authToken) {
+		this(baseUrl, renewAuthTokenUrl, authToken, false);
+	}
 }

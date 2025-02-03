@@ -33,7 +33,6 @@ import se.uu.ub.cora.clientdata.converter.ClientDataToJsonConverterProvider;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactoryCreatorSpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterFactorySpy;
 import se.uu.ub.cora.clientdata.spies.ClientDataToJsonConverterSpy;
-import se.uu.ub.cora.clientdata.spies.JsonToClientDataConverterFactorySpy;
 import se.uu.ub.cora.javaclient.data.DataClientSpy;
 import se.uu.ub.cora.javaclient.data.internal.DataClientImp;
 import se.uu.ub.cora.javaclient.doubles.JavaClientFactorySpy;
@@ -58,7 +57,6 @@ public class JavaClientProviderTest {
 			SOME_APP_TOKEN_VERIFIER_URL, SOME_USER_ID, SOME_APP_TOKEN);
 	private AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
 			SOME_APP_TOKEN_VERIFIER_URL, SOME_AUTH_TOKEN);
-	private JsonToClientDataConverterFactorySpy jsonToDataFactory;
 	private ClientDataToJsonConverterFactoryCreatorSpy dataToJsonFactoryCreator;
 	private ClientDataToJsonConverterFactorySpy dataToJsonConverterFactoryFromProvider;
 
@@ -106,7 +104,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndAuthToken() throws Exception {
+	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndAuthToken() {
 		RestClientImp restClient = (RestClientImp) JavaClientProvider
 				.createRestClientUsingJavaClientAuthTokenCredentials(
 						javaClientAuthTokenCredentials);
@@ -114,7 +112,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testOnlyForTestSetjavaClientFactory() throws Exception {
+	public void testOnlyForTestSetjavaClientFactory() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		RestClient restClient = JavaClientProvider
@@ -129,16 +127,14 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppToken()
-			throws Exception {
+	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppToken() {
 		RestClientImp restClient = (RestClientImp) JavaClientProvider
 				.createRestClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 		assertTrue(restClient instanceof RestClientImp);
 	}
 
 	@Test
-	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres()
-			throws Exception {
+	public void testCreateRestClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		RestClient restClient = JavaClientProvider
@@ -151,7 +147,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthToken() throws Exception {
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthToken() {
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
 				.createDataClientUsingJavaClientAuthTokenCredentials(
 						javaClientAuthTokenCredentials);
@@ -161,8 +157,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthTokenPassedOn()
-			throws Exception {
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndAuthTokenPassedOn() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		DataClientSpy dataClient = (DataClientSpy) JavaClientProvider
@@ -177,8 +172,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndloginIdAndAppToken()
-			throws Exception {
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndloginIdAndAppToken() {
 		DataClientImp dataClient = (DataClientImp) JavaClientProvider
 				.createDataClientUsingJavaClientAppTokenCredentials(javaClientAppTokenCredentials);
 		assertTrue(dataClient instanceof DataClientImp);
@@ -186,8 +180,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres()
-			throws Exception {
+	public void testCreateDataClientUsingBaseUrlAndApptokenUrlAndLoginIdAndAppTokenPassedParameteres() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		DataClientSpy dataClient = (DataClientSpy) JavaClientProvider
@@ -200,7 +193,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateTokenClientUsingAppTokenCredentials() throws Exception {
+	public void testCreateTokenClientUsingAppTokenCredentials() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		TokenClient tokenClient = JavaClientProvider
@@ -213,7 +206,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateTokenClientUsingAppTokenCredentialsRealJavaFactory() throws Exception {
+	public void testCreateTokenClientUsingAppTokenCredentialsRealJavaFactory() {
 		TokenClient tokenClient = JavaClientProvider
 				.createTokenClientUsingAppTokenCredentials(appTokenCredentials);
 
@@ -221,7 +214,7 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateTokenClientUsingAuthTokenCredentials() throws Exception {
+	public void testCreateTokenClientUsingAuthTokenCredentials() {
 		JavaClientProvider.onlyForTestSetJavaClientFactory(javaClientFactory);
 
 		TokenClient tokenClient = JavaClientProvider
@@ -234,11 +227,10 @@ public class JavaClientProviderTest {
 	}
 
 	@Test
-	public void testCreateTokenClientUsingAuthTokenCredentialsRealJavaFactory() throws Exception {
+	public void testCreateTokenClientUsingAuthTokenCredentialsRealJavaFactory() {
 		TokenClient tokenClient = JavaClientProvider
 				.createTokenClientUsingAuthTokenCredentials(authTokenCredentials);
 
 		assertTrue(tokenClient instanceof TokenClientImp);
 	}
-
 }

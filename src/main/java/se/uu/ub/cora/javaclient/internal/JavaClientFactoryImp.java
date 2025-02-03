@@ -39,20 +39,19 @@ public class JavaClientFactoryImp implements JavaClientFactory {
 	@Override
 	public RestClient factorRestClientUsingJavaClientAuthTokenCredentials(
 			JavaClientAuthTokenCredentials javaClientAuthTokenCredentials) {
-		TokenClient tokenClient = createTokenClientForAuthToken(
-				javaClientAuthTokenCredentials.renewAuthTokenUrl(),
-				javaClientAuthTokenCredentials.authToken());
+		TokenClient tokenClient = createTokenClientForAuthToken(javaClientAuthTokenCredentials);
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 
 		return RestClientImp.usingHttpHandlerFactoryAndBaseUrlAndTokenClient(httpHandlerFactory,
 				javaClientAuthTokenCredentials.baseUrl(), tokenClient);
 	}
 
-	private TokenClient createTokenClientForAuthToken(String renewAuthTokenUrl, String authToken) {
+	private TokenClient createTokenClientForAuthToken(JavaClientAuthTokenCredentials credentials) {
 		HttpHandlerFactory httpHandlerFactory = new HttpHandlerFactoryImp();
 		SchedulerFactoryImp schedulerFactory = new SchedulerFactoryImp();
-		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(renewAuthTokenUrl,
-				authToken);
+		AuthTokenCredentials authTokenCredentials = new AuthTokenCredentials(
+				credentials.renewAuthTokenUrl(), credentials.authToken(),
+				credentials.tokenIsRenewable());
 		return TokenClientImp.usingHttpHandlerFactoryAndSchedulerFactoryAndAuthToken(
 				httpHandlerFactory, schedulerFactory, authTokenCredentials);
 	}

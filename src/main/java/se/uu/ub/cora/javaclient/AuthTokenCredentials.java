@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Uppsala University Library
+ * Copyright 2023, 2025 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -18,5 +18,40 @@
  */
 package se.uu.ub.cora.javaclient;
 
-public record AuthTokenCredentials(String authTokenRenewUrl, String authToken) {
+/**
+ * AuthTokenCredentials contains information needed to start a TokenClient using a currently valid
+ * auth token. This implies that TokenClient will keep the authToken renewed, until authToken
+ * "renewUntil" is reached.
+ * <p>
+ * When using this constructor SHOULD tokenIsRenewable be set to true and the renewAuthTokenUrl
+ * contain the entire renew url, including the tokenId returned when the token was created.
+ * 
+ * @param renewAuthTokenUrl
+ *            The complete url for the actionLink renew, including tokenId.
+ * @param authToken
+ *            The token from a valid authenication.
+ * @param tokenIsRenewable
+ *            a boolean if the token is renewable or not, if the renewAuthTokenUrl contains needed
+ *            tokenId
+ */
+public record AuthTokenCredentials(String authTokenRenewUrl, String authToken,
+		boolean tokenIsRenewable) {
+
+	/**
+	 * AuthTokenCredentials contains information needed to start a TokenClient using a currently
+	 * valid auth token.
+	 * <p>
+	 * This constructor will set tokenIsRenewable to false leading to the client getting
+	 * unauthorized as soon as the token runs out, usually a few minutes.
+	 * 
+	 * @param renewAuthTokenUrl
+	 *            Value for this parameter is not used, but only here to avoid breaking the api.
+	 * @param authToken
+	 *            The token from a valid authenication.
+	 * @deprecated Depricated, use the constructor with tokenIsRenewable instead
+	 */
+	@Deprecated
+	public AuthTokenCredentials(String renewAuthTokenUrl, String authToken) {
+		this(renewAuthTokenUrl, authToken, false);
+	}
 }
