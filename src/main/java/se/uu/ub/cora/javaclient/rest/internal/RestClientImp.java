@@ -35,8 +35,9 @@ public final class RestClientImp implements RestClient {
 	private static final int OK = 200;
 	private static final int CREATED = 201;
 	private static final int UNAUTHORIZED = 401;
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
-	private static final String APPLICATION_UUB_RECORD_LIST_JSON = "application/vnd.cora.recordList+json";
+	private static final String APPLICATION_VND_CORA_RECORD_JSON = "application/vnd.cora.record+json";
+	private static final String APPLICATION_VND_CORA_RECORDGROUP_JSON = "application/vnd.cora.recordgroup+json";
+	private static final String APPLICATION_VND_CORA_RECORD_LIST_JSON = "application/vnd.cora.recordList+json";
 	private static final String ACCEPT = "Accept";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl;
@@ -71,8 +72,8 @@ public final class RestClientImp implements RestClient {
 
 	private HttpHandler setUpHttpHandlerForPost(String json, String url) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", APPLICATION_VND_CORA_RECORDGROUP_JSON);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setOutput(json);
 		return httpHandler;
@@ -148,7 +149,7 @@ public final class RestClientImp implements RestClient {
 	private HttpHandler createUpHttpHandlerForRead(String recordType, String recordId) {
 		String url = baseUrlRecord + recordType + "/" + recordId;
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
 		httpHandler.setRequestMethod("GET");
 		return httpHandler;
 	}
@@ -207,7 +208,7 @@ public final class RestClientImp implements RestClient {
 	private RestResponse readRecordListUsingUrl(String url, String recordType) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_LIST_JSON);
 		// TODO: this should be a method with url as this is called from
 		// readRecordListWithFilterAsJson aswell
 		Supplier<RestResponse> methodToRetry = () -> readRecordListAsJson(recordType);
@@ -226,7 +227,7 @@ public final class RestClientImp implements RestClient {
 		String url = baseUrlRecord + recordType + "/" + recordId + "/incomingLinks";
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_LIST_JSON);
 		return httpHandler;
 	}
 
@@ -249,7 +250,12 @@ public final class RestClientImp implements RestClient {
 	private HttpHandler createHttpHandlerForIndexBatchJob(String recordType,
 			String indexSettingsAsJson) {
 		String url = baseUrlRecord + "index/" + recordType;
-		return setUpHttpHandlerForPost(indexSettingsAsJson, url);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", APPLICATION_VND_CORA_RECORD_JSON);
+		httpHandler.setRequestMethod("POST");
+		httpHandler.setOutput(indexSettingsAsJson);
+		return httpHandler;
 	}
 
 	@Override
@@ -265,7 +271,7 @@ public final class RestClientImp implements RestClient {
 				+ URLEncoder.encode(json, StandardCharsets.UTF_8);
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_LIST_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_LIST_JSON);
 		return httpHandler;
 	}
 
@@ -280,7 +286,7 @@ public final class RestClientImp implements RestClient {
 		String url = baseUrlRecord + "workOrder";
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
 		httpHandler.setRequestProperty("Content-Type", "application/vnd.cora.workorder+json");
 		httpHandler.setOutput(json);
 		return httpHandler;

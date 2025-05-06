@@ -39,6 +39,7 @@ import se.uu.ub.cora.javaclient.rest.RestClient;
 import se.uu.ub.cora.javaclient.rest.RestResponse;
 
 public class RestClientTest {
+	private static final String APPLICATION_VND_CORA_RECORDGROUP_JSON = "application/vnd.cora.recordgroup+json";
 	private static final String SOME_REPRESENTATION = "someRepresentation";
 	private static final String JSON_RECORD = "{\"name\":\"value\"}";
 	private static final String FILTER = "{\"name\":\"filter\",\"children\":[{\"name\":\"part\",\"children\":["
@@ -221,7 +222,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.cora.record+json");
+				APPLICATION_VND_CORA_RECORDGROUP_JSON);
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
@@ -257,7 +258,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
 				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.cora.record+json");
+				APPLICATION_VND_CORA_RECORDGROUP_JSON);
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
