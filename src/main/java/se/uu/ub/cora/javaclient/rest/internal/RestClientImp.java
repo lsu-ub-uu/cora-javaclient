@@ -35,8 +35,8 @@ public final class RestClientImp implements RestClient {
 	private static final int OK = 200;
 	private static final int CREATED = 201;
 	private static final int UNAUTHORIZED = 401;
-	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
-	private static final String APPLICATION_UUB_RECORD_LIST_JSON = "application/vnd.uub.recordList+json";
+	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.cora.record+json";
+	private static final String APPLICATION_UUB_RECORD_LIST_JSON = "application/vnd.cora.recordList+json";
 	private static final String ACCEPT = "Accept";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl;
@@ -281,7 +281,7 @@ public final class RestClientImp implements RestClient {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.workorder+json");
+		httpHandler.setRequestProperty("Content-Type", "application/vnd.cora.workorder+json");
 		httpHandler.setOutput(json);
 		return httpHandler;
 	}

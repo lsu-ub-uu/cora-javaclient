@@ -124,7 +124,7 @@ public class TokenClientTest {
 		action.MRV.setDefaultReturnValuesSupplier("getRequestMethod",
 				() -> "someRequestMethod" + suffix);
 		action.MRV.setDefaultReturnValuesSupplier("getAccept",
-				() -> "application/vnd.uub.authentication+json" + suffix);
+				() -> "application/vnd.cora.authentication+json" + suffix);
 		return action;
 	}
 
@@ -173,7 +173,7 @@ public class TokenClientTest {
 							"requestMethod": "POST",
 							"rel": "renew",
 							"url": "http://localhost:38180/login/rest/authToken/someTokenId",
-							"accept": "application/vnd.uub.authToken+json"
+							"accept": "application/vnd.cora.authToken+json"
 						},
 						"delete": {
 							"requestMethod": "DELETE",
@@ -220,9 +220,9 @@ public class TokenClientTest {
 		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestMethod", 1);
 
 		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 0, "Content-Type",
-				"application/vnd.uub.login");
+				"application/vnd.cora.login");
 		httpHandlerSpy.MCR.assertParameters("setRequestProperty", 1, "Accept",
-				"application/vnd.uub.authentication+json");
+				"application/vnd.cora.authentication+json");
 		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 
 		httpHandlerSpy.MCR.assertParameters("setOutput", 0,
@@ -311,7 +311,7 @@ public class TokenClientTest {
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				authTokenCredentials.authToken());
 		httpHandlerSpy.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.authentication+json");
+				"application/vnd.cora.authentication+json");
 		httpHandlerSpy.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 

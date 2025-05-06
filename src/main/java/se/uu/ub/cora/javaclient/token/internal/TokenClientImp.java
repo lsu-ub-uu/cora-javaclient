@@ -114,7 +114,7 @@ public final class TokenClientImp implements TokenClient {
 	private ClientDataAuthentication renewAuthTokenToTakeControllOverRenew(
 			AuthTokenCredentials credentials) {
 		HttpHandlerSpec httpHandlerSpec = new HttpHandlerSpec(credentials.authTokenRenewUrl(),
-				"POST", "application/vnd.uub.authentication+json", credentials.authToken());
+				"POST", "application/vnd.cora.authentication+json", credentials.authToken());
 		HttpHandler httpHandler = createHttpHandlerRequestUsingSpec(httpHandlerSpec);
 		return possiblyGetAuthenticationFromRenewAuthTokenAnswer(httpHandler);
 	}
@@ -162,8 +162,8 @@ public final class TokenClientImp implements TokenClient {
 	private HttpHandler callLoginUsingLoginIdAndAppToken(String loginId, String appToken) {
 		HttpHandler httpHandler = createHttpHandler();
 		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty("Content-Type", "application/vnd.uub.login");
-		httpHandler.setRequestProperty("Accept", "application/vnd.uub.authentication+json");
+		httpHandler.setRequestProperty("Content-Type", "application/vnd.cora.login");
+		httpHandler.setRequestProperty("Accept", "application/vnd.cora.authentication+json");
 		httpHandler.setOutput(loginId + NEW_LINE + appToken);
 		return httpHandler;
 	}

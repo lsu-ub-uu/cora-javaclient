@@ -115,7 +115,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
@@ -145,7 +145,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.recordList+json");
+				"application/vnd.cora.recordList+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
@@ -176,7 +176,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.recordList+json");
+				"application/vnd.cora.recordList+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
@@ -219,9 +219,9 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
@@ -255,9 +255,9 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, JSON_RECORD);
@@ -317,7 +317,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.recordList+json");
+				"application/vnd.cora.recordList+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 	}
 
@@ -351,9 +351,9 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 0, "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, FILTER);
@@ -426,7 +426,7 @@ public class RestClientTest {
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "authToken",
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertCalledParameters("setRequestProperty", "Accept",
-				"application/vnd.uub.recordList+json");
+				"application/vnd.cora.recordList+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 2);
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "GET");
 		assertResponseOK(response);
@@ -464,9 +464,9 @@ public class RestClientTest {
 				tokenClient.getAuthToken());
 		httpHandlerSpy_first.MCR.assertParameters("setRequestMethod", 0, "POST");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 1, "Accept",
-				"application/vnd.uub.record+json");
+				"application/vnd.cora.record+json");
 		httpHandlerSpy_first.MCR.assertParameters("setRequestProperty", 2, "Content-Type",
-				"application/vnd.uub.workorder+json");
+				"application/vnd.cora.workorder+json");
 		httpHandlerSpy_first.MCR.assertNumberOfCallsToMethod("setRequestProperty", 3);
 		httpHandlerSpy_first.MCR.assertParameters("setOutput", 0, json);
 
