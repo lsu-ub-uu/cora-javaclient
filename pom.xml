@@ -33,9 +33,9 @@
 	<properties>
 		<httphandler.version>2.17.0</httphandler.version>
 		<httphandler-spies.version>1.7.0</httphandler-spies.version>
-		<clientdata.version>7.0-SNAPSHOT</clientdata.version>
-		<clientdata-spies.version>2.0-SNAPSHOT</clientdata-spies.version>
-		<basicclientdata.version>2.0-SNAPSHOT</basicclientdata.version>
+		<clientdata.version>7.0.0</clientdata.version>
+		<clientdata-spies.version>2.0.0</clientdata-spies.version>
+		<basicclientdata.version>2.0.0</basicclientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 	</properties>
