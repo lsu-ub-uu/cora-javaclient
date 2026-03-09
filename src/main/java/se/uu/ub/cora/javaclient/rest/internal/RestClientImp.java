@@ -32,6 +32,7 @@ import se.uu.ub.cora.javaclient.rest.RestResponse;
 import se.uu.ub.cora.javaclient.token.TokenClient;
 
 public final class RestClientImp implements RestClient {
+	private static final String CONTENT_TYPE = "Content-Type";
 	private static final int OK = 200;
 	private static final int CREATED = 201;
 	private static final int UNAUTHORIZED = 401;
@@ -73,7 +74,7 @@ public final class RestClientImp implements RestClient {
 	private HttpHandler setUpHttpHandlerForPost(String json, String url) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_VND_CORA_RECORDGROUP_JSON);
+		httpHandler.setRequestProperty(CONTENT_TYPE, APPLICATION_VND_CORA_RECORDGROUP_JSON);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setOutput(json);
 		return httpHandler;
@@ -124,7 +125,7 @@ public final class RestClientImp implements RestClient {
 			Supplier<RestResponse> methodToRetry) {
 		try {
 			return requestNewAuthTokenAndRetryToCallMethod(methodToRetry);
-		} catch (DataClientException e) {
+		} catch (DataClientException _) {
 			return composeResponseForAnyOtherError(httpHandler);
 		}
 	}
@@ -252,7 +253,7 @@ public final class RestClientImp implements RestClient {
 		String url = baseUrlRecord + "index/" + recordType;
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_VND_CORA_RECORD_JSON);
+		httpHandler.setRequestProperty(CONTENT_TYPE, APPLICATION_VND_CORA_RECORD_JSON);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setOutput(indexSettingsAsJson);
 		return httpHandler;
@@ -287,7 +288,7 @@ public final class RestClientImp implements RestClient {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_VND_CORA_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", "application/vnd.cora.workorder+json");
+		httpHandler.setRequestProperty(CONTENT_TYPE, "application/vnd.cora.workorder+json");
 		httpHandler.setOutput(json);
 		return httpHandler;
 	}

@@ -89,8 +89,8 @@ public class DataClientImp implements DataClient {
 	}
 
 	private void rethrowIfClientException(Exception e) {
-		if (e instanceof DataClientException) {
-			throw (DataClientException) e;
+		if (e instanceof DataClientException knownException) {
+			throw knownException;
 		}
 	}
 
@@ -183,8 +183,8 @@ public class DataClientImp implements DataClient {
 				MessageFormat.format(ERROR_MESSAGE_UPDATE, recordType, recordId, message));
 	}
 
-	private DataClientException createErrorMessageForUpdateWithResponseCode(String recordType, String recordId,
-			RestResponse response) {
+	private DataClientException createErrorMessageForUpdateWithResponseCode(String recordType,
+			String recordId, RestResponse response) {
 		return DataClientException.withMessageAndResponseCode(MessageFormat
 				.format(ERROR_MESSAGE_UPDATE, recordType, recordId, response.responseText()),
 				response.responseCode());
